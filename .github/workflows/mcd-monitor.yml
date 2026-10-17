@@ -27,12 +27,12 @@ jobs:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
           NTFY_SERVER: https://ntfy.sh
         run: python scripts/mcd_monitor.py
-      - name: Save signal state
+      - name: Save monitor state and public status
         run: |
-          if [ -n "$(git status --porcelain .mcd_signal_state.json)" ]; then
+          if [ -n "$(git status --porcelain -- .mcd_signal_state.json signal_status.json)" ]; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add .mcd_signal_state.json
-            git commit -m "Update MCD signal monitor state"
+            git add .mcd_signal_state.json signal_status.json
+            git commit -m "Update MCD monitor status"
             git push
           fi
