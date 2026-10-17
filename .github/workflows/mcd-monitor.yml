@@ -1,4 +1,3 @@
-
 name: MCD Signal Monitor
 on:
   schedule:
@@ -11,6 +10,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   monitor:
+    name: monitor
     runs-on: ubuntu-latest
     timeout-minutes: 3
     steps:
@@ -35,4 +35,6 @@ jobs:
             git add .mcd_signal_state.json signal_status.json
             git commit -m "Update MCD monitor status"
             git push
+          else
+            echo "No monitor files changed."
           fi
