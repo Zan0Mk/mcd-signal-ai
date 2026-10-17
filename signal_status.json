@@ -2,7 +2,7 @@
   "version": "V1",
   "symbol": "XAUUSD",
   "timeframe": "M5",
-  "updated_utc": "2026-10-17T17:02:48.324814+00:00",
+  "updated_utc": "2026-10-17T17:14:48.467794+00:00",
   "data_status": "NOT FRESH",
   "signal": "WAIT",
   "score": 0,
@@ -15,6 +15,8 @@
     "m30": "UNKNOWN",
     "m15": "UNKNOWN"
   },
+  "support": null,
+  "resistance": null,
   "trend_45m": "UNKNOWN",
   "trend_m5": "UNKNOWN",
   "techniques": {
