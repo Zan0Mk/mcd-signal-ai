@@ -1,0 +1,22 @@
+{
+  "version": "V1",
+  "symbol": "XAUUSD",
+  "timeframe": "M5",
+  "updated_utc": "2026-10-17T14:56:06.020136+00:00",
+  "data_status": "NOT FRESH",
+  "signal": "WAIT",
+  "score": 0,
+  "quality": "WAIT",
+  "reason": "Pasaran dianggarkan tutup; jadual broker boleh berbeza.",
+  "trend": {
+    "h1": "UNKNOWN",
+    "m30": "UNKNOWN",
+    "m15": "UNKNOWN"
+  },
+  "techniques": {
+    "snr": false,
+    "smc": false,
+    "pa": false,
+    "breakout": false
+  }
+}
