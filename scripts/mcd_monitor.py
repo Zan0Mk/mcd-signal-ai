@@ -22,7 +22,6 @@ EMA_SLOW = 50
 ATR_LEN = 14
 MIN_SCORE = 5
 RR_TP1 = 2.0
-RR_TP2 = 3.0
 ZONE_HALF_WIDTH_ATR = 0.15
 
 
@@ -85,6 +84,38 @@ def fetch_candles():
 
     return [unique[t] for t in sorted(unique)]
 
+
+def fetch_interval_candles(interval, range_value):
+    """Fetch higher-timeframe candles; UNKNOWN is used if feed rejects interval."""
+    url = f"https://xaus.com/api/v1/chart?symbol=xau&range={range_value}&interval={interval}"
+    request = urllib.request.Request(url, headers={"User-Agent": "MCD-SIGNAL-V1/1.0"})
+    with urllib.request.urlopen(request, timeout=25) as response:
+        payload = json.loads(response.read().decode("utf-8"))
+    points = payload.get("points")
+    if not isinstance(points, list):
+        raise RuntimeError(f"API tiada points untuk {interval}")
+    unique = {}
+    for point in points:
+        try:
+            c = {"t": int(point["t"]), "o": float(point["o"]), "h": float(point["h"]),
+                 "l": float(point["l"]), "c": float(point["c"])}
+            if c["h"] >= max(c["o"], c["c"], c["l"]) and c["l"] <= min(c["o"], c["c"], c["h"]):
+                unique[c["t"]] = c
+        except (KeyError, TypeError, ValueError, OverflowError):
+            continue
+    return [unique[t] for t in sorted(unique)]
+
+def trend_45m(candles):
+    """Directional body of the last nine closed M5 candles (45 minutes)."""
+    if len(candles) < 9:
+        return "UNKNOWN"
+    window = candles[-9:]
+    start_open, end_close = window[0]["o"], window[-1]["c"]
+    if end_close > start_open:
+        return "UPTREND"
+    if end_close < start_open:
+        return "DOWNTREND"
+    return "FLAT"
 
 def ema(values, period):
     if len(values) < period:
@@ -170,25 +201,14 @@ def write_json(path, value):
 
 
 def market_closed(now):
-    from datetime import timedelta
-
-    myt = now + timedelta(hours=8)
-    weekday = myt.weekday()  # Isnin=0, Sabtu=5, Ahad=6
-    minute_of_day = myt.hour * 60 + myt.minute
-
-    # Pasaran tutup Sabtu dan Ahad.
-    if weekday in (5, 6):
-        return True
-
-    # Jeda harian Isnin hingga Jumaat: 05:00–06:00 MYT.
-    if 5 * 60 <= minute_of_day < 6 * 60:
-        return True
-
-    # Pasaran buka semula pada Isnin 06:00 MYT.
-    if weekday == 0 and minute_of_day < 6 * 60:
-        return True
-
-    return False
+    # Approximate OTC gold schedule in UTC; broker holidays/DST may differ.
+    weekday = now.weekday()
+    minute_of_day = now.hour * 60 + now.minute
+    return (
+        weekday == 5
+        or (weekday == 6 and minute_of_day < 22 * 60)
+        or (weekday == 4 and minute_of_day >= 21 * 60)
+    )
 
 
 def quality_label(score):
@@ -218,7 +238,18 @@ def evaluate(candles):
         "h1": trend(aggregate(candles, 60)),
         "m30": trend(aggregate(candles, 30)),
         "m15": trend(aggregate(candles, 15)),
+        "h4": "UNKNOWN",
+        "d1": "UNKNOWN",
     }
+    # Separate interval requests provide enough history for D1/H4 EMA trend.
+    try:
+        higher["h4"] = trend(fetch_interval_candles("4h", "30d"))
+    except Exception as exc:
+        print("H4_TREND_UNAVAILABLE:", str(exc))
+    try:
+        higher["d1"] = trend(fetch_interval_candles("1d", "90d"))
+    except Exception as exc:
+        print("D1_TREND_UNAVAILABLE:", str(exc))
 
     recent_20 = candles[-21:-1]
     recent_10 = candles[-11:-1]
@@ -321,6 +352,7 @@ def evaluate(candles):
         "strategy": strategy,
         "atr": atr_value,
         "trend": higher,
+        "trend_45m": trend_45m(candles),
         "candle": last,
         "techniques": {
             "snr": bool(snr_buy or snr_sell),
@@ -340,11 +372,11 @@ def evaluate(candles):
         if side == "BUY":
             sl = min(last["l"] - atr_value * 0.15, entry - distance)
             risk = entry - sl
-            tp1, tp2 = entry + risk * RR_TP1, entry + risk * RR_TP2
+            tp1 = entry + risk * RR_TP1
         else:
             sl = max(last["h"] + atr_value * 0.15, entry + distance)
             risk = sl - entry
-            tp1, tp2 = entry - risk * RR_TP1, entry - risk * RR_TP2
+            tp1 = entry - risk * RR_TP1
         half_zone = atr_value * ZONE_HALF_WIDTH_ATR
         result.update({
             "entry": entry,
@@ -352,13 +384,12 @@ def evaluate(candles):
             "zone_high": entry + half_zone,
             "sl": sl,
             "tp1": tp1,
-            "tp2": tp2,
             "risk_distance": risk,
         })
     else:
         result.update({
             "entry": None, "zone_low": None, "zone_high": None,
-            "sl": None, "tp1": None, "tp2": None, "risk_distance": None,
+            "sl": None, "tp1": None, "risk_distance": None,
         })
     return result
 
@@ -381,7 +412,8 @@ def main():
         "score": 0,
         "quality": "WAIT",
         "reason": "Menunggu data sah.",
-        "trend": {"h1": "UNKNOWN", "m30": "UNKNOWN", "m15": "UNKNOWN"},
+        "trend": {"d1": "UNKNOWN", "h4": "UNKNOWN", "h1": "UNKNOWN", "m30": "UNKNOWN", "m15": "UNKNOWN"},
+        "trend_45m": "UNKNOWN",
         "techniques": {"snr": False, "smc": False, "pa": False, "breakout": False},
     }
 
@@ -423,13 +455,14 @@ def main():
             "quality": result["quality"],
             "strategy": result["strategy"],
             "trend": result["trend"],
+            "trend_45m": result["trend_45m"],
             "techniques": result["techniques"],
             "buy_score": result["buy_score"],
             "sell_score": result["sell_score"],
             "reason": "Data candle M5 lulus semakan kesegaran.",
         })
         if result["side"] in ("BUY", "SELL"):
-            for key in ("entry", "zone_low", "zone_high", "sl", "tp1", "tp2", "risk_distance"):
+            for key in ("entry", "zone_low", "zone_high", "sl", "tp1", "risk_distance"):
                 public[key] = result[key]
 
             key = f"{result['side']}-{last['t']}"
@@ -443,10 +476,9 @@ def main():
                     f"Zone: {fmt(result['zone_low'])} – {fmt(result['zone_high'])}\n"
                     f"Entry rujukan: {fmt(result['entry'])}\n"
                     f"SL: {fmt(result['sl'])}\n"
-                    f"TP1: {fmt(result['tp1'])} (2R)\n"
-                    f"TP2: {fmt(result['tp2'])} (3R)\n"
+                    f"TP: {fmt(result['tp1'])} (2R)\n"
                     f"Quality: {result['score']}/8 — {result['quality']}\n"
-                    f"Trend H1/M30/M15: {trend['h1'].title()}/{trend['m30'].title()}/{trend['m15'].title()}\n"
+                    f"Trend D1/H4/H1/M30/M15: {trend['d1']}/{trend['h4']}/{trend['h1']}/{trend['m30']}/{trend['m15']}\n"
                     f"Setup: {result['strategy']}\n"
                     "Data: FRESH\n"
                     "Eksperimen sahaja; sahkan harga dan spread HFM. Tiada auto-trading."
