@@ -345,9 +345,17 @@ def evaluate(candles):
         side, score = "SELL", sell_score
         strategy = next(name for name, active in sell_flags.items() if active)
 
+    # Nearest observed support/resistance around current price from recent M5 candles.
+    supports_below = [item["l"] for item in candles[-100:] if item["l"] < last["c"]]
+    resistances_above = [item["h"] for item in candles[-100:] if item["h"] > last["c"]]
+    nearest_support = max(supports_below) if supports_below else None
+    nearest_resistance = min(resistances_above) if resistances_above else None
+
     result = {
         "side": side,
         "score": score,
+        "support": nearest_support,
+        "resistance": nearest_resistance,
         "quality": quality_label(score),
         "strategy": strategy,
         "atr": atr_value,
@@ -413,6 +421,8 @@ def main():
         "quality": "WAIT",
         "reason": "Menunggu data sah.",
         "trend": {"d1": "UNKNOWN", "h4": "UNKNOWN", "h1": "UNKNOWN", "m30": "UNKNOWN", "m15": "UNKNOWN"},
+        "support": None,
+        "resistance": None,
         "trend_45m": "UNKNOWN",
         "trend_m5": "UNKNOWN",
         "techniques": {"snr": False, "smc": False, "pa": False, "breakout": False},
@@ -451,6 +461,8 @@ def main():
             "ema20": ema([item["c"] for item in closed[-1000:]], EMA_FAST)[-1],
             "ema50": ema([item["c"] for item in closed[-1000:]], EMA_SLOW)[-1],
             "atr14": result["atr"],
+            "support": result["support"],
+            "resistance": result["resistance"],
             "signal": result["side"],
             "score": result["score"],
             "quality": result["quality"],
