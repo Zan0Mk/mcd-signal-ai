@@ -1,18 +1,14 @@
 
 name: MCD Signal Monitor
-
 on:
   schedule:
     - cron: "*/5 * * * *"
   workflow_dispatch:
-
 permissions:
   contents: write
-
 concurrency:
   group: mcd-signal-monitor
   cancel-in-progress: false
-
 jobs:
   monitor:
     runs-on: ubuntu-latest
@@ -22,36 +18,15 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: main
-
-            - name: Test ntfy notification
-        if: ${{ github.event_name == 'workflow_dispatch' }}
-        env:
-          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
-          NTFY_SERVER: https://ntfy.sh
-        run: |
-          if [ -z "$NTFY_TOPIC" ]; then
-            echo "ERROR: NTFY_TOPIC secret is missing"
-            exit 1
-          fi
-          curl --fail --show-error --silent \
-            -H "Title: MCD Signal AI - Ujian Pelayan" \
-            -H "Priority: default" \
-            -H "Tags: white_check_mark" \
-            -d "Ujian ntfy dari GitHub Actions berjaya. Ini bukan signal BUY/SELL." \
-            "$NTFY_SERVER/$NTFY_TOPIC"
-
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
       - name: Check market and signal
         env:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
           NTFY_SERVER: https://ntfy.sh
         run: python scripts/mcd_monitor.py
-
-      - name: Check market and signal
-        env:
-          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
-          NTFY_SERVER: https://ntfy.sh
-        run: python scripts/mcd_monitor.py
-
       - name: Save signal state
         run: |
           if [ -n "$(git status --porcelain .mcd_signal_state.json)" ]; then
