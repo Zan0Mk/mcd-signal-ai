@@ -1,0 +1,10 @@
+{
+  "name": "MCD Signal AI",
+  "short_name": "MCD Signal",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "description": "Dashboard analisis XAUUSD M5"
+}

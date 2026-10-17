@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="MCD Signal AI">
+<link rel="manifest" href="./manifest.webmanifest">
+<title>MCD Signal AI — XAUUSD</title>
+<style>
+:root{color-scheme:dark;--bg:#000;--panel:#080808;--line:#292929;--muted:#a4a4a4;--text:#f6f6f6;--green:#37d67a;--red:#ff5b52;--amber:#ffc04d;--blue:#56aaff}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding:env(safe-area-inset-top) 16px calc(22px + env(safe-area-inset-bottom))}
+.app{max-width:760px;margin:0 auto}.top{display:flex;align-items:center;justify-content:space-between;padding:22px 2px 18px;gap:12px}.brand{font-weight:850;letter-spacing:.2px;font-size:19px}.sub{font-size:12px;color:var(--muted);margin-top:5px}.pill{border:1px solid #3a3a3a;background:#121212;color:#ddd;border-radius:999px;padding:7px 10px;font-size:11px;font-weight:750;white-space:nowrap}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:17px;margin-bottom:13px}.signal-head{font-size:clamp(20px,5.2vw,28px);line-height:1.35;font-weight:750;overflow-wrap:anywhere}.signal-side{font-size:clamp(22px,6vw,31px);font-weight:850;margin-top:8px;line-height:1.35}.level{font-size:clamp(20px,5.3vw,27px);line-height:1.5;margin-top:3px;overflow-wrap:anywhere}.meta{font-size:clamp(17px,4.4vw,22px);line-height:1.55;margin-top:8px;overflow-wrap:anywhere}.muted{color:var(--muted)}.green{color:var(--green)}.red{color:var(--red)}.amber{color:var(--amber)}.section-title{font-size:13px;color:#bdbdbd;font-weight:800;letter-spacing:.5px;text-transform:uppercase;margin-bottom:12px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.metric{padding:12px;background:#101010;border:1px solid #242424;border-radius:10px;min-height:70px}.k{font-size:11px;color:var(--muted)}.v{font-size:16px;font-weight:800;margin-top:8px;overflow-wrap:anywhere}.small{font-size:12px;color:#a9a9a9;line-height:1.5}.notice{color:#c8c8c8;font-size:12px;line-height:1.5;margin-top:12px;padding:11px;background:#111;border-radius:10px;border:1px solid #2a2a2a}button,select{font:inherit;color:var(--text);border:1px solid #393939;background:#151515;border-radius:10px;padding:12px;width:100%;min-height:46px}button{font-weight:750}button.primary{background:#f0f0f0;color:#050505;border-color:#f0f0f0}.controls{display:grid;grid-template-columns:1fr;gap:9px}.foot{color:#777;font-size:11px;line-height:1.5;text-align:center;padding:8px 10px 18px}.statusline{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-top:14px;font-size:12px;color:#aaa}.badge{border:1px solid #444;border-radius:999px;padding:5px 8px;white-space:nowrap}.two{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+@media(min-width:560px){.grid{grid-template-columns:repeat(4,minmax(0,1fr))}.controls{grid-template-columns:1fr 1fr}.signal-card{padding:24px}}
+</style>
+</head>
+<body>
+<main class="app">
+<header class="top"><div><div class="brand">MCD SIGNAL AI</div><div class="sub">XAUUSD · M5 · Analisis sahaja</div></div><div class="pill">v1.3 · NOTIFICATION TEST</div></header>
+
+<section class="card signal-card">
+ <div class="signal-head">MCD SIGNAL AI | XAUUSD M5</div>
+ <div id="mainSignal" class="signal-side amber">WAIT — MENUNGGU DATA SAH</div>
+ <div class="level" id="entryLine">ENTRY @ —</div>
+ <div class="level" id="tpLine">TP1 @ —</div>
+ <div class="level" id="slLine">SL @ —</div>
+ <div class="meta">Kualiti setup: <strong id="confidence">—</strong></div>
+ <div class="meta">Risiko: <strong id="risk">—</strong></div>
+ <div class="meta">Fresh Zone: <strong id="fresh">Belum disahkan</strong></div>
+ <div class="meta">Trend Bias: <strong id="bias">—</strong></div>
+ <div class="statusline"><span id="dataBadge" class="badge amber">DATA BELUM DISAHKAN</span><span id="age">Umur candle: —</span></div>
+ <div class="notice" id="message">Dashboard hanya mengeluarkan BUY/SELL apabila data candle M5 segar dan syarat asas dipenuhi. Data sumber mungkin berbeza daripada HFM.</div>
+</section>
+
+<section class="card">
+ <div class="section-title">Ringkasan pasaran</div><div class="grid">
+  <div class="metric"><div class="k">Harga candle terakhir</div><div class="v" id="price">—</div></div>
+  <div class="metric"><div class="k">EMA 9 / EMA 21</div><div class="v" id="ema">—</div></div>
+  <div class="metric"><div class="k">RSI 14</div><div class="v" id="rsi">—</div></div>
+  <div class="metric"><div class="k">ATR 14</div><div class="v" id="atr">—</div></div>
+ </div><p class="small" id="updated" style="margin-bottom:0">Masa candle: —</p>
+</section>
+
+<section class="card">
+ <div class="section-title">Notifikasi iPhone</div>
+ <p class="small">Tekan butang untuk meminta kebenaran notifikasi. Versi ini boleh memaklumkan signal baharu ketika dashboard aktif/berjalan. Notifikasi latar belakang apabila halaman ditutup memerlukan push server berasingan dan belum tersedia.</p>
+ <div class="two"><button id="enableNotif" class="primary" type="button">Aktifkan notifikasi</button><button id="testNotif" type="button">Uji notifikasi</button></div>
+ <p class="small" id="notifStatus" aria-live="polite">Status notifikasi: belum disediakan.</p>
+</section>
+
+<section class="card">
+ <div class="section-title">Kawalan</div><div class="controls">
+ <select id="refreshRate" aria-label="Kekerapan semakan"><option value="60">Semak setiap 60 saat</option><option value="120">Semak setiap 2 minit</option><option value="300">Semak setiap 5 minit</option></select>
+ <button id="refresh" type="button">Semak sekarang</button></div>
+ <p class="small" id="lastCheck" aria-live="polite" style="margin-bottom:0">Belum membuat semakan.</p>
+</section>
+<footer class="foot">Prototaip eksperimen, bukan nasihat kewangan. Tiada pesanan dihantar ke broker. Signal tidak dijamin menguntungkan. Sumber candle semasa ialah XAUS API, bukan feed rasmi HFM.</footer>
+</main>
+<script>
+'use strict';
+const API='https://xaus.com/api/v1/chart?symbol=xau&range=1d&interval=5m';
+const $=id=>document.getElementById(id);
+let timer=null,lastSignalKey='',lastNotifiedKey='';
+function fmt(n){return Number.isFinite(n)?n.toFixed(2):'—'}
+function set(id,text,cls=''){const e=$(id);e.textContent=text;e.className='v'+(cls?' '+cls:'')}
+function setMainSignal(name,cls){$('mainSignal').textContent=name;$('mainSignal').className='signal-side '+cls}
+function clearLevels(){ $('entryLine').textContent='ENTRY @ —';$('tpLine').textContent='TP1 @ —';$('slLine').textContent='SL @ —';$('confidence').textContent='—';$('risk').textContent='—';$('fresh').textContent='Tidak disahkan';}
+function ema(values,period){let k=2/(period+1),out=[],v=values[0];out.push(v);for(let i=1;i<values.length;i++){v=values[i]*k+v*(1-k);out.push(v)}return out}
+function rsi(values,period=14){if(values.length<=period)return NaN;let gains=0,losses=0;for(let i=1;i<=period;i++){let d=values[i]-values[i-1];if(d>0)gains+=d;else losses-=d}let ag=gains/period,al=losses/period;for(let i=period+1;i<values.length;i++){let d=values[i]-values[i-1];ag=(ag*(period-1)+Math.max(d,0))/period;al=(al*(period-1)+Math.max(-d,0))/period}if(al===0)return 100;return 100-(100/(1+ag/al))}
+function atr(candles,period=14){if(candles.length<=period)return NaN;let trs=[];for(let i=1;i<candles.length;i++){let c=candles[i],p=candles[i-1];trs.push(Math.max(c.h-c.l,Math.abs(c.h-p.c),Math.abs(c.l-p.c)))}let a=trs.slice(0,period).reduce((x,y)=>x+y,0)/period;for(let i=period;i<trs.length;i++)a=(a*(period-1)+trs[i])/period;return a}
+function parsePoints(json){if(!json||!Array.isArray(json.points))throw Error('Format API tidak dijangka.');return json.points.map(p=>({t:Number(p.t),o:Number(p.o),h:Number(p.h),l:Number(p.l),c:Number(p.c)})).filter(p=>[p.t,p.o,p.h,p.l,p.c].every(Number.isFinite)).sort((a,b)=>a.t-b.t)}
+async function sendNotification(title,body,key){
+ if(!('Notification' in window)){ $('notifStatus').textContent='Notifikasi tidak disokong dalam pelayar ini.';return; }
+ if(Notification.permission!=='granted')return;
+ if(key===lastNotifiedKey)return;
+ try{
+  if('serviceWorker' in navigator){
+   const reg=await navigator.serviceWorker.ready;
+   await reg.showNotification(title,{body,tag:'mcd-'+key,renotify:false});
+  }else{new Notification(title,{body});}
+  lastNotifiedKey=key;
+ }catch(e){$('notifStatus').textContent='Tidak dapat memaparkan notifikasi. Cuba tambah laman ke Home Screen dan buka sebagai app.';}
+}
+async function requestNotifications(){
+ if(!('Notification' in window)){ $('notifStatus').textContent='Pelayar ini tidak menyokong notifikasi web.';return; }
+ try{
+  const permission=await Notification.requestPermission();
+  if(permission==='granted'){
+   if('serviceWorker' in navigator) await navigator.serviceWorker.register('./sw.js');
+   $('notifStatus').textContent='Notifikasi dibenarkan pada peranti ini. Signal baharu akan dimaklumkan apabila dashboard berjalan.';
+   if(lastSignalKey.startsWith('BUY')||lastSignalKey.startsWith('SELL')) await sendNotification('MCD Signal AI',lastSignalKey,'initial-'+lastSignalKey);
+  }else $('notifStatus').textContent='Kebenaran notifikasi tidak diberikan. Semak tetapan Safari/iPhone.';
+ }catch(e){$('notifStatus').textContent='Gagal mengaktifkan notifikasi. Pasang laman ke Home Screen, kemudian cuba lagi.';}
+}
+async function loadData(){
+ const btn=$('refresh');btn.disabled=true;btn.textContent='Menyemak…';clearLevels();setMainSignal('WAIT — MENUNGGU DATA SAH','amber');$('message').textContent='Sedang menyemak data candle M5.';$('dataBadge').textContent='MENYEMAK';$('dataBadge').className='badge amber';
+ try{
+  const response=await fetch(API,{cache:'no-store'});if(!response.ok)throw Error('API HTTP '+response.status);
+  const json=await response.json(),points=parsePoints(json);if(points.length<40)throw Error('Data candle tidak mencukupi ('+points.length+' rekod).');
+  const now=Math.floor(Date.now()/1000),closed=points.filter(p=>p.t+300<=now);if(closed.length<40)throw Error('Belum cukup candle yang telah ditutup.');
+  const last=closed[closed.length-1],age=now-(last.t+300);if(age>900||age<0)throw Error('Candle terakhir terlalu lama atau masa tidak sah ('+Math.max(0,Math.round(age/60))+' minit sejak candle ditutup).');
+  const candles=closed.slice(-150),closes=candles.map(p=>p.c),e9=ema(closes,9),e21=ema(closes,21),rv=rsi(closes,14),av=atr(candles,14);
+  if(!Number.isFinite(av)||av<=0||!Number.isFinite(rv))throw Error('Indikator belum mempunyai data mencukupi.');
+  set('price',fmt(last.c));set('ema',fmt(e9.at(-1))+' / '+fmt(e21.at(-1)));set('rsi',fmt(rv));set('atr',fmt(av));
+  $('bias').textContent=e9.at(-1)>e21.at(-1)?'Bullish':'Bearish';$('bias').className=e9.at(-1)>e21.at(-1)?'green':'red';
+  $('updated').textContent='Candle ditutup: '+new Date((last.t+300)*1000).toLocaleString('ms-MY')+' · '+new Date().toLocaleTimeString('ms-MY');
+  $('age').textContent='Umur candle: '+Math.max(0,Math.round(age/60))+' min';$('dataBadge').textContent='DATA SAH';$('dataBadge').className='badge green';$('fresh').textContent='Ya · candle M5 segar';
+  const n=closes.length,prevDiff=e9[n-2]-e21[n-2],diff=e9[n-1]-e21[n-1];
+  let side='WAIT',why='Tiada setup memenuhi syarat asas. Tunggu setup baharu.';
+  if(prevDiff<=0&&diff>0&&rv>=50&&rv<=68){side='BUY';why='EMA 9 melintasi ke atas EMA 21 dan RSI menyokong momentum.'}
+  else if(prevDiff>=0&&diff<0&&rv<=50&&rv>=32){side='SELL';why='EMA 9 melintasi ke bawah EMA 21 dan RSI menyokong momentum.'}
+  if(side==='WAIT'){
+   setMainSignal('WAIT — TIADA SETUP','amber');$('confidence').textContent='Tiada setup';$('risk').textContent='Tiada entry';$('message').textContent=why;
+  }else{
+   const entry=last.c,dist=Math.max(av*1.5,(last.h-last.l)*1.2),sl=side==='BUY'?entry-dist:entry+dist,tp=side==='BUY'?entry+dist:entry-dist;
+   setMainSignal(side+' @ '+fmt(entry-dist*0.15)+' – '+fmt(entry+dist*0.15),side==='BUY'?'green':'red');
+   $('entryLine').textContent='ENTRY @ '+fmt(entry-dist*0.15)+' – '+fmt(entry+dist*0.15);
+   $('tpLine').textContent='TP1 @ '+fmt(tp);$('slLine').textContent='SL @ '+fmt(sl);
+   $('confidence').textContent='Rule-based · sederhana';$('risk').textContent='Sederhana (ATR-based)';
+   $('message').textContent=why+' Signal eksperimen; sahkan harga dan spread HFM sebelum membuat keputusan.';
+   const key=side+'-'+last.t;
+   if(lastSignalKey && lastSignalKey!==key && side!=='WAIT') await sendNotification('MCD SIGNAL AI | XAUUSD M5',side+' setup baharu. Entry '+fmt(entry)+', SL '+fmt(sl)+', TP1 '+fmt(tp),key);
+   lastSignalKey=key;
+  }
+  $('lastCheck').textContent='Semakan berjaya '+new Date().toLocaleTimeString('ms-MY')+'. Bukan feed rasmi HFM.';
+ }catch(err){
+  set('price','—');set('ema','—');set('rsi','—');set('atr','—');$('bias').textContent='Tidak sah';$('bias').className='amber';$('age').textContent='Umur candle: tidak sah';$('fresh').textContent='TIDAK';$('dataBadge').textContent='DATA TIDAK SAH';$('dataBadge').className='badge red';
+  setMainSignal('WAIT — DATA TIDAK SAH','amber');$('message').textContent='Tiada signal: '+err.message+' Dashboard tidak akan menggunakan candle lama.';
+  $('lastCheck').textContent='Semakan gagal '+new Date().toLocaleTimeString('ms-MY')+'.';
+ }finally{btn.disabled=false;btn.textContent='Semak sekarang';}
+}
+function schedule(){if(timer)clearInterval(timer);timer=setInterval(()=>{if(document.visibilityState==='visible')loadData()},Number($('refreshRate').value)*1000)}
+$('refresh').addEventListener('click',loadData);$('refreshRate').addEventListener('change',schedule);$('enableNotif').addEventListener('click',requestNotifications);
+$('testNotif').addEventListener('click',async()=>{if(!('Notification'in window)){ $('notifStatus').textContent='Notifikasi tidak disokong.';return;}if(Notification.permission!=='granted'){ $('notifStatus').textContent='Aktifkan notifikasi dahulu.';return;}await sendNotification('MCD Signal AI — Ujian','Notifikasi ujian berjaya dipaparkan.','test-'+Date.now());$('notifStatus').textContent='Permintaan notifikasi ujian dihantar.';});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')loadData()});
+if('serviceWorker'in navigator){navigator.serviceWorker.register('./sw.js').catch(()=>{});}
+loadData();schedule();
+</script>
+</body>
+</html>
