@@ -1,5 +1,9 @@
-
 #!/usr/bin/env python3
+"""MCD SIGNAL V1 monitor.
+
+Rule-based experimental XAUUSD M5 signal monitor. No broker orders are sent.
+The feed is considered usable only when recent closed M5 candles pass checks.
+"""
 import json
 import os
 import urllib.request
@@ -7,28 +11,33 @@ from datetime import datetime, timezone
 
 API = "https://xaus.com/api/v1/chart?symbol=xau&range=5d&interval=5m"
 STATE_PATH = ".mcd_signal_state.json"
+STATUS_PATH = "signal_status.json"
 NTFY_TOPIC = os.getenv("NTFY_TOPIC", "").strip()
 NTFY_SERVER = os.getenv("NTFY_SERVER", "https://ntfy.sh").rstrip("/")
 
 MAX_AGE_SECONDS = 900
-MIN_CANDLES = 60
+MIN_M5_CANDLES = 60
 EMA_FAST = 20
 EMA_SLOW = 50
 ATR_LEN = 14
-MIN_SCORE = 4
-RR_TP1 = 1.0
-RR_TP2 = 2.0
+MIN_SCORE = 5
+RR_TP1 = 2.0
+RR_TP2 = 3.0
+ZONE_HALF_WIDTH_ATR = 0.15
 
 
-def now_ts():
-    return int(datetime.now(timezone.utc).timestamp())
+def utc_now():
+    return datetime.now(timezone.utc)
 
 
-def notify(title, message, priority="default", tags="chart"):
+def fmt(value):
+    return f"{value:.2f}" if isinstance(value, (float, int)) else "—"
+
+
+def notify(title, message, priority="high", tags="chart"):
     if not NTFY_TOPIC:
         raise RuntimeError("NTFY_TOPIC secret belum ditetapkan")
-
-    req = urllib.request.Request(
+    request = urllib.request.Request(
         f"{NTFY_SERVER}/{NTFY_TOPIC}",
         data=message.encode("utf-8"),
         method="POST",
@@ -39,408 +48,430 @@ def notify(title, message, priority="default", tags="chart"):
             "Content-Type": "text/plain; charset=utf-8",
         },
     )
-    with urllib.request.urlopen(req, timeout=20) as response:
+    with urllib.request.urlopen(request, timeout=20) as response:
         if not 200 <= response.status < 300:
             raise RuntimeError(f"ntfy gagal: HTTP {response.status}")
         print("NTFY_SENT:", response.status)
 
 
 def fetch_candles():
-    req = urllib.request.Request(
-        API,
-        headers={"User-Agent": "MCD-Signal-AI/2.0"},
+    request = urllib.request.Request(
+        API, headers={"User-Agent": "MCD-SIGNAL-V1/1.0"}
     )
-    with urllib.request.urlopen(req, timeout=25) as response:
-        obj = json.loads(response.read().decode("utf-8"))
+    with urllib.request.urlopen(request, timeout=25) as response:
+        payload = json.loads(response.read().decode("utf-8"))
 
-    points = obj.get("points")
+    points = payload.get("points")
     if not isinstance(points, list):
         raise RuntimeError("API tidak menyediakan points")
 
-    candles = []
-    for p in points:
+    unique = {}
+    for point in points:
         try:
-            c = {
-                "t": int(p["t"]),
-                "o": float(p["o"]),
-                "h": float(p["h"]),
-                "l": float(p["l"]),
-                "c": float(p["c"]),
+            candle = {
+                "t": int(point["t"]),
+                "o": float(point["o"]),
+                "h": float(point["h"]),
+                "l": float(point["l"]),
+                "c": float(point["c"]),
             }
-            if c["h"] >= max(c["o"], c["c"], c["l"]) and \
-               c["l"] <= min(c["o"], c["c"], c["h"]):
-                candles.append(c)
-        except (KeyError, TypeError, ValueError):
+            if (
+                candle["h"] >= max(candle["o"], candle["c"], candle["l"])
+                and candle["l"] <= min(candle["o"], candle["c"], candle["h"])
+            ):
+                unique[candle["t"]] = candle
+        except (KeyError, TypeError, ValueError, OverflowError):
             continue
 
-    candles.sort(key=lambda x: x["t"])
-
-    # Buang timestamp pendua.
-    unique = {}
-    for c in candles:
-        unique[c["t"]] = c
-
-    return list(unique.values())
+    return [unique[t] for t in sorted(unique)]
 
 
 def ema(values, period):
     if len(values) < period:
         raise RuntimeError(f"Candle tidak cukup untuk EMA{period}")
-
     alpha = 2.0 / (period + 1)
-    result = [values[0]]
+    result = [float(values[0])]
     for value in values[1:]:
-        result.append(alpha * value + (1 - alpha) * result[-1])
+        result.append(alpha * value + (1.0 - alpha) * result[-1])
     return result
 
 
-def atr(candles, period=14):
-    tr = []
-    for i in range(1, len(candles)):
-        cur, prev = candles[i], candles[i - 1]
-        tr.append(max(
-            cur["h"] - cur["l"],
-            abs(cur["h"] - prev["c"]),
-            abs(cur["l"] - prev["c"]),
+def atr(candles, period=ATR_LEN):
+    true_ranges = []
+    for index in range(1, len(candles)):
+        current, previous = candles[index], candles[index - 1]
+        true_ranges.append(max(
+            current["h"] - current["l"],
+            abs(current["h"] - previous["c"]),
+            abs(current["l"] - previous["c"]),
         ))
-
-    if len(tr) < period:
+    if len(true_ranges) < period:
         raise RuntimeError("Candle tidak cukup untuk ATR")
-
-    value = sum(tr[:period]) / period
-    for x in tr[period:]:
-        value = (value * (period - 1) + x) / period
+    value = sum(true_ranges[:period]) / period
+    for item in true_ranges[period:]:
+        value = (value * (period - 1) + item) / period
     return value
 
 
 def aggregate(candles, minutes):
-    """Agregat candle M5 menjadi M15, M30 atau H1 mengikut UTC."""
-    bucket_seconds = minutes * 60
+    """Aggregate aligned, complete M5 candles into a higher timeframe."""
+    seconds = minutes * 60
     groups = {}
+    for candle in candles:
+        bucket = (candle["t"] // seconds) * seconds
+        groups.setdefault(bucket, []).append(candle)
 
-    for c in candles:
-        bucket = (c["t"] // bucket_seconds) * bucket_seconds
-        groups.setdefault(bucket, []).append(c)
-
-    result = []
-    for t in sorted(groups):
-        group = sorted(groups[t], key=lambda x: x["t"])
-
-        # Gunakan candle HTF yang lengkap sahaja.
-        if group[0]["t"] != t:
+    output = []
+    for start in sorted(groups):
+        group = sorted(groups[start], key=lambda item: item["t"])
+        expected_count = minutes // 5
+        expected_times = [start + 300 * i for i in range(expected_count)]
+        times = [item["t"] for item in group]
+        # Avoid HTF bars assembled from missing M5 candles.
+        if times != expected_times:
             continue
-        if group[-1]["t"] + 300 < t + bucket_seconds:
-            continue
-
-        result.append({
-            "t": t,
+        output.append({
+            "t": start,
             "o": group[0]["o"],
-            "h": max(x["h"] for x in group),
-            "l": min(x["l"] for x in group),
+            "h": max(item["h"] for item in group),
+            "l": min(item["l"] for item in group),
             "c": group[-1]["c"],
         })
-
-    return result
+    return output
 
 
 def trend(candles):
-    closes = [c["c"] for c in candles]
-    if len(closes) < 60:
+    if len(candles) < 60:
         return "UNKNOWN"
-
+    closes = [item["c"] for item in candles]
     fast = ema(closes, EMA_FAST)[-1]
     slow = ema(closes, EMA_SLOW)[-1]
-
     if fast > slow:
-        return "UP"
+        return "BULLISH"
     if fast < slow:
-        return "DOWN"
+        return "BEARISH"
     return "FLAT"
 
 
-def read_state():
+def read_json(path):
     try:
-        with open(STATE_PATH, "r", encoding="utf-8") as f:
-            return json.load(f)
+        with open(path, "r", encoding="utf-8") as file:
+            value = json.load(file)
+            return value if isinstance(value, dict) else {}
     except (OSError, ValueError):
         return {}
 
 
-def write_state(state):
-    with open(STATE_PATH, "w", encoding="utf-8") as f:
-        json.dump(state, f, indent=2)
+def write_json(path, value):
+    temporary = path + ".tmp"
+    with open(temporary, "w", encoding="utf-8") as file:
+        json.dump(value, file, indent=2, ensure_ascii=False)
+    os.replace(temporary, path)
 
 
 def market_closed(now):
-    # Anggaran waktu pasaran emas OTC dalam UTC.
-    # Jadual broker, cuti dan DST boleh berbeza.
+    # Approximate OTC gold schedule in UTC; broker holidays/DST may differ.
     weekday = now.weekday()
-    minutes = now.hour * 60 + now.minute
-
+    minute_of_day = now.hour * 60 + now.minute
     return (
         weekday == 5
-        or (weekday == 6 and minutes < 22 * 60)
-        or (weekday == 4 and minutes >= 21 * 60)
+        or (weekday == 6 and minute_of_day < 22 * 60)
+        or (weekday == 4 and minute_of_day >= 21 * 60)
     )
+
+
+def quality_label(score):
+    if score <= 3:
+        return "WAIT"
+    if score == 4:
+        return "RISIKO"
+    if score <= 6:
+        return "RENDAH (C)"
+    if score == 7:
+        return "SEDERHANA (B)"
+    return "KUAT (A)"
 
 
 def evaluate(candles):
-    m5 = candles
-    closes = [c["c"] for c in m5]
-    last = m5[-1]
-    prev = m5[-2]
-
-    a = atr(m5, ATR_LEN)
-    ef = ema(closes, EMA_FAST)
-    es = ema(closes, EMA_SLOW)
-
-    if a <= 0:
+    if len(candles) < 60:
+        raise RuntimeError("Candle M5 tidak mencukupi")
+    closes = [item["c"] for item in candles]
+    last, previous = candles[-1], candles[-2]
+    atr_value = atr(candles)
+    if not atr_value or atr_value <= 0:
         raise RuntimeError("ATR tidak sah")
 
-    # Trend timeframe lebih tinggi.
-    h1 = trend(aggregate(m5, 60))
-    m30 = trend(aggregate(m5, 30))
-    m15 = trend(aggregate(m5, 15))
+    ema_fast = ema(closes, EMA_FAST)
+    ema_slow = ema(closes, EMA_SLOW)
+    higher = {
+        "h1": trend(aggregate(candles, 60)),
+        "m30": trend(aggregate(candles, 30)),
+        "m15": trend(aggregate(candles, 15)),
+    }
 
-    # Rujukan struktur menggunakan candle terdahulu.
-    lookback = m5[-21:-1]
-    range_high = max(c["h"] for c in lookback)
-    range_low = min(c["l"] for c in lookback)
+    recent_20 = candles[-21:-1]
+    recent_10 = candles[-11:-1]
+    recent_30 = candles[-31:-1]
+    range_high = max(item["h"] for item in recent_20)
+    range_low = min(item["l"] for item in recent_20)
+    prior_low = min(item["l"] for item in recent_10)
+    prior_high = max(item["h"] for item in recent_10)
+    support = min(item["l"] for item in recent_30)
+    resistance = max(item["h"] for item in recent_30)
 
-    prior = m5[-11:-1]
-    prev_low = min(c["l"] for c in prior)
-    prev_high = max(c["h"] for c in prior)
+    bullish = last["c"] > last["o"]
+    bearish = last["c"] < last["o"]
 
-    # Sokongan/rintangan ringkas daripada swing terkini.
-    support = min(c["l"] for c in m5[-30:-1])
-    resistance = max(c["h"] for c in m5[-30:-1])
+    # Technique 1: SnR rejection. Require price to approach a prior swing.
+    snr_buy = last["l"] <= support + atr_value * 0.25 and last["c"] > support and bullish
+    snr_sell = last["h"] >= resistance - atr_value * 0.25 and last["c"] < resistance and bearish
 
-    bull = last["c"] > last["o"]
-    bear = last["c"] < last["o"]
+    # Technique 2: liquidity sweep and close back inside prior range.
+    sweep_buy = last["l"] < prior_low and last["c"] > prior_low and bullish
+    sweep_sell = last["h"] > prior_high and last["c"] < prior_high and bearish
 
-    # Strategi 1: SnR rejection.
-    snr_buy = (
-        last["l"] <= support + a * 0.25
-        and last["c"] > support and bull
+    # Technique 3: engulfing candle.
+    bullish_engulf = (
+        bullish and previous["c"] < previous["o"]
+        and last["o"] <= previous["c"] and last["c"] >= previous["o"]
     )
-    snr_sell = (
-        last["h"] >= resistance - a * 0.25
-        and last["c"] < resistance and bear
+    bearish_engulf = (
+        bearish and previous["c"] > previous["o"]
+        and last["o"] >= previous["c"] and last["c"] <= previous["o"]
     )
+    pa_buy = bullish_engulf and last["c"] >= support
+    pa_sell = bearish_engulf and last["c"] <= resistance
 
-    # Strategi 2: liquidity sweep.
-    smc_buy = last["l"] < prev_low and last["c"] > prev_low and bull
-    smc_sell = last["h"] > prev_high and last["c"] < prev_high and bear
+    # Technique 4: close-confirmed breakout of preceding 20 candles.
+    breakout_buy = last["c"] > range_high and previous["c"] <= range_high
+    breakout_sell = last["c"] < range_low and previous["c"] >= range_low
 
-    # Strategi 3: bullish/bearish engulfing.
-    bull_engulf = (
-        bull and prev["c"] < prev["o"]
-        and last["o"] <= prev["c"]
-        and last["c"] >= prev["o"]
-    )
-    bear_engulf = (
-        bear and prev["c"] > prev["o"]
-        and last["o"] >= prev["c"]
-        and last["c"] <= prev["o"]
-    )
+    buy_flags = {
+        "SnR Rejection": snr_buy,
+        "Liquidity Sweep": sweep_buy,
+        "Engulfing": pa_buy,
+        "Breakout": breakout_buy,
+    }
+    sell_flags = {
+        "SnR Rejection": snr_sell,
+        "Liquidity Sweep": sweep_sell,
+        "Engulfing": pa_sell,
+        "Breakout": breakout_sell,
+    }
+    buy_setup = any(buy_flags.values())
+    sell_setup = any(sell_flags.values())
 
-    pa_buy = bull_engulf and last["c"] >= support
-    pa_sell = bear_engulf and last["c"] <= resistance
+    body_ok = abs(last["c"] - last["o"]) >= atr_value * 0.10
+    extension_ok = abs(last["c"] - ema_fast[-1]) <= atr_value * 2.0
+    momentum_buy = ema_fast[-1] > ema_slow[-1] and bullish
+    momentum_sell = ema_fast[-1] < ema_slow[-1] and bearish
+    bullish_htf = sum(value == "BULLISH" for value in higher.values())
+    bearish_htf = sum(value == "BEARISH" for value in higher.values())
 
-    # Strategi 4: breakout.
-    bo_buy = last["c"] > range_high and prev["c"] <= range_high
-    bo_sell = last["c"] < range_low and prev["c"] >= range_low
-
-    buy_setup = snr_buy or smc_buy or pa_buy or bo_buy
-    sell_setup = snr_sell or smc_sell or pa_sell or bo_sell
-
-    # Skor maksimum 8, berdasarkan struktur dan konfluens.
-    body_ok = abs(last["c"] - last["o"]) >= a * 0.10
-    extension_ok = abs(last["c"] - ef[-1]) <= a * 2.0
-    momentum_buy = ef[-1] > es[-1] and bull
-    momentum_sell = ef[-1] < es[-1] and bear
-
-    htf_score_buy = sum(x == "UP" for x in (h1, m30, m15))
-    htf_score_sell = sum(x == "DOWN" for x in (h1, m30, m15))
-
+    # Eight transparent points: price vs EMA50, EMA momentum, proximity to
+    # swing, technique confirmation, breakout, candle body, extension and HTF.
     buy_score = (
-        int(last["c"] > es[-1])
+        int(last["c"] > ema_slow[-1])
         + int(momentum_buy)
-        + int(abs(last["c"] - support) <= a)
-        + int(bull_engulf or smc_buy or snr_buy)
-        + int(last["c"] > range_high)
+        + int(abs(last["c"] - support) <= atr_value)
+        + int(sweep_buy or bullish_engulf or snr_buy)
+        + int(breakout_buy)
         + int(body_ok)
         + int(extension_ok)
-        + int(htf_score_buy > 0)
+        + int(bullish_htf > 0)
+        - int(bullish_htf == 0)
     )
-
     sell_score = (
-        int(last["c"] < es[-1])
+        int(last["c"] < ema_slow[-1])
         + int(momentum_sell)
-        + int(abs(last["c"] - resistance) <= a)
-        + int(bear_engulf or smc_sell or snr_sell)
-        + int(last["c"] < range_low)
+        + int(abs(last["c"] - resistance) <= atr_value)
+        + int(sweep_sell or bearish_engulf or snr_sell)
+        + int(breakout_sell)
         + int(body_ok)
         + int(extension_ok)
-        + int(htf_score_sell > 0)
+        + int(bearish_htf > 0)
+        - int(bearish_htf == 0)
     )
+    buy_score = max(0, min(8, buy_score))
+    sell_score = max(0, min(8, sell_score))
 
-    # Sejajar dengan tetapan Balanced dan benarkan counter-trend
-    # dengan penalti satu mata.
-    buy_score -= int(htf_score_buy == 0)
-    sell_score -= int(htf_score_sell == 0)
-
-    side = None
-    score = 0
-    strategy = "None"
-
-    if (
-        buy_setup and buy_score >= MIN_SCORE
-        and body_ok and extension_ok and not sell_setup
-    ):
+    side, score, strategy = "WAIT", max(buy_score, sell_score), "None"
+    if buy_setup and buy_score >= MIN_SCORE and body_ok and extension_ok and not sell_setup:
         side, score = "BUY", buy_score
-        strategy = (
-            "SnR" if snr_buy else
-            "Liquidity Sweep" if smc_buy else
-            "Price Action" if pa_buy else "Breakout"
-        )
-    elif (
-        sell_setup and sell_score >= MIN_SCORE
-        and body_ok and extension_ok and not buy_setup
-    ):
+        strategy = next(name for name, active in buy_flags.items() if active)
+    elif sell_setup and sell_score >= MIN_SCORE and body_ok and extension_ok and not buy_setup:
         side, score = "SELL", sell_score
-        strategy = (
-            "SnR" if snr_sell else
-            "Liquidity Sweep" if smc_sell else
-            "Price Action" if pa_sell else "Breakout"
-        )
+        strategy = next(name for name, active in sell_flags.items() if active)
 
-    # SL mengambil kira ATR dan julat candle signal.
-    if side == "BUY":
-        entry = last["c"]
-        distance = max(a * 1.5, (last["h"] - last["l"]) * 1.2)
-        sl = min(last["l"] - a * 0.15, entry - distance)
-        risk = entry - sl
-        tp1 = entry + risk * RR_TP1
-        tp2 = entry + risk * RR_TP2
-    elif side == "SELL":
-        entry = last["c"]
-        distance = max(a * 1.5, (last["h"] - last["l"]) * 1.2)
-        sl = max(last["h"] + a * 0.15, entry + distance)
-        risk = sl - entry
-        tp1 = entry - risk * RR_TP1
-        tp2 = entry - risk * RR_TP2
-    else:
-        entry = sl = tp1 = tp2 = None
-
-    return {
+    result = {
         "side": side,
         "score": score,
+        "quality": quality_label(score),
         "strategy": strategy,
-        "entry": entry,
-        "sl": sl,
-        "tp1": tp1,
-        "tp2": tp2,
-        "atr": a,
-        "h1": h1,
-        "m30": m30,
-        "m15": m15,
+        "atr": atr_value,
+        "trend": higher,
         "candle": last,
+        "techniques": {
+            "snr": bool(snr_buy or snr_sell),
+            "smc": bool(sweep_buy or sweep_sell),
+            "pa": bool(pa_buy or pa_sell),
+            "breakout": bool(breakout_buy or breakout_sell),
+        },
+        "buy_score": buy_score,
+        "sell_score": sell_score,
     }
+
+    if side in ("BUY", "SELL"):
+        entry = last["c"]
+        candle_range = last["h"] - last["l"]
+        # SL is at least 1.5 ATR away; candle buffer may widen it.
+        distance = max(atr_value * 1.5, candle_range * 1.2)
+        if side == "BUY":
+            sl = min(last["l"] - atr_value * 0.15, entry - distance)
+            risk = entry - sl
+            tp1, tp2 = entry + risk * RR_TP1, entry + risk * RR_TP2
+        else:
+            sl = max(last["h"] + atr_value * 0.15, entry + distance)
+            risk = sl - entry
+            tp1, tp2 = entry - risk * RR_TP1, entry - risk * RR_TP2
+        half_zone = atr_value * ZONE_HALF_WIDTH_ATR
+        result.update({
+            "entry": entry,
+            "zone_low": entry - half_zone,
+            "zone_high": entry + half_zone,
+            "sl": sl,
+            "tp1": tp1,
+            "tp2": tp2,
+            "risk_distance": risk,
+        })
+    else:
+        result.update({
+            "entry": None, "zone_low": None, "zone_high": None,
+            "sl": None, "tp1": None, "tp2": None, "risk_distance": None,
+        })
+    return result
+
+
+def publish_status(state):
+    """Write a Pages-readable JSON snapshot; no secrets are included."""
+    write_json(STATUS_PATH, state)
 
 
 def main():
-    now = datetime.now(timezone.utc)
-    state = read_state()
+    now = utc_now()
+    state = read_json(STATE_PATH)
+    public = {
+        "version": "V1",
+        "symbol": "XAUUSD",
+        "timeframe": "M5",
+        "updated_utc": now.isoformat(),
+        "data_status": "NOT FRESH",
+        "signal": "WAIT",
+        "score": 0,
+        "quality": "WAIT",
+        "reason": "Menunggu data sah.",
+        "trend": {"h1": "UNKNOWN", "m30": "UNKNOWN", "m15": "UNKNOWN"},
+        "techniques": {"snr": False, "smc": False, "pa": False, "breakout": False},
+    }
 
     if market_closed(now):
-        print("MARKET_CLOSED; no signal evaluation.")
+        public["reason"] = "Pasaran dianggarkan tutup; jadual broker boleh berbeza."
         state["last_status"] = "MARKET_CLOSED"
-        write_state(state)
+        state["last_error"] = None
+        state["last_run_utc"] = now.isoformat()
+        publish_status(public)
+        write_json(STATE_PATH, state)
+        print("MARKET_CLOSED; no signal evaluation.")
         return
 
     try:
         candles = fetch_candles()
         current_ts = int(now.timestamp())
-
-        closed = [
-            c for c in candles
-            if c["t"] + 300 <= current_ts
-        ]
-
-        if len(closed) < MIN_CANDLES:
-            raise RuntimeError(
-                f"Candle tidak cukup: {len(closed)}"
-            )
+        closed = [item for item in candles if item["t"] + 300 <= current_ts]
+        if len(closed) < MIN_M5_CANDLES:
+            raise RuntimeError(f"Candle tidak cukup: {len(closed)}")
 
         last = closed[-1]
         age = current_ts - (last["t"] + 300)
-
         if age < 0 or age > MAX_AGE_SECONDS:
-            raise RuntimeError(
-                f"Candle lapuk: {max(0, age) // 60} minit"
-            )
-
-        # Pastikan tiada jurang candle terkini yang besar.
+            raise RuntimeError(f"Candle lapuk: {max(0, age) // 60} minit")
         if len(closed) >= 2 and last["t"] - closed[-2]["t"] > 600:
             raise RuntimeError("Jurang candle M5 terlalu besar")
 
         result = evaluate(closed[-1000:])
-        state["last_status"] = "DATA_VALID"
-        state["last_error"] = None
+        public.update({
+            "data_status": "FRESH",
+            "last_candle_utc": datetime.fromtimestamp(last["t"] + 300, timezone.utc).isoformat(),
+            "candle_age_seconds": age,
+            "price": last["c"],
+            "ema20": ema([item["c"] for item in closed[-1000:]], EMA_FAST)[-1],
+            "ema50": ema([item["c"] for item in closed[-1000:]], EMA_SLOW)[-1],
+            "atr14": result["atr"],
+            "signal": result["side"],
+            "score": result["score"],
+            "quality": result["quality"],
+            "strategy": result["strategy"],
+            "trend": result["trend"],
+            "techniques": result["techniques"],
+            "buy_score": result["buy_score"],
+            "sell_score": result["sell_score"],
+            "reason": "Data candle M5 lulus semakan kesegaran.",
+        })
+        if result["side"] in ("BUY", "SELL"):
+            for key in ("entry", "zone_low", "zone_high", "sl", "tp1", "tp2", "risk_distance"):
+                public[key] = result[key]
 
-        side = result["side"]
-        candle_id = str(last["t"])
-
-        if side:
-            key = f"{side}-{candle_id}"
-
+            key = f"{result['side']}-{last['t']}"
             if state.get("last_signal_key") != key:
-                fmt = lambda x: f"{x:.2f}"
+                side = result["side"]
+                trend = result["trend"]
                 msg = (
-                    f"XAUUSD M5 | {side}\n"
-                    f"Strategi: {result['strategy']}\n"
-                    f"Skor: {result['score']}/8\n"
-                    f"Entry: {fmt(result['entry'])}\n"
+                    f"MCD SIGNAL — {side}\n"
+                    "Symbol: XAUUSD | Timeframe: M5\n"
+                    "Status: ENTRY ZONE AKTIF\n"
+                    f"Zone: {fmt(result['zone_low'])} – {fmt(result['zone_high'])}\n"
+                    f"Entry rujukan: {fmt(result['entry'])}\n"
                     f"SL: {fmt(result['sl'])}\n"
-                    f"TP1: {fmt(result['tp1'])}\n"
-                    f"TP2: {fmt(result['tp2'])}\n"
-                    f"Trend H1/M30/M15: "
-                    f"{result['h1']}/{result['m30']}/{result['m15']}\n"
-                    f"ATR14: {fmt(result['atr'])}\n"
-                    f"Candle UTC: "
-                    f"{datetime.fromtimestamp(last['t'] + 300, timezone.utc):%Y-%m-%d %H:%M}\n"
-                    "Eksperimen; semak harga dan spread HFM. "
-                    "Tiada auto-trading."
+                    f"TP1: {fmt(result['tp1'])} (2R)\n"
+                    f"TP2: {fmt(result['tp2'])} (3R)\n"
+                    f"Quality: {result['score']}/8 — {result['quality']}\n"
+                    f"Trend H1/M30/M15: {trend['h1'].title()}/{trend['m30'].title()}/{trend['m15'].title()}\n"
+                    f"Setup: {result['strategy']}\n"
+                    "Data: FRESH\n"
+                    "Eksperimen sahaja; sahkan harga dan spread HFM. Tiada auto-trading."
                 )
-
                 notify(
                     f"MCD SIGNAL — {side}",
                     msg,
                     "high",
-                    "chart_with_upwards_trend"
-                    if side == "BUY"
-                    else "chart_with_downwards_trend",
+                    "chart_with_upwards_trend" if side == "BUY" else "chart_with_downwards_trend",
                 )
-
                 state["last_signal_key"] = key
                 print("SIGNAL_SENT:", key)
             else:
                 print("DUPLICATE_SIGNAL; notification skipped.")
         else:
-            print(
-                "DATA_VALID; WAIT. "
-                f"Trend={result['h1']}/{result['m30']}/{result['m15']}"
+            public["reason"] = (
+                f"WAIT — tiada setup sah. BUY {result['buy_score']}/8, "
+                f"SELL {result['sell_score']}/8."
             )
+            print("DATA_VALID; WAIT:", public["reason"])
 
+        state["last_status"] = "DATA_VALID"
+        state["last_error"] = None
         state["last_candle_t"] = last["t"]
-        write_state(state)
-
+        state["last_run_utc"] = now.isoformat()
     except Exception as exc:
-        print("WAIT / DATA_ERROR:", str(exc))
+        public["data_status"] = "NOT FRESH"
+        public["signal"] = "WAIT"
+        public["reason"] = str(exc)
         state["last_status"] = "DATA_ERROR"
         state["last_error"] = str(exc)
-        write_state(state)
+        state["last_run_utc"] = now.isoformat()
+        print("WAIT / DATA_ERROR:", str(exc))
+
+    publish_status(public)
+    write_json(STATE_PATH, state)
 
 
 if __name__ == "__main__":
