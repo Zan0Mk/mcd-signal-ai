@@ -414,6 +414,7 @@ def main():
         "reason": "Menunggu data sah.",
         "trend": {"d1": "UNKNOWN", "h4": "UNKNOWN", "h1": "UNKNOWN", "m30": "UNKNOWN", "m15": "UNKNOWN"},
         "trend_45m": "UNKNOWN",
+        "trend_m5": "UNKNOWN",
         "techniques": {"snr": False, "smc": False, "pa": False, "breakout": False},
     }
 
@@ -456,13 +457,14 @@ def main():
             "strategy": result["strategy"],
             "trend": result["trend"],
             "trend_45m": result["trend_45m"],
+            "trend_m5": result["trend_45m"],
             "techniques": result["techniques"],
             "buy_score": result["buy_score"],
             "sell_score": result["sell_score"],
             "reason": "Data candle M5 lulus semakan kesegaran.",
         })
         if result["side"] in ("BUY", "SELL"):
-            for key in ("entry", "zone_low", "zone_high", "sl", "tp1", "risk_distance"):
+            for key in ("entry", "zone_low", "zone_high", "sl", "tp1", "tp2", "risk_distance"):
                 public[key] = result[key]
 
             key = f"{result['side']}-{last['t']}"
