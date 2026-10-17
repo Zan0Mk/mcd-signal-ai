@@ -170,14 +170,25 @@ def write_json(path, value):
 
 
 def market_closed(now):
-    # Approximate OTC gold schedule in UTC; broker holidays/DST may differ.
-    weekday = now.weekday()
-    minute_of_day = now.hour * 60 + now.minute
-    return (
-        weekday == 5
-        or (weekday == 6 and minute_of_day < 22 * 60)
-        or (weekday == 4 and minute_of_day >= 21 * 60)
-    )
+    from datetime import timedelta
+
+    myt = now + timedelta(hours=8)
+    weekday = myt.weekday()  # Isnin=0, Sabtu=5, Ahad=6
+    minute_of_day = myt.hour * 60 + myt.minute
+
+    # Pasaran tutup Sabtu dan Ahad.
+    if weekday in (5, 6):
+        return True
+
+    # Jeda harian Isnin hingga Jumaat: 05:00–06:00 MYT.
+    if 5 * 60 <= minute_of_day < 6 * 60:
+        return True
+
+    # Pasaran buka semula pada Isnin 06:00 MYT.
+    if weekday == 0 and minute_of_day < 6 * 60:
+        return True
+
+    return False
 
 
 def quality_label(score):
