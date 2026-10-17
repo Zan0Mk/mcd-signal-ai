@@ -27,6 +27,21 @@ jobs:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
           NTFY_SERVER: https://ntfy.sh
         run: python scripts/mcd_monitor.py
+      - name: Test ntfy delivery
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+          NTFY_SERVER: https://ntfy.sh
+        run: |
+          if [ -z "$NTFY_TOPIC" ]; then
+            echo "ERROR: NTFY_TOPIC secret is empty"
+            exit 1
+          fi
+          curl --fail --silent --show-error \
+            -H "Title: MCD Signal AI Test" \
+            -H "Priority: default" \
+            -d "Ujian GitHub Actions ke ntfy berjaya." \
+            "$NTFY_SERVER/$NTFY_TOPIC"
+          echo "NTFY_TEST_SENT"
       - name: Save signal state
         run: |
           if [ -n "$(git status --porcelain .mcd_signal_state.json)" ]; then
