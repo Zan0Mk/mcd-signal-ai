@@ -2,12 +2,12 @@
   "version": "V1",
   "symbol": "XAUUSD",
   "timeframe": "M5",
-  "updated_utc": "2026-10-18T22:26:03.685171+00:00",
+  "updated_utc": "2026-10-18T22:49:42.726939+00:00",
   "data_status": "FRESH",
   "signal": "WAIT",
-  "score": 2,
+  "score": 3,
   "quality": "WAIT",
-  "reason": "WAIT — tiada setup sah. BUY 2/8, SELL 2/8.",
+  "reason": "WAIT — tiada setup sah. BUY 3/8, SELL 2/8.",
   "trend": {
     "h1": "BULLISH",
     "m30": "BULLISH",
@@ -15,8 +15,8 @@
     "h4": "BEARISH",
     "d1": "BEARISH"
   },
-  "support": 4195.2998,
-  "resistance": 4196.3999,
+  "support": 4195.7002,
+  "resistance": 4195.8999,
   "trend_45m": "UPTREND",
   "trend_m5": "UPTREND",
   "techniques": {
@@ -25,13 +25,13 @@
     "pa": false,
     "breakout": false
   },
-  "last_candle_utc": "2026-10-18T22:20:03+00:00",
-  "candle_age_seconds": 360,
-  "price": 4196.0,
-  "ema20": 4189.306369201525,
-  "ema50": 4188.058946394422,
-  "atr14": 3.2927457652502703,
+  "last_candle_utc": "2026-10-18T22:44:12+00:00",
+  "candle_age_seconds": 330,
+  "price": 4195.7998,
+  "ema20": 4191.9984755579135,
+  "ema50": 4189.468233777385,
+  "atr14": 3.2215052024265285,
   "strategy": "None",
-  "buy_score": 2,
+  "buy_score": 3,
   "sell_score": 2
 }
