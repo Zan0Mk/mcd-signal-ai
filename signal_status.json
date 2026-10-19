@@ -2,12 +2,12 @@
   "version": "V2.0",
   "symbol": "XAUUSD",
   "timeframe": "M5",
-  "updated_utc": "2026-10-19T14:09:40.707047+00:00",
+  "updated_utc": "2026-10-19T14:10:12.295726+00:00",
   "data_status": "FRESH",
   "signal": "WAIT",
   "score": 4,
   "quality": "RISIKO",
-  "reason": "WAIT - BUY 2/8, SELL 4/8; tiada setup sah.",
+  "reason": "WAIT - BUY 3/8, SELL 4/8; tiada setup sah.",
   "trend": {
     "d1": "BEARISH",
     "h4": "BULLISH",
@@ -21,21 +21,14 @@
     "pa": false,
     "breakout": false
   },
-  "price": 4148.716,
-  "quote_bid": 4148.632,
-  "quote_ask": 4148.8,
-  "quote_mid": 4148.716,
+  "price": 4147.064,
+  "quote_bid": 4146.98,
+  "quote_ask": 4147.148,
+  "quote_mid": 4147.064,
   "quote_spread": 0.168,
-  "quote_timestamp_utc": "2026-10-19T14:09:40+00:00",
-  "quote_age_seconds": 1,
+  "quote_timestamp_utc": "2026-10-19T14:10:12+00:00",
+  "quote_age_seconds": 0,
   "chart_candles": [
-    {
-      "t": 1792406700,
-      "o": 4167.56641,
-      "h": 4167.56641,
-      "l": 4163.37066,
-      "c": 4164.38104
-    },
     {
       "t": 1792407000,
       "o": 4164.12747,
@@ -308,6 +301,13 @@
       "h": 4154.40533,
       "l": 4147.76433,
       "c": 4148.02387
+    },
+    {
+      "t": 1792418700,
+      "o": 4148.36571,
+      "h": 4148.84699,
+      "l": 4145.24436,
+      "c": 4145.85167
     }
   ],
   "entry": null,
@@ -338,17 +338,17 @@
   "ohlc_source": "Twelve Data",
   "quote_source": "Biquote API",
   "data_note": "Biquote bukan feed rasmi broker HFM.",
-  "buy_score": 2,
+  "buy_score": 3,
   "sell_score": 4,
   "strategy": "None",
-  "atr14": 4.924215571045035,
-  "ema20": 4158.87460494705,
-  "ema50": 4163.953749309634,
+  "atr14": 4.829816601686106,
+  "ema20": 4157.634325428284,
+  "ema50": 4163.243863671252,
   "support": 4142.94133,
   "resistance": 4170.31729,
   "risk_distance": null,
-  "last_candle_utc": "2026-10-19T14:05:00+00:00",
-  "candle_age_seconds": 280,
+  "last_candle_utc": "2026-10-19T14:10:00+00:00",
+  "candle_age_seconds": 12,
   "market_state": "open",
-  "candle_close": 4148.02387
+  "candle_close": 4145.85167
 }
