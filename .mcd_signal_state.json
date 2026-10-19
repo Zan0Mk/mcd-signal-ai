@@ -5,7 +5,7 @@
   "active_setup": {
     "id": "SELL-1792441500",
     "side": "SELL",
-    "status": "ACTIVE",
+    "status": "SL_HIT",
     "entry": 4138.5183,
     "sl": 4141.044211754469,
     "tp1": 4134.729432368296,
@@ -15,12 +15,35 @@
     "score": 6,
     "created_candle_t": 1792441500,
     "created_utc": "2026-10-19T20:30:00+00:00",
-    "last_checked_quote_timestamp": "2026-10-19T20:57:58+00:00"
+    "last_checked_quote_timestamp": "2026-10-19T22:01:48+00:00",
+    "last_event_notified": "SL_HIT",
+    "last_event_utc": "2026-10-19T22:01:54.770251+00:00",
+    "closed_utc": "2026-10-19T22:01:54.770268+00:00"
   },
   "last_event": null,
   "last_event_time": null,
-  "last_status": "DATA_ERROR",
-  "last_error": "HTTP Error 404: Not Found",
-  "last_candle_t": 1792443300,
-  "last_run_utc": "2026-10-19T21:31:26.330844+00:00"
+  "last_status": "DATA_VALID",
+  "last_error": null,
+  "last_candle_t": 1792446900,
+  "last_run_utc": "2026-10-19T22:01:53.569530+00:00",
+  "active_setups": [
+    {
+      "id": "SELL-1792441500",
+      "side": "SELL",
+      "status": "SL_HIT",
+      "entry": 4138.5183,
+      "sl": 4141.044211754469,
+      "tp1": 4134.729432368296,
+      "tp2": 4130.940564736592,
+      "risk_distance": 2.5259117544692344,
+      "strategy": "Breakout",
+      "score": 6,
+      "created_candle_t": 1792441500,
+      "created_utc": "2026-10-19T20:30:00+00:00",
+      "last_checked_quote_timestamp": "2026-10-19T22:01:48+00:00",
+      "last_event_notified": "SL_HIT",
+      "last_event_utc": "2026-10-19T22:01:54.770251+00:00",
+      "closed_utc": "2026-10-19T22:01:54.770268+00:00"
+    }
+  ]
 }
