@@ -30,7 +30,7 @@ NTFY_TOPIC = os.getenv("NTFY_TOPIC", "").strip()
 NTFY_SERVER = os.getenv("NTFY_SERVER", "https://ntfy.sh").rstrip("/")
 
 MIN_BARS = 60
-MAX_CANDLE_AGE = 900
+MAX_CANDLE_AGE = 420  # UPDATED: maksimum umur candle M5 ialah 7 minit
 MAX_QUOTE_AGE = 300
 MAX_ENTRY_DRIFT_ATR = 1.2
 MIN_SCORE = 5
@@ -647,8 +647,13 @@ def main():
         last = candles[-1]
         candle_age = epoch - (last["t"] + 300)
 
+        # UPDATED: candle lebih 7 minit dianggap lapuk.
         if candle_age < 0 or candle_age > MAX_CANDLE_AGE:
-            raise RuntimeError(f"Candle M5 lapuk: {candle_age}s")
+            raise RuntimeError(
+                f"Candle M5 lapuk: {candle_age}s "
+                f"(had {MAX_CANDLE_AGE}s)"
+            )
+
         if len(candles) > 1 and last["t"] - candles[-2]["t"] > 600:
             raise RuntimeError("Jurang candle M5 terlalu besar.")
 
