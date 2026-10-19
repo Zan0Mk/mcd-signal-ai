@@ -1,27 +1,26 @@
 {
-  "last_signal_key": "BUY-1792387800",
+  "last_signal_key": "BUY-1792395000",
   "last_signal_time": null,
   "last_checked_candle_t": null,
   "active_setup": {
-    "id": "BUY-1792387800",
+    "id": "BUY-1792395000",
     "side": "BUY",
     "status": "ACTIVE",
-    "entry": 4176.547,
-    "sl": 4169.3602,
-    "tp1": 4190.920599999999,
-    "tp2": 4198.107399999998,
-    "risk_distance": 7.186799999999494,
+    "entry": 4188.191,
+    "sl": 4181.8187726871765,
+    "tp1": 4200.935454625646,
+    "tp2": 4207.30768193847,
+    "risk_distance": 6.37222731282327,
     "strategy": "Engulfing",
     "score": 6,
-    "created_candle_t": 1792387800,
-    "last_checked_candle_t": 1792387800,
-    "created_utc": "2026-10-19T05:35:00+00:00",
-    "last_checked_quote_timestamp": "2026-10-19T06:54:53+00:00"
+    "created_candle_t": 1792395000,
+    "last_checked_candle_t": 1792395000,
+    "created_utc": "2026-10-19T07:35:00+00:00"
   },
   "last_event": null,
   "last_event_time": null,
   "last_status": "DATA_VALID",
   "last_error": null,
-  "last_candle_t": 1792392300,
-  "last_run_utc": "2026-10-19T06:54:53.526726+00:00"
+  "last_candle_t": 1792395000,
+  "last_run_utc": "2026-10-19T07:39:43.808846+00:00"
 }
