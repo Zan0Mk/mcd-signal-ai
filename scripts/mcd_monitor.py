@@ -160,13 +160,13 @@ def get_bars(interval="5m", limit=1000):
 
 def get_twelve_bars(interval="5min", outputsize=1000):
     """Fetch OHLC from Twelve Data. Requires TWELVE_DATA_API_KEY."""
-    if not TWELVE_API_KEY:
+    if not TWELVE_DATA_API_KEY:
         raise RuntimeError("TWELVE_DATA_API_KEY belum ditetapkan")
     params = urllib.parse.urlencode({
         "symbol": TWELVE_SYMBOL,
         "interval": interval,
         "outputsize": min(max(int(outputsize), 1), 5000),
-        "apikey": TWELVE_API_KEY,
+        "apikey": TWELVE_DATA_API_KEY,
         "timezone": "UTC",
         "format": "JSON",
     })
@@ -213,7 +213,7 @@ def get_twelve_bars(interval="5min", outputsize=1000):
 
 def fetch_candles(interval_biquote, interval_twelve, limit):
     """Use Twelve Data when a key exists; otherwise keep Biquote working."""
-    if TWELVE_API_KEY:
+    if TWELVE_DATA_API_KEY:
         return get_twelve_bars(interval_twelve, limit), "Twelve Data"
     return get_bars(interval_biquote, limit), "Biquote API (Twelve Data key not configured)"
 
