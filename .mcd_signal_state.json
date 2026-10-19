@@ -14,12 +14,13 @@
     "strategy": "Breakout",
     "score": 6,
     "created_candle_t": 1792441500,
-    "created_utc": "2026-10-19T20:30:00+00:00"
+    "created_utc": "2026-10-19T20:30:00+00:00",
+    "last_checked_quote_timestamp": "2026-10-19T20:57:58+00:00"
   },
   "last_event": null,
   "last_event_time": null,
   "last_status": "DATA_VALID",
   "last_error": null,
-  "last_candle_t": 1792441500,
-  "last_run_utc": "2026-10-19T20:33:28.687828+00:00"
+  "last_candle_t": 1792443300,
+  "last_run_utc": "2026-10-19T21:02:07.356124+00:00"
 }
