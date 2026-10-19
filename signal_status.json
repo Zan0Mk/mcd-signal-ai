@@ -2,7 +2,7 @@
   "version": "V1",
   "symbol": "XAUUSD",
   "timeframe": "M5",
-  "updated_utc": "2026-10-18T23:51:13.914740+00:00",
+  "updated_utc": "2026-10-19T00:06:01.789930+00:00",
   "data_status": "FRESH",
   "signal": "WAIT",
   "score": 3,
@@ -15,8 +15,8 @@
     "h4": "BEARISH",
     "d1": "BEARISH"
   },
-  "support": 4203.0,
-  "resistance": 4203.7002,
+  "support": 4203.2998,
+  "resistance": 4204.2002,
   "trend_45m": "UPTREND",
   "trend_m5": "UPTREND",
   "techniques": {
@@ -25,12 +25,12 @@
     "pa": false,
     "breakout": false
   },
-  "last_candle_utc": "2026-10-18T23:45:05+00:00",
-  "candle_age_seconds": 368,
-  "price": 4203.1001,
-  "ema20": 4198.89018687425,
-  "ema50": 4194.1414431639405,
-  "atr14": 3.2721716171733872,
+  "last_candle_utc": "2026-10-19T00:00:25+00:00",
+  "candle_age_seconds": 336,
+  "price": 4203.7002,
+  "ema20": 4199.893281660561,
+  "ema50": 4195.105705673967,
+  "atr14": 3.119480878157655,
   "strategy": "None",
   "buy_score": 3,
   "sell_score": 2
