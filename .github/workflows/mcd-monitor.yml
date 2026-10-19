@@ -27,6 +27,8 @@ jobs:
       - name: Run MCD Signal Monitor
         env:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+          TWELVE_DATA_API_KEY: ${{ secrets.TWELVE_DATA_API_KEY }}
+          TWELVE_DATA_SYMBOL: XAU/USD
           PYTHONUNBUFFERED: "1"
         run: python scripts/mcd_monitor.py
       - name: Validate JSON files
@@ -43,9 +45,6 @@ jobs:
             exit 0
           fi
           git commit -m "Update MCD signal status"
-          # Fetch changes made to main after checkout.
           git fetch origin main
-          # Reapply this run's commit on top of the latest main.
           git rebase origin/main
-          # Push without force.
           git push origin HEAD:main
