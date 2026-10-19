@@ -3,12 +3,12 @@
   "symbol": "XAUUSD",
   "timeframe": "M5",
   "data_source": "Biquote API - bukan feed HFM XAUUSDc",
-  "updated_utc": "2026-10-19T02:54:32.789859+00:00",
+  "updated_utc": "2026-10-19T03:20:51.854146+00:00",
   "data_status": "FRESH",
-  "signal": "SELL",
-  "score": 5,
-  "quality": "RENDAH (C)",
-  "reason": "Data Biquote lulus semakan. Bandingkan harga dengan broker sebelum digunakan.",
+  "signal": "WAIT",
+  "score": 4,
+  "quality": "RISIKO",
+  "reason": "WAIT - BUY 4/8, SELL 4/8; tiada setup sah.",
   "trend": {
     "d1": "BEARISH",
     "h4": "BEARISH",
@@ -16,65 +16,23 @@
     "m30": "BULLISH",
     "m15": "BULLISH"
   },
-  "support": 4169.286,
-  "resistance": 4178.08,
-  "trend_45m": "DOWNTREND",
+  "support": 4174.564,
+  "resistance": 4180.74,
+  "trend_45m": "UPTREND",
   "techniques": {
     "snr": false,
-    "smc": false,
-    "pa": true,
+    "smc": true,
+    "pa": false,
     "breakout": false
   },
-  "price": 4173.745,
-  "quote_bid": 4173.661,
-  "quote_ask": 4173.829,
-  "quote_mid": 4173.745,
+  "price": 4179.45,
+  "quote_bid": 4179.366,
+  "quote_ask": 4179.534,
+  "quote_mid": 4179.45,
   "quote_spread": 0.168,
-  "quote_timestamp_utc": "2026-10-19T02:54:32+00:00",
+  "quote_timestamp_utc": "2026-10-19T03:20:51+00:00",
   "quote_age_seconds": 1,
   "chart_candles": [
-    {
-      "t": 1792375500,
-      "o": 4180.064,
-      "h": 4184.254,
-      "l": 4178.064,
-      "c": 4183.973
-    },
-    {
-      "t": 1792375800,
-      "o": 4183.509,
-      "h": 4184.69,
-      "l": 4180.724,
-      "c": 4181.782
-    },
-    {
-      "t": 1792376100,
-      "o": 4181.871,
-      "h": 4182.18,
-      "l": 4174.783,
-      "c": 4176.236
-    },
-    {
-      "t": 1792376400,
-      "o": 4176.098,
-      "h": 4177.158,
-      "l": 4173.228,
-      "c": 4174.014
-    },
-    {
-      "t": 1792376700,
-      "o": 4174.025,
-      "h": 4174.714,
-      "l": 4170.082,
-      "c": 4170.7
-    },
-    {
-      "t": 1792377000,
-      "o": 4170.773,
-      "h": 4175.075,
-      "l": 4169.286,
-      "c": 4173.263
-    },
     {
       "t": 1792377300,
       "o": 4173.312,
@@ -95,18 +53,60 @@
       "h": 4178.065,
       "l": 4172.91,
       "c": 4173.513
+    },
+    {
+      "t": 1792378200,
+      "o": 4173.346,
+      "h": 4175.864,
+      "l": 4170.659,
+      "c": 4173.877
+    },
+    {
+      "t": 1792378500,
+      "o": 4173.773,
+      "h": 4177.787,
+      "l": 4173.773,
+      "c": 4176.599
+    },
+    {
+      "t": 1792378800,
+      "o": 4176.661,
+      "h": 4177.521,
+      "l": 4173.991,
+      "c": 4175.99
+    },
+    {
+      "t": 1792379100,
+      "o": 4176.043,
+      "h": 4180.31,
+      "l": 4175.629,
+      "c": 4178.525
+    },
+    {
+      "t": 1792379400,
+      "o": 4178.548,
+      "h": 4180.058,
+      "l": 4177.75,
+      "c": 4179.379
+    },
+    {
+      "t": 1792379700,
+      "o": 4179.296,
+      "h": 4181.191,
+      "l": 4178.475,
+      "c": 4178.824
     }
   ],
-  "entry": 4173.513,
-  "zone_low": 4172.785661661554,
-  "zone_high": 4174.240338338446,
-  "sl": 4180.786383384464,
-  "tp1": 4158.966233231072,
-  "tp2": 4151.692849846608,
+  "entry": null,
+  "zone_low": null,
+  "zone_high": null,
+  "sl": null,
+  "tp1": null,
+  "tp2": null,
   "active_setup": {
     "id": "SELL-1792377900",
     "side": "SELL",
-    "status": "ACTIVE",
+    "status": "SL_HIT",
     "entry": 4173.513,
     "sl": 4180.786383384464,
     "tp1": 4158.966233231072,
@@ -115,20 +115,22 @@
     "strategy": "Engulfing",
     "score": 5,
     "created_candle_t": 1792377900,
-    "last_checked_candle_t": 1792377900,
-    "created_utc": "2026-10-19T02:50:00+00:00"
+    "last_checked_candle_t": 1792379700,
+    "created_utc": "2026-10-19T02:50:00+00:00",
+    "closed_utc": "2026-10-19T03:20:00+00:00",
+    "last_event_notified": "SL_HIT"
   },
-  "setup_event": null,
-  "strategy": "Engulfing",
-  "buy_score": 3,
-  "sell_score": 5,
-  "atr14": 4.848922256309398,
-  "ema20": 4174.951047103742,
-  "ema50": 4174.560924234108,
-  "risk_distance": 7.2733833844640685,
-  "last_candle_utc": "2026-10-19T02:50:00+00:00",
-  "candle_age_seconds": 272,
+  "setup_event": "SL_HIT",
+  "strategy": "None",
+  "buy_score": 4,
+  "sell_score": 4,
+  "atr14": 4.415489591138576,
+  "ema20": 4176.096514889745,
+  "ema50": 4175.149045961913,
+  "risk_distance": null,
+  "last_candle_utc": "2026-10-19T03:20:00+00:00",
+  "candle_age_seconds": 51,
   "quote_source": "Biquote API",
   "market_state": "open",
-  "candle_close": 4173.513
+  "candle_close": 4178.824
 }

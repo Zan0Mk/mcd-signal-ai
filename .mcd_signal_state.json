@@ -5,7 +5,7 @@
   "active_setup": {
     "id": "SELL-1792377900",
     "side": "SELL",
-    "status": "ACTIVE",
+    "status": "SL_HIT",
     "entry": 4173.513,
     "sl": 4180.786383384464,
     "tp1": 4158.966233231072,
@@ -14,13 +14,15 @@
     "strategy": "Engulfing",
     "score": 5,
     "created_candle_t": 1792377900,
-    "last_checked_candle_t": 1792377900,
-    "created_utc": "2026-10-19T02:50:00+00:00"
+    "last_checked_candle_t": 1792379700,
+    "created_utc": "2026-10-19T02:50:00+00:00",
+    "closed_utc": "2026-10-19T03:20:00+00:00",
+    "last_event_notified": "SL_HIT"
   },
   "last_event": null,
   "last_event_time": null,
   "last_status": "DATA_VALID",
   "last_error": null,
-  "last_candle_t": 1792377900,
-  "last_run_utc": "2026-10-19T02:54:32.789859+00:00"
+  "last_candle_t": 1792379700,
+  "last_run_utc": "2026-10-19T03:20:51.854146+00:00"
 }
