@@ -23,8 +23,8 @@
   },
   "last_event": null,
   "last_event_time": null,
-  "last_status": "DATA_VALID",
-  "last_error": null,
+  "last_status": "DATA_ERROR",
+  "last_error": "name 'TWELVE_API_KEY' is not defined",
   "last_candle_t": 1792415100,
-  "last_run_utc": "2026-10-19T13:11:46.844077+00:00"
+  "last_run_utc": "2026-10-19T13:44:09.899855+00:00"
 }
