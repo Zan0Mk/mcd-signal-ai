@@ -1,27 +1,25 @@
 {
-  "last_signal_key": "SELL-1792428300",
+  "last_signal_key": "BUY-1792432800",
   "last_signal_time": null,
   "last_checked_candle_t": null,
   "active_setup": {
-    "id": "SELL-1792428300",
-    "side": "SELL",
+    "id": "BUY-1792432800",
+    "side": "BUY",
     "status": "ACTIVE",
-    "entry": 4138.2999,
-    "sl": 4144.078764000001,
-    "tp1": 4129.631603999998,
-    "tp2": 4120.963307999998,
-    "risk_distance": 5.7788640000007945,
+    "entry": 4146.44165,
+    "sl": 4142.715968999202,
+    "tp1": 4152.030171501196,
+    "tp2": 4157.618693002392,
+    "risk_distance": 3.725681000797522,
     "strategy": "Breakout",
-    "score": 6,
-    "created_candle_t": 1792428300,
-    "created_utc": "2026-10-19T16:50:00+00:00",
-    "last_checked_quote_timestamp": "2026-10-19T16:53:12+00:00",
-    "last_event_notified": null
+    "score": 5,
+    "created_candle_t": 1792432800,
+    "created_utc": "2026-10-19T18:05:00+00:00"
   },
   "last_event": null,
   "last_event_time": null,
-  "last_status": "DATA_ERROR",
-  "last_error": "name 'TWELVE_SYMBOL' is not defined",
-  "last_candle_t": 1792428300,
-  "last_run_utc": "2026-10-19T17:49:57.406970+00:00"
+  "last_status": "DATA_VALID",
+  "last_error": null,
+  "last_candle_t": 1792432800,
+  "last_run_utc": "2026-10-19T18:06:57.900603+00:00"
 }
