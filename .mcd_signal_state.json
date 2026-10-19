@@ -5,7 +5,7 @@
   "active_setup": {
     "id": "BUY-1792408200",
     "side": "BUY",
-    "status": "ACTIVE",
+    "status": "SL_HIT",
     "entry": 4174.95,
     "sl": 4169.820825023393,
     "tp1": 4185.208349953214,
@@ -15,12 +15,16 @@
     "score": 5,
     "created_candle_t": 1792408200,
     "last_checked_candle_t": 1792408200,
-    "created_utc": "2026-10-19T11:15:00+00:00"
+    "created_utc": "2026-10-19T11:15:00+00:00",
+    "last_checked_quote_timestamp": "2026-10-19T11:53:52+00:00",
+    "pending_event": null,
+    "last_event_notified": "SL_HIT",
+    "closed_utc": "2026-10-19T11:53:55.400644+00:00"
   },
   "last_event": null,
   "last_event_time": null,
   "last_status": "DATA_VALID",
   "last_error": null,
-  "last_candle_t": 1792408200,
-  "last_run_utc": "2026-10-19T11:16:37.940015+00:00"
+  "last_candle_t": 1792410300,
+  "last_run_utc": "2026-10-19T11:53:52.441651+00:00"
 }
