@@ -1,50 +1,65 @@
+
 name: MCD Signal Monitor
+
 on:
   schedule:
     - cron: "*/5 * * * *"
   workflow_dispatch:
+
 permissions:
   contents: write
+
 concurrency:
   group: mcd-signal-monitor
   cancel-in-progress: false
+
 jobs:
   monitor:
     runs-on: ubuntu-latest
-    timeout-minutes: 4
+    timeout-minutes: 5
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           ref: main
           fetch-depth: 0
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+
       - name: Validate Python syntax
         run: python -m py_compile scripts/mcd_monitor.py
+
       - name: Run MCD Signal Monitor
         env:
-          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
           TWELVE_DATA_API_KEY: ${{ secrets.TWELVE_DATA_API_KEY }}
           TWELVE_DATA_SYMBOL: XAU/USD
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
           PYTHONUNBUFFERED: "1"
         run: python scripts/mcd_monitor.py
-      - name: Validate JSON files
+
+      - name: Validate JSON
         run: |
           python -m json.tool signal_status.json > /dev/null
           python -m json.tool .mcd_signal_state.json > /dev/null
-      - name: Commit updated signal data
+
+      - name: Commit signal status
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
           git add signal_status.json .mcd_signal_state.json
+
           if git diff --cached --quiet; then
             echo "No changes to commit"
             exit 0
           fi
+
           git commit -m "Update MCD signal status"
+
           git fetch origin main
           git rebase origin/main
           git push origin HEAD:main
