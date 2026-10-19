@@ -1,8 +1,9 @@
-
 #!/usr/bin/env python3
-"""MCD SIGNAL V1.2 - Read-only XAUUSD M5 monitor.
+"""MCD SIGNAL V1.3 - Read-only XAUUSD M5 monitor.
 Source: Biquote API, NOT official HFM XAUUSDc feed.
+Notifications only; no trades are executed.
 """
+
 import json
 import math
 import os
@@ -48,7 +49,7 @@ def fmt(x):
 
 def get_json(url):
     req = urllib.request.Request(
-        url, headers={"User-Agent": "MCD-SIGNAL/1.2"}
+        url, headers={"User-Agent": "MCD-SIGNAL/1.3"}
     )
     with urllib.request.urlopen(req, timeout=20) as response:
         if not 200 <= response.status < 300:
@@ -82,9 +83,12 @@ def quote():
         timestamp = datetime.fromisoformat(
             str(data["timestamp"]).replace("Z", "+00:00")
         )
+
         if timestamp.tzinfo is None:
             timestamp = timestamp.replace(tzinfo=timezone.utc)
+
         age = int(now().timestamp() - timestamp.timestamp())
+
     except (KeyError, TypeError, ValueError) as exc:
         raise RuntimeError(f"Quote tidak lengkap: {exc}") from exc
 
@@ -100,12 +104,14 @@ def quote():
         raise RuntimeError(f"Quote lapuk ({age}s)")
 
     market_state = str(data.get("marketState", "")).lower()
+
     if market_state != "open":
         raise RuntimeError(
             f"Pasaran bukan OPEN: {data.get('marketState', 'UNKNOWN')}"
         )
 
     spread = float(data.get("spread", ask - bid))
+
     if not math.isfinite(spread) or spread < 0:
         spread = ask - bid
 
@@ -126,6 +132,7 @@ def bars(interval="5m", limit=1000):
             {"interval": interval, "limit": limit}
         )
     )
+
     data = get_json(url)
 
     if not isinstance(data, dict) or not isinstance(data.get("bars"), list):
@@ -138,6 +145,7 @@ def bars(interval="5m", limit=1000):
             timestamp = datetime.fromisoformat(
                 str(item["openTime"]).replace("Z", "+00:00")
             )
+
             if timestamp.tzinfo is None:
                 timestamp = timestamp.replace(tzinfo=timezone.utc)
 
@@ -151,6 +159,7 @@ def bars(interval="5m", limit=1000):
             }
 
             values = [candle[k] for k in ("o", "h", "l", "c")]
+
             if not all(math.isfinite(v) for v in values):
                 continue
 
@@ -230,20 +239,26 @@ def trend(timeframe, limit=120):
 
     if fast > slow:
         return "BULLISH"
+
     if fast < slow:
         return "BEARISH"
+
     return "FLAT"
 
 
 def quality(score):
     if score <= 3:
         return "WAIT"
+
     if score == 4:
         return "RISIKO"
+
     if score <= 6:
         return "RENDAH (C)"
+
     if score == 7:
         return "SEDERHANA (B)"
+
     return "KUAT (A)"
 
 
@@ -271,7 +286,6 @@ def find_support_resistance(candles, current_price, atr_value):
         lows = [item["l"] for item in window]
         highs = [item["h"] for item in window]
 
-        # Ignore equal-low/equal-high ties to avoid duplicate pivots.
         if (
             candle["l"] == min(lows)
             and lows.count(candle["l"]) == 1
@@ -310,7 +324,6 @@ def evaluate(candles, htf):
     low10 = min(c["l"] for c in r10)
     high10 = max(c["h"] for c in r10)
 
-    # Separate short-term structure levels used by the strategies.
     strategy_support = min(c["l"] for c in r30)
     strategy_resistance = max(c["h"] for c in r30)
 
@@ -323,6 +336,7 @@ def evaluate(candles, htf):
         and current["c"] > strategy_support
         and bullish
     )
+
     snr_sell = (
         current["h"] >= strategy_resistance - atr14 * 0.25
         and current["c"] < strategy_resistance
@@ -335,6 +349,7 @@ def evaluate(candles, htf):
         and current["c"] > low10
         and bullish
     )
+
     sweep_sell = (
         current["h"] > high10
         and current["c"] < high10
@@ -349,6 +364,7 @@ def evaluate(candles, htf):
         and current["c"] >= previous["o"]
         and current["c"] >= strategy_support
     )
+
     engulf_sell = (
         bearish
         and previous["c"] > previous["o"]
@@ -361,6 +377,7 @@ def evaluate(candles, htf):
     breakout_buy = (
         current["c"] > high20 and previous["c"] <= high20
     )
+
     breakout_sell = (
         current["c"] < low20 and previous["c"] >= low20
     )
@@ -371,6 +388,7 @@ def evaluate(candles, htf):
         "Engulfing": engulf_buy,
         "Breakout": breakout_buy,
     }
+
     sell_setups = {
         "SnR Rejection": snr_sell,
         "Liquidity Sweep": sweep_sell,
@@ -423,7 +441,6 @@ def evaluate(candles, htf):
     score = max(buy_score, sell_score)
     setup = "None"
 
-    # Require a valid technique, minimum score, momentum and no opposite setup.
     if (
         any(buy_setups.values())
         and buy_score >= MIN_SCORE
@@ -446,7 +463,6 @@ def evaluate(candles, htf):
         score = sell_score
         setup = next(k for k, v in sell_setups.items() if v)
 
-    # Improved S/R: confirmed pivots, not merely nearest candle highs/lows.
     support, resistance = find_support_resistance(
         candles, current["c"], atr14
     )
@@ -494,6 +510,7 @@ def evaluate(candles, htf):
             risk = entry - stop
             tp1 = entry + risk * TP1_R
             tp2 = entry + risk * TP2_R
+
         else:
             stop = max(
                 current["h"] + atr14 * 0.15,
@@ -512,6 +529,7 @@ def evaluate(candles, htf):
             "tp2": tp2,
             "risk_distance": risk,
         })
+
     else:
         result.update({
             "entry": None,
@@ -531,7 +549,6 @@ def notify(title, message):
         print("NTFY_SKIPPED: NTFY_TOPIC tiada")
         return False
 
-    # HTTP header values are ASCII-safe.
     safe_title = title.encode("ascii", "replace").decode("ascii")
 
     request = urllib.request.Request(
@@ -568,78 +585,170 @@ def clear_signal(public):
     })
 
 
-def track_setup(state, candle, public):
+def track_setup(state, candle, public, quote_data):
+    """Monitor an active setup using the latest valid Biquote price.
+
+    BUY exits use Bid; SELL exits use Ask.
+    Failed ntfy events are retained and retried on the next run.
+    This is sampled-price monitoring, not a broker execution feed.
+    """
     active = state.get("active_setup")
 
     if not isinstance(active, dict):
+        public["active_setup"] = active
         return
 
     if active.get("status") not in ("ACTIVE", "TP1_HIT"):
         public["active_setup"] = active
         return
 
-    if candle["t"] <= int(active.get("last_checked_candle_t", 0)):
+    side = active.get("side")
+
+    if side not in ("BUY", "SELL"):
         public["active_setup"] = active
         return
 
-    side = active["side"]
+    # Retry any event that was detected but not successfully notified.
+    pending = active.get("pending_event")
+
+    if isinstance(pending, dict):
+        event = pending.get("event")
+        target_status = pending.get("target_status")
+        message = pending.get("message", "")
+
+        try:
+            if notify(f"MCD UPDATE - {event}", message):
+                active["status"] = target_status
+                active["last_event_notified"] = event
+                active["pending_event"] = None
+                active.pop("notification_error", None)
+
+                if target_status in ("SL_HIT", "TP2_HIT"):
+                    active["closed_utc"] = now().isoformat()
+
+                elif target_status == "TP1_HIT":
+                    active["tp1_hit_utc"] = now().isoformat()
+
+        except Exception as exc:
+            active["notification_error"] = str(exc)
+            print("NTFY retry failed:", exc)
+
+        state["active_setup"] = active
+        public["active_setup"] = active
+        public["setup_event"] = event
+        return
+
+    quote_timestamp = quote_data.get("timestamp")
+
+    if not quote_timestamp:
+        public["active_setup"] = active
+        return
+
+    # Avoid processing the same provider quote repeatedly.
+    if quote_timestamp == active.get("last_checked_quote_timestamp"):
+        public["active_setup"] = active
+        return
+
+    active["last_checked_quote_timestamp"] = quote_timestamp
+
+    # Closing-side price: BUY exits at Bid; SELL exits at Ask.
+    sampled_price = (
+        quote_data["bid"] if side == "BUY"
+        else quote_data["ask"]
+    )
+
+    try:
+        sl = float(active["sl"])
+        tp1 = float(active["tp1"])
+        tp2 = float(active["tp2"])
+        entry = float(active["entry"])
+
+    except (KeyError, TypeError, ValueError) as exc:
+        active["monitoring_error"] = f"Level setup tidak sah: {exc}"
+        state["active_setup"] = active
+        public["active_setup"] = active
+        return
+
+    if not all(
+        math.isfinite(v) for v in (sampled_price, sl, tp1, tp2, entry)
+    ):
+        active["monitoring_error"] = "Harga atau level setup tidak sah"
+        state["active_setup"] = active
+        public["active_setup"] = active
+        return
 
     if side == "BUY":
-        sl_hit = candle["l"] <= active["sl"]
-        tp1_hit = candle["h"] >= active["tp1"]
-        tp2_hit = candle["h"] >= active["tp2"]
+        sl_hit = sampled_price <= sl
+        tp1_hit = sampled_price >= tp1
+        tp2_hit = sampled_price >= tp2
+
     else:
-        sl_hit = candle["h"] >= active["sl"]
-        tp1_hit = candle["l"] <= active["tp1"]
-        tp2_hit = candle["l"] <= active["tp2"]
+        sl_hit = sampled_price >= sl
+        tp1_hit = sampled_price <= tp1
+        tp2_hit = sampled_price <= tp2
 
-    active["last_checked_candle_t"] = candle["t"]
     event = None
+    target_status = None
 
-    # OHLC cannot prove which level was hit first within the same candle.
-    if sl_hit and (tp1_hit or tp2_hit):
-        event = "AMBIGUOUS_SL_TP"
-        active["status"] = "AMBIGUOUS"
-        active["closed_utc"] = iso(candle["t"] + 300)
+    # SL has priority if the sampled quote is already at/past SL.
+    if sl_hit:
+        event, target_status = "SL_HIT", "SL_HIT"
 
-    elif sl_hit:
-        event = "SL_HIT"
-        active["status"] = "SL_HIT"
-        active["closed_utc"] = iso(candle["t"] + 300)
-
+    # TP1 is notified first. TP2 is monitored on subsequent runs.
     elif active["status"] == "ACTIVE" and tp1_hit:
-        event = "TP1_HIT"
-        active["status"] = "TP1_HIT"
-        active["tp1_hit_utc"] = iso(candle["t"] + 300)
+        event, target_status = "TP1_HIT", "TP1_HIT"
 
-    elif active["status"] in ("ACTIVE", "TP1_HIT") and tp2_hit:
-        event = "TP2_HIT"
-        active["status"] = "TP2_HIT"
-        active["closed_utc"] = iso(candle["t"] + 300)
+    elif active["status"] == "TP1_HIT" and tp2_hit:
+        event, target_status = "TP2_HIT", "TP2_HIT"
 
     if event:
         message = (
             f"MCD SETUP UPDATE - {event}\n"
             f"Symbol: XAUUSD | M5\n"
             f"Side: {side}\n"
-            f"Entry: {fmt(active['entry'])}\n"
-            f"SL: {fmt(active['sl'])}\n"
-            f"TP1: {fmt(active['tp1'])}\n"
-            f"TP2: {fmt(active['tp2'])}\n"
-            f"Candle: {iso(candle['t'] + 300)}\n"
-            "Biquote, bukan feed rasmi HFM XAUUSDc."
+            f"Sampled price: {fmt(sampled_price)}\n"
+            f"Price type: {'BID' if side == 'BUY' else 'ASK'}\n"
+            f"Entry: {fmt(entry)}\n"
+            f"SL: {fmt(sl)}\n"
+            f"TP1: {fmt(tp1)}\n"
+            f"TP2: {fmt(tp2)}\n"
+            f"Quote timestamp: {quote_timestamp}\n"
+            f"Detected UTC: {now().isoformat()}\n"
+            "Source: Biquote, bukan feed rasmi HFM XAUUSDc.\n"
+            "Notification only; no trades are executed."
         )
+
+        # Save event first so it can be retried if ntfy fails.
+        active["pending_event"] = {
+            "event": event,
+            "target_status": target_status,
+            "message": message,
+        }
 
         try:
             if notify(f"MCD UPDATE - {event}", message):
+                active["status"] = target_status
                 active["last_event_notified"] = event
+                active["pending_event"] = None
+                active.pop("notification_error", None)
+
+                if target_status in ("SL_HIT", "TP2_HIT"):
+                    active["closed_utc"] = now().isoformat()
+
+                elif target_status == "TP1_HIT":
+                    active["tp1_hit_utc"] = now().isoformat()
+
         except Exception as exc:
             active["notification_error"] = str(exc)
-            print("NTFY update failed:", exc)
+            print("NTFY update failed; event will retry:", exc)
 
     state["active_setup"] = active
     public["active_setup"] = active
     public["setup_event"] = event
+    public["sampled_exit_price"] = sampled_price
+    public["sampled_exit_price_type"] = (
+        "BID" if side == "BUY" else "ASK"
+    )
 
 
 def main():
@@ -647,7 +756,7 @@ def main():
     state = read(STATE)
 
     public = {
-        "version": "V1.2",
+        "version": "V1.3",
         "symbol": SYMBOL,
         "timeframe": "M5",
         "data_source": "Biquote API - bukan feed HFM XAUUSDc",
@@ -729,6 +838,7 @@ def main():
         ]:
             try:
                 higher_timeframes[key] = trend(timeframe, limit)
+
             except Exception as exc:
                 higher_timeframes[key] = "UNKNOWN"
                 print(key, "trend unavailable:", exc)
@@ -761,7 +871,8 @@ def main():
             ),
         })
 
-        track_setup(state, last, public)
+        # Updated: pass the current quote to the setup monitor.
+        track_setup(state, last, public, quote_data)
 
         if result["signal"] in ("BUY", "SELL"):
             key = f'{result["signal"]}-{last["t"]}'
@@ -791,7 +902,7 @@ def main():
                         message,
                     )
 
-                    # Track only after the alert is successfully sent.
+                    # Track the setup only after successful notification.
                     if sent:
                         state["last_signal_key"] = key
                         state["active_setup"] = {
@@ -809,6 +920,7 @@ def main():
                             "last_checked_candle_t": last["t"],
                             "created_utc": iso(last["t"] + 300),
                         }
+
                         public["active_setup"] = state["active_setup"]
 
                     else:
