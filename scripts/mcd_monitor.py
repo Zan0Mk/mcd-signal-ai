@@ -312,45 +312,84 @@ def clear_signal(public):
 
 
 def monitor_active(state, public, quote_data):
-    active = state.get("active_setup")
-    if not isinstance(active, dict) or active.get("status") not in ("ACTIVE", "TP1_HIT"):
-        public["active_setup"] = active
-        return
-    side = active.get("side")
-    if side not in ("BUY", "SELL"):
-        public["active_setup"] = active
-        return
+    """Monitor every persisted setup; quote polling can miss intrainterval touches."""
+    setups = state.get("active_setups")
+    if not isinstance(setups, list):
+        legacy = state.get("active_setup")
+        setups = [legacy] if isinstance(legacy, dict) else []
+
+    remaining = []
+    events = []
     stamp = quote_data["timestamp"]
-    if stamp == active.get("last_checked_quote_timestamp"):
-        public["active_setup"] = active
-        return
-    active["last_checked_quote_timestamp"] = stamp
-    price = quote_data["bid"] if side == "BUY" else quote_data["ask"]
-    try:
-        sl, tp1, tp2 = (float(active[k]) for k in ("sl", "tp1", "tp2"))
-    except (KeyError, TypeError, ValueError):
-        public["active_setup"] = active
-        return
-    sl_hit = price <= sl if side == "BUY" else price >= sl
-    tp1_hit = price >= tp1 if side == "BUY" else price <= tp1
-    tp2_hit = price >= tp2 if side == "BUY" else price <= tp2
-    event = "SL_HIT" if sl_hit else "TP1_HIT" if active["status"] == "ACTIVE" and tp1_hit else "TP2_HIT" if active["status"] == "TP1_HIT" and tp2_hit else None
-    if event and active.get("last_event_notified") != event:
-        msg = (f"MCD UPDATE - {event}\nSymbol: XAUUSD | M5\nSide: {side}\n"
-               f"Price: {fmt(price)} ({'BID' if side == 'BUY' else 'ASK'})\n"
-               f"Entry: {fmt(active.get('entry'))}\nSL: {fmt(sl)}\nTP1: {fmt(tp1)}\nTP2: {fmt(tp2)}\n"
-               f"Quote UTC: {stamp}\nSource: Biquote; bukan feed rasmi HFM XAUUSDc.")
+
+    for active in setups:
+        if not isinstance(active, dict):
+            continue
+        status = active.get("status")
+        side = active.get("side")
+        if status not in ("ACTIVE", "TP1_HIT") or side not in ("BUY", "SELL"):
+            # Keep closed setups for dashboard/history, but don't monitor them.
+            remaining.append(active)
+            continue
+        if stamp == active.get("last_checked_quote_timestamp"):
+            remaining.append(active)
+            continue
+
+        active["last_checked_quote_timestamp"] = stamp
+        price = quote_data["bid"] if side == "BUY" else quote_data["ask"]
         try:
-            if notify(f"MCD UPDATE - {event}", msg):
-                active["status"] = event
-                active["last_event_notified"] = event
-                if event in ("SL_HIT", "TP2_HIT"):
-                    active["closed_utc"] = now().isoformat()
-        except Exception as exc:
-            active["notification_error"] = str(exc)
-    public["active_setup"] = active
-    public["sampled_exit_price"] = price
-    public["sampled_exit_price_type"] = "BID" if side == "BUY" else "ASK"
+            sl, tp1, tp2 = (float(active[k]) for k in ("sl", "tp1", "tp2"))
+        except (KeyError, TypeError, ValueError):
+            active["monitor_error"] = "SL/TP missing or invalid"
+            remaining.append(active)
+            continue
+
+        sl_hit = price <= sl if side == "BUY" else price >= sl
+        tp1_hit = price >= tp1 if side == "BUY" else price <= tp1
+        tp2_hit = price >= tp2 if side == "BUY" else price <= tp2
+
+        # Conservative precedence: if SL and TP are both beyond a sampled quote,
+        # report SL first because the polling data cannot establish intrabar order.
+        event = None
+        if sl_hit:
+            event = "SL_HIT"
+        elif status == "ACTIVE" and tp1_hit:
+            event = "TP1_HIT"
+        elif status == "TP1_HIT" and tp2_hit:
+            event = "TP2_HIT"
+
+        if event and active.get("last_event_notified") != event:
+            message = (
+                f"MCD UPDATE - {event}\n"
+                f"Symbol: XAUUSD | M5\nSide: {side}\n"
+                f"Observed price: {fmt(price)} ({'BID' if side == 'BUY' else 'ASK'})\n"
+                f"Entry: {fmt(active.get('entry'))}\n"
+                f"SL: {fmt(sl)}\nTP1: {fmt(tp1)}\nTP2: {fmt(tp2)}\n"
+                f"Quote UTC: {stamp}\n"
+                "Nota: pemeriksaan berkala; bukan pengesahan tick/eksekusi HFM MT5."
+            )
+            try:
+                if notify(f"MCD UPDATE - {event}", message):
+                    active["status"] = event
+                    active["last_event_notified"] = event
+                    active["last_event_utc"] = now().isoformat()
+                    events.append({"setup_id": active.get("id"), "event": event, "price": price, "utc": stamp})
+                    if event in ("SL_HIT", "TP2_HIT"):
+                        active["closed_utc"] = now().isoformat()
+                else:
+                    active["notification_error"] = "NTFY_TOPIC tiada; update tidak dihantar."
+            except Exception as exc:
+                active["notification_error"] = str(exc)
+        remaining.append(active)
+
+    state["active_setups"] = remaining
+    # Legacy compatibility: expose latest setup for dashboards that still use this field.
+    state["active_setup"] = remaining[-1] if remaining else None
+    public["active_setups"] = remaining
+    public["active_setup"] = state["active_setup"]
+    public["sl_tp_events"] = events
+    public["sampled_exit_price"] = quote_data["bid"]
+    public["sampled_exit_price_type"] = "BID"
 
 
 def main():
@@ -366,7 +405,7 @@ def main():
         "price": None, "quote_bid": None, "quote_ask": None, "quote_mid": None,
         "quote_spread": None, "quote_timestamp_utc": None, "quote_age_seconds": None,
         "chart_candles": [], "entry": None, "zone_low": None, "zone_high": None,
-        "sl": None, "tp1": None, "tp2": None, "active_setup": state.get("active_setup"),
+        "sl": None, "tp1": None, "tp2": None, "active_setup": state.get("active_setup"), "active_setups": state.get("active_setups", []),
     }
     try:
         q = get_quote()
@@ -417,28 +456,41 @@ def main():
             key = f'{result["signal"]}-{last["t"]}'
             if state.get("last_signal_key") != key:
                 grade = result["quality"].split("(")[-1].rstrip(")") if "(" in result["quality"] else result["quality"]
-                emoji = "🔺" if result["signal"] == "BUY" else "🔻"
+                if result["signal"] == "BUY":
+                    emoji = "🟢"
+                    arrow = "▲"
+                else:
+                    emoji = "🔴"
+                    arrow = "▼"
                 msg = (
-                    f'{emoji} MCD SIGNAL >> {result["signal"]}{emoji}\n'
-                    f'Zone: {fmt(result["zone_low"])} – {fmt(result["zone_high"])}\n'
-                    f'SL: {fmt(result["sl"])}\n'
-                    f'TP1: {fmt(result["tp1"])}\n'
-                    f'TP2: {fmt(result["tp2"])}\n'
-                    f'Setup: {result["strategy"]}\n'
+                    f'{emoji} MCD SIGNAL >> {result["signal"]} {arrow}\\n'
+                    f'Zone: {fmt(result["zone_low"])} – {fmt(result["zone_high"])}\\n'
+                    f'SL: {fmt(result["sl"])}\\n'
+                    f'TP1: {fmt(result["tp1"])}\\n'
+                    f'TP2: {fmt(result["tp2"])}\\n'
+                    f'Setup: {result["strategy"]}\\n'
                     f'Skor: {result["score"]}/8 - {grade}'
                 )
                 try:
                     sent = notify(f'MCD SIGNAL - {result["signal"]}', msg)
                     if sent:
                         state["last_signal_key"] = key
-                        state["active_setup"] = {
+                        new_setup = {
                             "id": key, "side": result["signal"], "status": "ACTIVE",
                             "entry": result["entry"], "sl": result["sl"], "tp1": result["tp1"],
                             "tp2": result["tp2"], "risk_distance": result["risk_distance"],
                             "strategy": result["strategy"], "score": result["score"],
                             "created_candle_t": last["t"], "created_utc": iso(last["t"] + 300),
                         }
-                        public["active_setup"] = state["active_setup"]
+                        setups = state.get("active_setups")
+                        if not isinstance(setups, list):
+                            legacy = state.get("active_setup")
+                            setups = [legacy] if isinstance(legacy, dict) else []
+                        setups.append(new_setup)
+                        state["active_setups"] = setups
+                        state["active_setup"] = new_setup
+                        public["active_setups"] = setups
+                        public["active_setup"] = new_setup
                     else:
                         public["notification_error"] = "NTFY_TOPIC tiada; signal tidak dihantar."
                 except Exception as exc:
@@ -464,6 +516,7 @@ def main():
     state["last_run_utc"] = run_time.isoformat()
     public["updated_utc"] = run_time.isoformat()
     public["active_setup"] = state.get("active_setup")
+    public["active_setups"] = state.get("active_setups", [])
     write_json(STATUS, public)
     write_json(STATE, state)
 
