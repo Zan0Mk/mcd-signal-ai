@@ -1,5 +1,6 @@
+
 #!/usr/bin/env python3
-"""MCD Signal Monitor - XAUUSD M5, notifications only; no trades executed."""
+"""MCD Signal Monitor - XAUUSD M5, notification only."""
 import json
 import math
 import os
@@ -7,42 +8,62 @@ import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
 
-BASE = "https://biquote.io/api"
+# ============================================================
+# CONFIGURATION
+# ============================================================
 TWELVE_DATA_BASE = "https://api.twelvedata.com"
-TWELVE_DATA_API_KEY = os.getenv("TWELVE_DATA_API_KEY", "").strip()
+TWELVE_DATA_API_KEY = (
+    os.getenv("TWELVE_DATA_API_KEY")
+    or os.getenv("TWELVE_API_KEY")
+    or ""
+).strip()
 TWELVE_DATA_SYMBOL = os.getenv("TWELVE_DATA_SYMBOL", "XAU/USD").strip()
+
+BIQUOTE_BASE = "https://biquote.io/api"
 SYMBOL = "XAUUSD"
-STATE = ".mcd_signal_state.json"
-STATUS = "signal_status.json"
-TOPIC = os.getenv("NTFY_TOPIC", "").strip()
-SERVER = os.getenv("NTFY_SERVER", "https://ntfy.sh").rstrip("/")
+TIMEFRAME = "M5"
+
+STATE_FILE = ".mcd_signal_state.json"
+STATUS_FILE = "signal_status.json"
+
+NTFY_TOPIC = os.getenv("NTFY_TOPIC", "").strip()
+NTFY_SERVER = os.getenv("NTFY_SERVER", "https://ntfy.sh").rstrip("/")
 
 MIN_BARS = 60
 MAX_CANDLE_AGE = 900
 MAX_QUOTE_AGE = 300
 MAX_ENTRY_DRIFT_ATR = 1.2
+
+MIN_SCORE = 5
 TP1_R = 1.5
 TP2_R = 3.0
-MIN_SCORE = 5
 
 
-def now():
+# ============================================================
+# UTILITIES
+# ============================================================
+def utc_now():
     return datetime.now(timezone.utc)
 
 
-def iso(ts):
-    return datetime.fromtimestamp(ts, timezone.utc).isoformat()
+def iso_utc(timestamp):
+    return datetime.fromtimestamp(timestamp, timezone.utc).isoformat()
 
 
 def fmt(value):
-    if isinstance(value, (int, float)) and math.isfinite(value):
-        return f"{value:.2f}"
-    return "N/A"
+    try:
+        value = float(value)
+        return f"{value:.2f}" if math.isfinite(value) else "N/A"
+    except (TypeError, ValueError):
+        return "N/A"
 
 
 def get_json(url):
-    req = urllib.request.Request(url, headers={"User-Agent": "MCD-SIGNAL/1.4"})
-    with urllib.request.urlopen(req, timeout=20) as response:
+    request = urllib.request.Request(
+        url,
+        headers={"User-Agent": "MCD-SIGNAL/2.0"},
+    )
+    with urllib.request.urlopen(request, timeout=20) as response:
         if not 200 <= response.status < 300:
             raise RuntimeError(f"HTTP {response.status}")
         return json.loads(response.read().decode("utf-8"))
@@ -50,91 +71,80 @@ def get_json(url):
 
 def read_json(path):
     try:
-        with open(path, encoding="utf-8") as f:
-            data = json.load(f)
-        return data if isinstance(data, dict) else {}
+        with open(path, "r", encoding="utf-8") as file:
+            value = json.load(file)
+        return value if isinstance(value, dict) else {}
     except (OSError, ValueError):
         return {}
 
 
 def write_json(path, data):
-    tmp = path + ".tmp"
-    with open(tmp, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2, ensure_ascii=False)
-    os.replace(tmp, path)
+    temporary = path + ".tmp"
+    with open(temporary, "w", encoding="utf-8") as file:
+        json.dump(data, file, indent=2, ensure_ascii=False)
+    os.replace(temporary, path)
 
 
-def get_quote():
-    data = get_json(f"{BASE}/{SYMBOL}?allowStale=false")
-    try:
-        bid, ask, mid = float(data["bid"]), float(data["ask"]), float(data["mid"])
-        stamp = datetime.fromisoformat(str(data["timestamp"]).replace("Z", "+00:00"))
-        if stamp.tzinfo is None:
-            stamp = stamp.replace(tzinfo=timezone.utc)
-    except (KeyError, TypeError, ValueError) as exc:
-        raise RuntimeError(f"Quote tidak lengkap: {exc}") from exc
-
-    if not all(math.isfinite(x) and x > 0 for x in (bid, ask, mid)):
-        raise RuntimeError("Harga quote tidak sah")
-    if ask < bid:
-        raise RuntimeError("Ask lebih rendah daripada Bid")
-    age = int(now().timestamp() - stamp.timestamp())
-    if age < -60 or age > MAX_QUOTE_AGE:
-        raise RuntimeError(f"Quote lapuk ({age}s)")
-    if str(data.get("marketState", "")).lower() != "open":
-        raise RuntimeError(f"Pasaran bukan OPEN: {data.get('marketState', 'UNKNOWN')}")
-    spread = float(data.get("spread", ask - bid))
-    if not math.isfinite(spread) or spread < 0:
-        spread = ask - bid
-    return {
-        "bid": bid, "ask": ask, "mid": mid, "spread": spread,
-        "timestamp": stamp.astimezone(timezone.utc).isoformat(), "age": max(0, age),
-    }
-
-
-def get_bars(interval="5m", limit=1000):
-    """Fetch OHLC from Twelve Data only; do not silently mix candle providers."""
+# ============================================================
+# TWELVE DATA OHLC
+# ============================================================
+def get_candles(interval="5min", limit=300):
     if not TWELVE_DATA_API_KEY:
-        raise RuntimeError("TWELVE_DATA_API_KEY belum ditetapkan dalam environment/ GitHub Secrets")
+        raise RuntimeError(
+            "TWELVE_DATA_API_KEY tiada. "
+            "Semak GitHub Actions Secrets."
+        )
 
-    interval_map = {
-        "5m": ("5min", 300),
-        "15m": ("15min", 900),
-        "30m": ("30min", 1800),
-        "1h": ("1h", 3600),
-        "4h": ("4h", 14400),
-        "1d": ("1day", 86400),
-    }
-    if interval not in interval_map:
-        raise RuntimeError(f"Interval Twelve Data tidak disokong: {interval}")
-    td_interval, duration = interval_map[interval]
-
-    params = urllib.parse.urlencode({
+    parameters = urllib.parse.urlencode({
         "symbol": TWELVE_DATA_SYMBOL,
-        "interval": td_interval,
+        "interval": interval,
         "outputsize": min(max(int(limit), 1), 5000),
         "timezone": "UTC",
         "apikey": TWELVE_DATA_API_KEY,
     })
-    payload = get_json(f"{TWELVE_DATA_BASE}/time_series?{params}")
-    if not isinstance(payload, dict):
-        raise RuntimeError(f"Twelve Data respons tidak sah: {interval}")
-    if payload.get("status") == "error" or "code" in payload and "values" not in payload:
-        message = payload.get("message", "API error")
-        raise RuntimeError(f"Twelve Data {interval}: {message}")
-    values = payload.get("values")
-    if not isinstance(values, list):
-        raise RuntimeError(f"Twelve Data tiada data OHLC: {interval}")
 
-    unique = {}
-    current_epoch = int(now().timestamp())
+    payload = get_json(
+        f"{TWELVE_DATA_BASE}/time_series?{parameters}"
+    )
+
+    if not isinstance(payload, dict):
+        raise RuntimeError("Respons Twelve Data tidak sah.")
+
+    if payload.get("status") == "error" or (
+        "code" in payload and "values" not in payload
+    ):
+        raise RuntimeError(
+            "Twelve Data: "
+            + str(payload.get("message", "API error"))
+        )
+
+    values = payload.get("values")
+    if not isinstance(values, list) or not values:
+        raise RuntimeError("Twelve Data tidak memulangkan candle.")
+
+    duration_map = {
+        "5min": 300,
+        "15min": 900,
+        "30min": 1800,
+        "1h": 3600,
+        "4h": 14400,
+        "1day": 86400,
+    }
+    duration = duration_map.get(interval)
+    if duration is None:
+        raise RuntimeError(f"Interval tidak disokong: {interval}")
+
+    current_epoch = int(utc_now().timestamp())
+    candles_by_time = {}
+
     for item in values:
         try:
-            stamp_text = str(item["datetime"])
-            # timezone=UTC is requested; parse naive timestamps as UTC.
-            stamp = datetime.fromisoformat(stamp_text.replace("Z", "+00:00"))
+            stamp = datetime.fromisoformat(
+                str(item["datetime"]).replace("Z", "+00:00")
+            )
             if stamp.tzinfo is None:
                 stamp = stamp.replace(tzinfo=timezone.utc)
+
             candle_time = int(stamp.timestamp())
             candle = {
                 "t": candle_time,
@@ -144,390 +154,576 @@ def get_bars(interval="5m", limit=1000):
                 "c": float(item["close"]),
                 "is_open": candle_time + duration > current_epoch,
             }
-            prices = [candle[k] for k in ("o", "h", "l", "c")]
-            if not all(math.isfinite(v) and v > 0 for v in prices):
+
+            prices = [
+                candle["o"], candle["h"],
+                candle["l"], candle["c"],
+            ]
+            if not all(math.isfinite(p) and p > 0 for p in prices):
                 continue
+
             if candle["h"] < max(candle["o"], candle["c"], candle["l"]):
                 continue
             if candle["l"] > min(candle["o"], candle["c"], candle["h"]):
                 continue
-            unique[candle_time] = candle
+
+            candles_by_time[candle_time] = candle
+
         except (KeyError, TypeError, ValueError, OverflowError):
             continue
 
-    return [unique[t] for t in sorted(unique)]
+    return [
+        candles_by_time[t]
+        for t in sorted(candles_by_time)
+    ]
 
 
-def get_twelve_bars(interval="5min", outputsize=1000):
-    """Fetch OHLC from Twelve Data. Requires TWELVE_DATA_API_KEY."""
-    if not TWELVE_API_KEY:
-        raise RuntimeError("TWELVE_DATA_API_KEY belum ditetapkan")
-    params = urllib.parse.urlencode({
-        "symbol": TWELVE_SYMBOL,
-        "interval": interval,
-        "outputsize": min(max(int(outputsize), 1), 5000),
-        "apikey": TWELVE_API_KEY,
-        "timezone": "UTC",
-        "format": "JSON",
-    })
-    payload = get_json(f"{TWELVE_BASE}/time_series?{params}")
-    if not isinstance(payload, dict):
-        raise RuntimeError("Respons Twelve Data tidak sah")
-    if payload.get("status") == "error" or payload.get("code"):
-        raise RuntimeError(
-            f"Twelve Data error {payload.get('code', '')}: "
-            f"{payload.get('message', 'unknown error')}"
+# ============================================================
+# BIQUOTE LIVE QUOTE
+# ============================================================
+def get_quote():
+    payload = get_json(f"{BIQUOTE_BASE}/{SYMBOL}?allowStale=false")
+
+    try:
+        bid = float(payload["bid"])
+        ask = float(payload["ask"])
+        mid = float(payload["mid"])
+        stamp = datetime.fromisoformat(
+            str(payload["timestamp"]).replace("Z", "+00:00")
         )
-    values = payload.get("values")
-    if not isinstance(values, list) or not values:
-        raise RuntimeError("Twelve Data tidak memulangkan candle OHLC")
-    unique = {}
-    for item in values:
-        try:
-            # timezone=UTC returns date/time strings without a UTC offset.
-            stamp_text = str(item["datetime"]).replace("Z", "+00:00")
-            stamp = datetime.fromisoformat(stamp_text)
-            if stamp.tzinfo is None:
-                stamp = stamp.replace(tzinfo=timezone.utc)
-            candle = {
-                "t": int(stamp.timestamp()),
-                "o": float(item["open"]),
-                "h": float(item["high"]),
-                "l": float(item["low"]),
-                "c": float(item["close"]),
-                # Closed-bar filtering is done from the candle timestamp below.
-                "is_open": False,
-            }
-            prices = [candle[k] for k in ("o", "h", "l", "c")]
-            if not all(math.isfinite(x) for x in prices):
-                continue
-            if candle["h"] < max(candle["o"], candle["c"], candle["l"]):
-                continue
-            if candle["l"] > min(candle["o"], candle["c"], candle["h"]):
-                continue
-            unique[candle["t"]] = candle
-        except (KeyError, TypeError, ValueError, OverflowError):
-            continue
-    return [unique[t] for t in sorted(unique)]
+        if stamp.tzinfo is None:
+            stamp = stamp.replace(tzinfo=timezone.utc)
+    except (KeyError, TypeError, ValueError) as exc:
+        raise RuntimeError(f"Quote Biquote tidak lengkap: {exc}") from exc
+
+    if not all(math.isfinite(x) and x > 0 for x in (bid, ask, mid)):
+        raise RuntimeError("Harga quote tidak sah.")
+
+    if ask < bid:
+        raise RuntimeError("Ask lebih rendah daripada Bid.")
+
+    age = int(utc_now().timestamp() - stamp.timestamp())
+    if age < -60 or age > MAX_QUOTE_AGE:
+        raise RuntimeError(f"Quote lapuk: {age} saat.")
+
+    if str(payload.get("marketState", "")).lower() != "open":
+        raise RuntimeError(
+            f"Pasaran bukan OPEN: {payload.get('marketState', 'UNKNOWN')}"
+        )
+
+    return {
+        "bid": bid,
+        "ask": ask,
+        "mid": mid,
+        "spread": max(0.0, float(payload.get("spread", ask - bid))),
+        "timestamp": stamp.astimezone(timezone.utc).isoformat(),
+        "age": max(0, age),
+    }
 
 
-def fetch_candles(interval_biquote, interval_twelve, limit):
-    """Use Twelve Data when a key exists; otherwise keep Biquote working."""
-    if TWELVE_API_KEY:
-        return get_twelve_bars(interval_twelve, limit), "Twelve Data"
-    return get_bars(interval_biquote, limit), "Biquote API (Twelve Data key not configured)"
-
-
+# ============================================================
+# TECHNICAL INDICATORS
+# ============================================================
 def ema(values, period):
     if len(values) < period:
         raise RuntimeError(f"Candle tidak cukup untuk EMA{period}")
-    alpha = 2 / (period + 1)
+
+    alpha = 2.0 / (period + 1)
     result = [float(values[0])]
+
     for value in values[1:]:
-        result.append(alpha * float(value) + (1 - alpha) * result[-1])
+        result.append(
+            alpha * float(value) + (1 - alpha) * result[-1]
+        )
+
     return result
 
 
 def atr(candles, period=14):
-    tr = []
-    for i in range(1, len(candles)):
-        cur, prev = candles[i], candles[i - 1]["c"]
-        tr.append(max(cur["h"] - cur["l"], abs(cur["h"] - prev), abs(cur["l"] - prev)))
-    if len(tr) < period:
-        raise RuntimeError("Candle tidak cukup untuk ATR")
-    value = sum(tr[:period]) / period
-    for x in tr[period:]:
-        value = (value * (period - 1) + x) / period
+    true_ranges = []
+
+    for index in range(1, len(candles)):
+        current = candles[index]
+        previous_close = candles[index - 1]["c"]
+
+        true_ranges.append(max(
+            current["h"] - current["l"],
+            abs(current["h"] - previous_close),
+            abs(current["l"] - previous_close),
+        ))
+
+    if len(true_ranges) < period:
+        raise RuntimeError("Candle tidak cukup untuk ATR.")
+
+    value = sum(true_ranges[:period]) / period
+
+    for current_range in true_ranges[period:]:
+        value = (
+            value * (period - 1) + current_range
+        ) / period
+
     if not math.isfinite(value) or value <= 0:
-        raise RuntimeError("ATR tidak sah")
+        raise RuntimeError("ATR tidak sah.")
+
     return value
 
 
 def get_trend(interval):
-    candles, _source = fetch_candles(interval, {"1d": "1day", "4h": "4h", "1h": "1h", "30m": "30min", "15m": "15min"}.get(interval, interval), 120)
+    candles = get_candles(interval, 120)
     candles = [c for c in candles if not c["is_open"]]
+
     if len(candles) < 60:
         return "UNKNOWN"
+
     closes = [c["c"] for c in candles]
-    fast, slow = ema(closes, 20)[-1], ema(closes, 50)[-1]
-    return "BULLISH" if fast > slow else "BEARISH" if fast < slow else "FLAT"
+    fast = ema(closes, 20)[-1]
+    slow = ema(closes, 50)[-1]
+
+    if fast > slow:
+        return "BULLISH"
+    if fast < slow:
+        return "BEARISH"
+    return "FLAT"
 
 
+# ============================================================
+# SIGNAL ENGINE
+# ============================================================
 def evaluate(candles, trends):
+    if len(candles) < MIN_BARS:
+        raise RuntimeError("Candle M5 tidak mencukupi.")
+
     closes = [c["c"] for c in candles]
-    e20, e50 = ema(closes, 20), ema(closes, 50)
+    ema20 = ema(closes, 20)
+    ema50 = ema(closes, 50)
     atr14 = atr(candles)
-    cur, prev = candles[-1], candles[-2]
+
+    current = candles[-1]
+    previous = candles[-2]
+
     high20 = max(c["h"] for c in candles[-21:-1])
     low20 = min(c["l"] for c in candles[-21:-1])
     low10 = min(c["l"] for c in candles[-11:-1])
     high10 = max(c["h"] for c in candles[-11:-1])
-    support30 = min(c["l"] for c in candles[-31:-1])
-    resistance30 = max(c["h"] for c in candles[-31:-1])
-    bull, bear = cur["c"] > cur["o"], cur["c"] < cur["o"]
+    support = min(c["l"] for c in candles[-31:-1])
+    resistance = max(c["h"] for c in candles[-31:-1])
+
+    bullish = current["c"] > current["o"]
+    bearish = current["c"] < current["o"]
 
     buy_setups = {
-        "SnR Rejection": cur["l"] <= support30 + atr14 * .25 and cur["c"] > support30 and bull,
-        "Liquidity Sweep": cur["l"] < low10 and cur["c"] > low10 and bull,
-        "Engulfing": bull and prev["c"] < prev["o"] and cur["o"] <= prev["c"] and cur["c"] >= prev["o"],
-        "Breakout": cur["c"] > high20 and prev["c"] <= high20,
+        "SnR Rejection": (
+            current["l"] <= support + atr14 * 0.25
+            and current["c"] > support and bullish
+        ),
+        "Liquidity Sweep": (
+            current["l"] < low10 and current["c"] > low10 and bullish
+        ),
+        "Engulfing": (
+            bullish and previous["c"] < previous["o"]
+            and current["o"] <= previous["c"]
+            and current["c"] >= previous["o"]
+        ),
+        "Breakout": (
+            current["c"] > high20 and previous["c"] <= high20
+        ),
     }
+
     sell_setups = {
-        "SnR Rejection": cur["h"] >= resistance30 - atr14 * .25 and cur["c"] < resistance30 and bear,
-        "Liquidity Sweep": cur["h"] > high10 and cur["c"] < high10 and bear,
-        "Engulfing": bear and prev["c"] > prev["o"] and cur["o"] >= prev["c"] and cur["c"] <= prev["o"],
-        "Breakout": cur["c"] < low20 and prev["c"] >= low20,
+        "SnR Rejection": (
+            current["h"] >= resistance - atr14 * 0.25
+            and current["c"] < resistance and bearish
+        ),
+        "Liquidity Sweep": (
+            current["h"] > high10 and current["c"] < high10 and bearish
+        ),
+        "Engulfing": (
+            bearish and previous["c"] > previous["o"]
+            and current["o"] >= previous["c"]
+            and current["c"] <= previous["o"]
+        ),
+        "Breakout": (
+            current["c"] < low20 and previous["c"] >= low20
+        ),
     }
-    body_ok = abs(cur["c"] - cur["o"]) >= atr14 * .1
-    extension_ok = abs(cur["c"] - e20[-1]) <= atr14 * 2
-    buy_momentum, sell_momentum = e20[-1] > e50[-1] and bull, e20[-1] < e50[-1] and bear
-    bull_htf = sum(v == "BULLISH" for v in trends.values())
-    bear_htf = sum(v == "BEARISH" for v in trends.values())
 
-    buy_score = max(0, min(8,
-        int(cur["c"] > e50[-1]) + int(buy_momentum)
-        + int(abs(cur["c"] - support30) <= atr14)
-        + int(any(buy_setups[k] for k in ("SnR Rejection", "Liquidity Sweep", "Engulfing")))
-        + int(buy_setups["Breakout"]) + int(body_ok) + int(extension_ok)
-        + int(bull_htf > 0) - int(bull_htf == 0)))
-    sell_score = max(0, min(8,
-        int(cur["c"] < e50[-1]) + int(sell_momentum)
-        + int(abs(cur["c"] - resistance30) <= atr14)
-        + int(any(sell_setups[k] for k in ("SnR Rejection", "Liquidity Sweep", "Engulfing")))
-        + int(sell_setups["Breakout"]) + int(body_ok) + int(extension_ok)
-        + int(bear_htf > 0) - int(bear_htf == 0)))
+    body_ok = abs(current["c"] - current["o"]) >= atr14 * 0.1
+    extension_ok = abs(current["c"] - ema20[-1]) <= atr14 * 2
 
-    side, score, setup = "WAIT", max(buy_score, sell_score), "None"
-    if any(buy_setups.values()) and buy_score >= MIN_SCORE and body_ok and extension_ok and not any(sell_setups.values()):
-        side, score = "BUY", buy_score
-        setup = next(k for k, v in buy_setups.items() if v)
-    elif any(sell_setups.values()) and sell_score >= MIN_SCORE and body_ok and extension_ok and not any(buy_setups.values()):
-        side, score = "SELL", sell_score
-        setup = next(k for k, v in sell_setups.items() if v)
+    buy_momentum = ema20[-1] > ema50[-1] and bullish
+    sell_momentum = ema20[-1] < ema50[-1] and bearish
 
-    quality = "WAIT" if score <= 3 else "RISIKO" if score == 4 else "RENDAH (C)" if score <= 6 else "SEDERHANA (B)" if score == 7 else "KUAT (A)"
-    support_pivots, resistance_pivots = [], []
-    look = candles[-100:]
-    for i in range(3, len(look) - 3):
-        window = look[i-3:i+4]
-        if look[i]["l"] == min(c["l"] for c in window) and look[i]["l"] < cur["c"] - atr14 * .25:
-            support_pivots.append(look[i]["l"])
-        if look[i]["h"] == max(c["h"] for c in window) and look[i]["h"] > cur["c"] + atr14 * .25:
-            resistance_pivots.append(look[i]["h"])
-    support = max(support_pivots) if support_pivots else None
-    resistance = min(resistance_pivots) if resistance_pivots else None
+    bullish_htf = sum(v == "BULLISH" for v in trends.values())
+    bearish_htf = sum(v == "BEARISH" for v in trends.values())
+
+    buy_score = max(0, min(8, sum([
+        int(current["c"] > ema50[-1]),
+        int(buy_momentum),
+        int(abs(current["c"] - support) <= atr14),
+        int(any(buy_setups[k] for k in (
+            "SnR Rejection", "Liquidity Sweep", "Engulfing"
+        ))),
+        int(buy_setups["Breakout"]),
+        int(body_ok),
+        int(extension_ok),
+        int(bullish_htf > 0) - int(bullish_htf == 0),
+    ])))
+
+    sell_score = max(0, min(8, sum([
+        int(current["c"] < ema50[-1]),
+        int(sell_momentum),
+        int(abs(current["c"] - resistance) <= atr14),
+        int(any(sell_setups[k] for k in (
+            "SnR Rejection", "Liquidity Sweep", "Engulfing"
+        ))),
+        int(sell_setups["Breakout"]),
+        int(body_ok),
+        int(extension_ok),
+        int(bearish_htf > 0) - int(bearish_htf == 0),
+    ])))
+
+    side = "WAIT"
+    score = max(buy_score, sell_score)
+    strategy = "None"
+
+    if (
+        any(buy_setups.values())
+        and buy_score >= MIN_SCORE
+        and body_ok and extension_ok
+        and not any(sell_setups.values())
+    ):
+        side = "BUY"
+        score = buy_score
+        strategy = next(k for k, v in buy_setups.items() if v)
+
+    elif (
+        any(sell_setups.values())
+        and sell_score >= MIN_SCORE
+        and body_ok and extension_ok
+        and not any(buy_setups.values())
+    ):
+        side = "SELL"
+        score = sell_score
+        strategy = next(k for k, v in sell_setups.items() if v)
+
+    quality = (
+        "WAIT" if score <= 3 else
+        "RISIKO" if score == 4 else
+        "RENDAH (C)" if score <= 6 else
+        "SEDERHANA (B)" if score == 7 else
+        "KUAT (A)"
+    )
 
     result = {
-        "signal": side, "score": score, "quality": quality, "strategy": setup,
-        "buy_score": buy_score, "sell_score": sell_score, "atr14": atr14,
-        "ema20": e20[-1], "ema50": e50[-1], "support": support, "resistance": resistance,
+        "signal": side,
+        "score": score,
+        "buy_score": buy_score,
+        "sell_score": sell_score,
+        "quality": quality,
+        "strategy": strategy,
+        "atr14": atr14,
+        "ema20": ema20[-1],
+        "ema50": ema50[-1],
+        "support": support,
+        "resistance": resistance,
         "trend": trends,
         "techniques": {
-            "snr": bool(buy_setups["SnR Rejection"] or sell_setups["SnR Rejection"]),
-            "smc": bool(buy_setups["Liquidity Sweep"] or sell_setups["Liquidity Sweep"]),
-            "pa": bool(buy_setups["Engulfing"] or sell_setups["Engulfing"]),
-            "breakout": bool(buy_setups["Breakout"] or sell_setups["Breakout"]),
+            "snr": bool(
+                buy_setups["SnR Rejection"]
+                or sell_setups["SnR Rejection"]
+            ),
+            "smc": bool(
+                buy_setups["Liquidity Sweep"]
+                or sell_setups["Liquidity Sweep"]
+            ),
+            "pa": bool(
+                buy_setups["Engulfing"] or sell_setups["Engulfing"]
+            ),
+            "breakout": bool(
+                buy_setups["Breakout"] or sell_setups["Breakout"]
+            ),
         },
     }
+
     if side in ("BUY", "SELL"):
-        entry = cur["c"]
-        distance = max(atr14 * 1.5, (cur["h"] - cur["l"]) * 1.2)
+        entry = current["c"]
+        distance = max(atr14 * 1.5, (current["h"] - current["l"]) * 1.2)
+
         if side == "BUY":
-            sl = min(cur["l"] - atr14 * .15, entry - distance)
+            sl = min(current["l"] - atr14 * 0.15, entry - distance)
             risk = entry - sl
-            tp1, tp2 = entry + risk * TP1_R, entry + risk * TP2_R
+            tp1 = entry + risk * TP1_R
+            tp2 = entry + risk * TP2_R
         else:
-            sl = max(cur["h"] + atr14 * .15, entry + distance)
+            sl = max(current["h"] + atr14 * 0.15, entry + distance)
             risk = sl - entry
-            tp1, tp2 = entry - risk * TP1_R, entry - risk * TP2_R
-        result.update({"entry": entry, "zone_low": entry-atr14*.15, "zone_high": entry+atr14*.15,
-                       "sl": sl, "tp1": tp1, "tp2": tp2, "risk_distance": risk})
+            tp1 = entry - risk * TP1_R
+            tp2 = entry - risk * TP2_R
+
+        result.update({
+            "entry": entry,
+            "zone_low": entry - atr14 * 0.15,
+            "zone_high": entry + atr14 * 0.15,
+            "sl": sl,
+            "tp1": tp1,
+            "tp2": tp2,
+            "risk_distance": risk,
+        })
     else:
-        result.update({"entry": None, "zone_low": None, "zone_high": None,
-                       "sl": None, "tp1": None, "tp2": None, "risk_distance": None})
+        result.update({
+            "entry": None, "zone_low": None, "zone_high": None,
+            "sl": None, "tp1": None, "tp2": None,
+            "risk_distance": None,
+        })
+
     return result
 
 
+# ============================================================
+# NOTIFICATIONS
+# ============================================================
 def notify(title, message):
-    if not TOPIC:
-        print("NTFY_SKIPPED: NTFY_TOPIC tiada")
+    if not NTFY_TOPIC:
+        print("NTFY_SKIPPED: NTFY_TOPIC tidak ditetapkan.")
         return False
-    req = urllib.request.Request(
-        f"{SERVER}/{TOPIC}", data=message.encode("utf-8"), method="POST",
-        headers={"Title": title.encode("ascii", "replace").decode("ascii"),
-                 "Priority": "high", "Tags": "chart"})
-    with urllib.request.urlopen(req, timeout=20) as response:
+
+    request = urllib.request.Request(
+        f"{NTFY_SERVER}/{NTFY_TOPIC}",
+        data=message.encode("utf-8"),
+        method="POST",
+        headers={
+            "Title": title,
+            "Priority": "high",
+            "Tags": "chart",
+        },
+    )
+
+    with urllib.request.urlopen(request, timeout=20) as response:
         if not 200 <= response.status < 300:
             raise RuntimeError(f"ntfy HTTP {response.status}")
+
     return True
 
 
-def clear_signal(public):
-    for key in ("entry", "zone_low", "zone_high", "sl", "tp1", "tp2", "risk_distance"):
-        public[key] = None
-    public.update({"signal": "WAIT", "score": 0, "quality": "WAIT", "strategy": "None"})
-
-
-def monitor_active(state, public, quote_data):
-    active = state.get("active_setup")
-    if not isinstance(active, dict) or active.get("status") not in ("ACTIVE", "TP1_HIT"):
-        public["active_setup"] = active
-        return
-    side = active.get("side")
-    if side not in ("BUY", "SELL"):
-        public["active_setup"] = active
-        return
-    stamp = quote_data["timestamp"]
-    if stamp == active.get("last_checked_quote_timestamp"):
-        public["active_setup"] = active
-        return
-    active["last_checked_quote_timestamp"] = stamp
-    price = quote_data["bid"] if side == "BUY" else quote_data["ask"]
-    try:
-        sl, tp1, tp2 = (float(active[k]) for k in ("sl", "tp1", "tp2"))
-    except (KeyError, TypeError, ValueError):
-        public["active_setup"] = active
-        return
-    sl_hit = price <= sl if side == "BUY" else price >= sl
-    tp1_hit = price >= tp1 if side == "BUY" else price <= tp1
-    tp2_hit = price >= tp2 if side == "BUY" else price <= tp2
-    event = None
-    if sl_hit:
-        event = "SL_HIT"
-    elif active["status"] == "ACTIVE" and tp1_hit:
-        event = "TP1_HIT"
-    elif active["status"] == "TP1_HIT" and tp2_hit:
-        event = "TP2_HIT"
-    if event and active.get("last_event_notified") != event:
-        msg = (f"MCD UPDATE - {event}\nSymbol: XAUUSD | M5\nSide: {side}\n"
-               f"Price: {fmt(price)} ({'BID' if side == 'BUY' else 'ASK'})\n"
-               f"Entry: {fmt(active.get('entry'))}\nSL: {fmt(sl)}\nTP1: {fmt(tp1)}\nTP2: {fmt(tp2)}\n"
-               f"Quote UTC: {stamp}\nSource: Biquote; bukan feed rasmi HFM XAUUSDc.")
-        try:
-            if notify(f"MCD UPDATE - {event}", msg):
-                active["status"] = event
-                active["last_event_notified"] = event
-                if event in ("SL_HIT", "TP2_HIT"):
-                    active["closed_utc"] = now().isoformat()
-        except Exception as exc:
-            active["notification_error"] = str(exc)
-    public["active_setup"] = active
-    public["sampled_exit_price"] = price
-    public["sampled_exit_price_type"] = "BID" if side == "BUY" else "ASK"
-
-
+# ============================================================
+# MAIN MONITOR
+# ============================================================
 def main():
-    run_time = now()
-    state = read_json(STATE)
+    run_time = utc_now()
+    epoch = int(run_time.timestamp())
+    state = read_json(STATE_FILE)
+
     public = {
-        "version": "V1.5", "symbol": SYMBOL, "timeframe": "M5",
-        "data_source": "Twelve Data OHLC + Biquote quote; bukan feed rasmi HFM XAUUSDc",
-        "updated_utc": run_time.isoformat(), "data_status": "DATA_ERROR",
-        "signal": "WAIT", "score": 0, "quality": "WAIT", "reason": "Menunggu data sah.",
-        "trend": {"d1": "UNKNOWN", "h4": "UNKNOWN", "h1": "UNKNOWN", "m30": "UNKNOWN", "m15": "UNKNOWN"},
-        "support": None, "resistance": None, "techniques": {"snr": False, "smc": False, "pa": False, "breakout": False},
-        "price": None, "quote_bid": None, "quote_ask": None, "quote_mid": None,
-        "quote_spread": None, "quote_timestamp_utc": None, "quote_age_seconds": None,
-        "chart_candles": [], "entry": None, "zone_low": None, "zone_high": None,
-        "sl": None, "tp1": None, "tp2": None, "active_setup": state.get("active_setup"),
+        "version": "V2.0",
+        "symbol": SYMBOL,
+        "timeframe": TIMEFRAME,
+        "updated_utc": run_time.isoformat(),
+        "data_status": "DATA_ERROR",
+        "signal": "WAIT",
+        "score": 0,
+        "quality": "WAIT",
+        "reason": "Menunggu data sah.",
+        "trend": {
+            "d1": "UNKNOWN", "h4": "UNKNOWN",
+            "h1": "UNKNOWN", "m30": "UNKNOWN", "m15": "UNKNOWN",
+        },
+        "techniques": {
+            "snr": False, "smc": False, "pa": False, "breakout": False,
+        },
+        "price": None,
+        "quote_bid": None,
+        "quote_ask": None,
+        "quote_mid": None,
+        "quote_spread": None,
+        "quote_timestamp_utc": None,
+        "quote_age_seconds": None,
+        "chart_candles": [],
+        "entry": None,
+        "zone_low": None,
+        "zone_high": None,
+        "sl": None,
+        "tp1": None,
+        "tp2": None,
+        "active_setup": state.get("active_setup"),
+        "ohlc_source": "Twelve Data",
+        "quote_source": "Biquote API",
+        "data_note": "Biquote bukan feed rasmi broker HFM.",
     }
+
     try:
-        q = get_quote()
-        epoch = int(run_time.timestamp())
-        raw, candle_source = fetch_candles("5m", "5min", 1000)
-        candles = [c for c in raw if not c["is_open"] and c["t"] + 300 <= epoch]
+        if not TWELVE_DATA_API_KEY:
+            raise RuntimeError(
+                "API key kosong. Semak secret TWELVE_DATA_API_KEY."
+            )
+
+        quote = get_quote()
+        raw = get_candles("5min", 500)
+
+        candles = [
+            c for c in raw
+            if not c["is_open"] and c["t"] + 300 <= epoch
+        ]
+
         if len(candles) < MIN_BARS:
             raise RuntimeError(f"Candle M5 tidak cukup: {len(candles)}")
+
         last = candles[-1]
         candle_age = epoch - (last["t"] + 300)
+
         if candle_age < 0 or candle_age > MAX_CANDLE_AGE:
-            raise RuntimeError(f"Candle M5 lapuk ({candle_age}s)")
+            raise RuntimeError(f"Candle M5 lapuk: {candle_age}s")
+
         if len(candles) > 1 and last["t"] - candles[-2]["t"] > 600:
-            raise RuntimeError("Jurang candle M5 terlalu besar")
+            raise RuntimeError("Jurang candle M5 terlalu besar.")
 
         trends = {}
-        for key, interval in (("d1", "1d"), ("h4", "4h"), ("h1", "1h"), ("m30", "30m"), ("m15", "15m")):
+        for name, interval in (
+            ("d1", "1day"), ("h4", "4h"), ("h1", "1h"),
+            ("m30", "30min"), ("m15", "15min"),
+        ):
             try:
-                trends[key] = get_trend(interval)
+                trends[name] = get_trend(interval)
             except Exception as exc:
-                trends[key] = "UNKNOWN"
-                print(f"{key} trend unavailable: {exc}")
+                trends[name] = "UNKNOWN"
+                print(f"Trend {name} unavailable: {exc}")
 
-        result = evaluate(candles[-1000:], trends)
-        # Anti-chasing: BUY uses Ask, SELL uses Bid.
+        result = evaluate(candles[-300:], trends)
+
+        # Anti-chasing: BUY uses Ask; SELL uses Bid.
         if result["signal"] in ("BUY", "SELL"):
-            live_price = q["ask"] if result["signal"] == "BUY" else q["bid"]
+            live_price = (
+                quote["ask"] if result["signal"] == "BUY"
+                else quote["bid"]
+            )
             drift = abs(live_price - result["entry"])
+
             if drift > result["atr14"] * MAX_ENTRY_DRIFT_ATR:
                 rejected = result["signal"]
-                result.update({"signal": "WAIT", "strategy": "NO CHASE", "entry": None,
-                               "zone_low": None, "zone_high": None, "sl": None,
-                               "tp1": None, "tp2": None, "risk_distance": None,
-                               "no_chase_rejected": rejected, "no_chase_drift": drift})
+                result.update({
+                    "signal": "WAIT",
+                    "strategy": "NO CHASE",
+                    "entry": None,
+                    "zone_low": None,
+                    "zone_high": None,
+                    "sl": None,
+                    "tp1": None,
+                    "tp2": None,
+                    "risk_distance": None,
+                    "no_chase_rejected": rejected,
+                    "no_chase_drift": drift,
+                })
+
         public.update(result)
         public.update({
-            "data_status": "FRESH", "updated_utc": run_time.isoformat(),
-            "last_candle_utc": iso(last["t"] + 300), "candle_age_seconds": candle_age,
-            "price": q["mid"], "quote_mid": q["mid"], "quote_bid": q["bid"],
-            "quote_ask": q["ask"], "quote_spread": q["spread"],
-            "quote_timestamp_utc": q["timestamp"], "quote_age_seconds": q["age"],
-            "quote_source": "Biquote API", "ohlc_source": "Twelve Data", "market_state": "open", "candle_close": last["c"],
-            "chart_candles": [{k: c[k] for k in ("t", "o", "h", "l", "c")} for c in candles[-40:]],
-            "reason": "Candle Twelve Data dan quote Biquote lulus semakan. Bandingkan harga dengan broker.",
+            "data_status": "FRESH",
+            "updated_utc": run_time.isoformat(),
+            "last_candle_utc": iso_utc(last["t"] + 300),
+            "candle_age_seconds": candle_age,
+            "price": quote["mid"],
+            "quote_mid": quote["mid"],
+            "quote_bid": quote["bid"],
+            "quote_ask": quote["ask"],
+            "quote_spread": quote["spread"],
+            "quote_timestamp_utc": quote["timestamp"],
+            "quote_age_seconds": quote["age"],
+            "market_state": "open",
+            "candle_close": last["c"],
+            "chart_candles": [
+                {k: c[k] for k in ("t", "o", "h", "l", "c")}
+                for c in candles[-40:]
+            ],
         })
-        monitor_active(state, public, q)
 
         if result["signal"] in ("BUY", "SELL"):
             key = f'{result["signal"]}-{last["t"]}'
+
             if state.get("last_signal_key") != key:
-                msg = (
-                    f'MCD SIGNAL - {result["signal"]}\nSymbol: XAUUSD | M5\n'
-                    f'Entry: {fmt(result["entry"])}\nSL: {fmt(result["sl"])}\n'
-                    f'TP1: {fmt(result["tp1"])} ({TP1_R:g}R)\nTP2: {fmt(result["tp2"])} ({TP2_R:g}R)\n'
-                    f'Quality: {result["score"]}/8 - {result["quality"]}\nSetup: {result["strategy"]}\n'
-                    f'Current price: {fmt(q["mid"])} | Bid/Ask: {fmt(q["bid"])}/{fmt(q["ask"])}\n'
-                    f'Spread: {fmt(q["spread"])}\nQuote UTC: {q["timestamp"]}\n'
-                    'Source: Twelve Data OHLC + Biquote quote; bukan feed rasmi HFM XAUUSDc. Notification only.'
+                message = (
+                    f'MCD SIGNAL - {result["signal"]}\n'
+                    f'Symbol: XAUUSD | M5\n'
+                    f'Entry: {fmt(result["entry"])}\n'
+                    f'SL: {fmt(result["sl"])}\n'
+                    f'TP1: {fmt(result["tp1"])} ({TP1_R}R)\n'
+                    f'TP2: {fmt(result["tp2"])} ({TP2_R}R)\n'
+                    f'Score: {result["score"]}/8\n'
+                    f'Setup: {result["strategy"]}\n'
+                    f'Price: {fmt(quote["mid"])}\n'
+                    f'OHLC: Twelve Data; quote: Biquote.\n'
+                    f'Bukan feed rasmi HFM XAUUSDc.'
                 )
-                try:
-                    sent = notify(f'MCD SIGNAL - {result["signal"]}', msg)
-                    if sent:
-                        state["last_signal_key"] = key
-                        state["active_setup"] = {
-                            "id": key, "side": result["signal"], "status": "ACTIVE",
-                            "entry": result["entry"], "sl": result["sl"], "tp1": result["tp1"],
-                            "tp2": result["tp2"], "risk_distance": result["risk_distance"],
-                            "strategy": result["strategy"], "score": result["score"],
-                            "created_candle_t": last["t"], "created_utc": iso(last["t"] + 300),
-                        }
-                        public["active_setup"] = state["active_setup"]
-                    else:
-                        public["notification_error"] = "NTFY_TOPIC tiada; signal tidak dihantar."
-                except Exception as exc:
-                    public["notification_error"] = str(exc)
+
+                if notify(f'MCD SIGNAL - {result["signal"]}', message):
+                    state["last_signal_key"] = key
+                    state["active_setup"] = {
+                        "id": key,
+                        "side": result["signal"],
+                        "status": "ACTIVE",
+                        "entry": result["entry"],
+                        "sl": result["sl"],
+                        "tp1": result["tp1"],
+                        "tp2": result["tp2"],
+                        "strategy": result["strategy"],
+                        "score": result["score"],
+                        "created_utc": iso_utc(last["t"] + 300),
+                    }
+                else:
+                    public["notification_error"] = (
+                        "NTFY_TOPIC tiada; notifikasi tidak dihantar."
+                    )
+
+            public["reason"] = (
+                "Setup sah; semak spread dan harga broker sebelum tindakan."
+            )
+
+        elif result.get("strategy") == "NO CHASE":
+            public["reason"] = (
+                "WAIT - harga bergerak lebih daripada 1.2 ATR. "
+                "Jangan kejar harga."
+            )
         else:
             public["reason"] = (
-                "WAIT - harga sudah bergerak terlalu jauh daripada entry; jangan kejar harga."
-                if result.get("strategy") == "NO CHASE"
-                else f'WAIT - BUY {result["buy_score"]}/8, SELL {result["sell_score"]}/8; tiada setup sah.'
+                f'WAIT - BUY {result["buy_score"]}/8, '
+                f'SELL {result["sell_score"]}/8; tiada setup sah.'
             )
-        state["last_status"], state["last_error"], state["last_candle_t"] = "DATA_VALID", None, last["t"]
+
+        state["last_status"] = "DATA_VALID"
+        state["last_error"] = None
+        state["last_candle_t"] = last["t"]
+
     except Exception as exc:
-        clear_signal(public)
+        for key in (
+            "entry", "zone_low", "zone_high",
+            "sl", "tp1", "tp2", "risk_distance",
+        ):
+            public[key] = None
+
         public.update({
-            "data_status": "DATA_ERROR", "reason": f"DATA_ERROR - {exc}. Signal disekat.",
-            "price": None, "quote_bid": None, "quote_ask": None, "quote_mid": None,
-            "quote_spread": None, "quote_timestamp_utc": None, "quote_age_seconds": None,
-            "quote_source": None, "ohlc_source": "Twelve Data", "market_state": None, "candle_close": None, "chart_candles": [],
+            "data_status": "DATA_ERROR",
+            "signal": "WAIT",
+            "score": 0,
+            "quality": "WAIT",
+            "strategy": "None",
+            "reason": f"DATA_ERROR - {exc}. Signal disekat.",
+            "price": None,
+            "quote_bid": None,
+            "quote_ask": None,
+            "quote_mid": None,
+            "quote_spread": None,
+            "quote_timestamp_utc": None,
+            "quote_age_seconds": None,
+            "chart_candles": [],
         })
-        state["last_status"], state["last_error"] = "DATA_ERROR", str(exc)
+
+        state["last_status"] = "DATA_ERROR"
+        state["last_error"] = str(exc)
         print("WAIT / DATA_ERROR:", exc)
 
     state["last_run_utc"] = run_time.isoformat()
     public["updated_utc"] = run_time.isoformat()
     public["active_setup"] = state.get("active_setup")
-    write_json(STATUS, public)
-    write_json(STATE, state)
+
+    write_json(STATUS_FILE, public)
+    write_json(STATE_FILE, state)
 
 
 if __name__ == "__main__":
