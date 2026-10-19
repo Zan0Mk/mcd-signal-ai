@@ -1,9 +1,12 @@
-
 {
   "last_signal_key": null,
   "last_signal_time": null,
   "last_checked_candle_t": null,
   "active_setup": null,
   "last_event": null,
-  "last_event_time": null
+  "last_event_time": null,
+  "last_status": "DATA_VALID",
+  "last_error": null,
+  "last_candle_t": 1792374000,
+  "last_run_utc": "2026-10-19T01:48:09.902083+00:00"
 }
