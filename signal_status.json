@@ -3,7 +3,7 @@
   "symbol": "XAUUSD",
   "timeframe": "M5",
   "data_source": "Twelve Data OHLC + Biquote quote; bukan feed rasmi HFM XAUUSDc",
-  "updated_utc": "2026-10-19T17:46:56.192890+00:00",
+  "updated_utc": "2026-10-19T17:49:57.406970+00:00",
   "data_status": "DATA_ERROR",
   "signal": "WAIT",
   "score": 0,
