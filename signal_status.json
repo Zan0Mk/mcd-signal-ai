@@ -3,7 +3,7 @@
   "symbol": "XAUUSD",
   "timeframe": "M5",
   "data_source": "Biquote API — bukan feed HFM XAUUSDc",
-  "updated_utc": "2026-10-19T01:48:09.902083+00:00",
+  "updated_utc": "2026-10-19T01:55:49.663045+00:00",
   "data_status": "FRESH",
   "signal": "WAIT",
   "score": 4,
@@ -16,37 +16,23 @@
     "m30": "BULLISH",
     "m15": "BULLISH"
   },
-  "support": 4171.861,
-  "resistance": 4172.007,
-  "trend_45m": "DOWNTREND",
+  "support": 4172.997,
+  "resistance": 4174.266,
+  "trend_45m": "UPTREND",
   "techniques": {
     "snr": false,
     "smc": false,
     "pa": false,
     "breakout": false
   },
-  "price": 4172.412,
-  "quote_bid": 4172.328,
-  "quote_ask": 4172.496,
-  "quote_mid": 4172.412,
+  "price": 4174.878,
+  "quote_bid": 4174.794,
+  "quote_ask": 4174.962,
+  "quote_mid": 4174.878,
   "quote_spread": 0.168,
-  "quote_timestamp_utc": "2026-10-19T01:48:10+00:00",
-  "quote_age_seconds": 0,
+  "quote_timestamp_utc": "2026-10-19T01:55:49+00:00",
+  "quote_age_seconds": 1,
   "chart_candles": [
-    {
-      "t": 1792371600,
-      "o": 4173.793,
-      "h": 4178.08,
-      "l": 4170.179,
-      "c": 4171.041
-    },
-    {
-      "t": 1792371900,
-      "o": 4171.114,
-      "h": 4172.097,
-      "l": 4166.308,
-      "c": 4170.032
-    },
     {
       "t": 1792372200,
       "o": 4169.992,
@@ -95,6 +81,20 @@
       "h": 4173.175,
       "l": 4168.043,
       "c": 4171.991
+    },
+    {
+      "t": 1792374300,
+      "o": 4172.182,
+      "h": 4176.264,
+      "l": 4171.319,
+      "c": 4172.182
+    },
+    {
+      "t": 1792374600,
+      "o": 4172.078,
+      "h": 4176.298,
+      "l": 4170.911,
+      "c": 4173.574
     }
   ],
   "entry": null,
@@ -108,13 +108,13 @@
   "strategy": "None",
   "buy_score": 3,
   "sell_score": 4,
-  "atr14": 4.529751796031053,
-  "ema20": 4173.141260959273,
-  "ema50": 4173.72005233031,
+  "atr14": 4.618525783421782,
+  "ema20": 4173.099816794324,
+  "ema50": 4173.656384429758,
   "risk_distance": null,
-  "last_candle_utc": "2026-10-19T01:45:00+00:00",
-  "candle_age_seconds": 189,
+  "last_candle_utc": "2026-10-19T01:55:00+00:00",
+  "candle_age_seconds": 49,
   "quote_source": "Biquote API",
   "market_state": "open",
-  "candle_close": 4171.991
+  "candle_close": 4173.574
 }
