@@ -41,7 +41,7 @@ def fmt(value):
 
 
 def get_json(url):
-    req = urllib.request.Request(url, headers={"User-Agent": "MCD-SIGNAL/1.4"})
+    req = urllib.request.Request(url, headers={"User-Agent": "MCD-SIGNAL/1.5"})
     with urllib.request.urlopen(req, timeout=20) as response:
         if not 200 <= response.status < 300:
             raise RuntimeError(f"HTTP {response.status}")
@@ -93,9 +93,9 @@ def get_quote():
 
 
 def get_bars(interval="5m", limit=1000):
-    """Fetch OHLC from Twelve Data only; do not silently mix candle providers."""
+    """Fetch OHLC from Twelve Data; requires the TWELVE_DATA_API_KEY secret."""
     if not TWELVE_DATA_API_KEY:
-        raise RuntimeError("TWELVE_DATA_API_KEY belum ditetapkan dalam environment/ GitHub Secrets")
+        raise RuntimeError("TWELVE_DATA_API_KEY belum ditetapkan dalam GitHub Secrets/environment")
 
     interval_map = {
         "5m": ("5min", 300),
@@ -108,40 +108,34 @@ def get_bars(interval="5m", limit=1000):
     if interval not in interval_map:
         raise RuntimeError(f"Interval Twelve Data tidak disokong: {interval}")
     td_interval, duration = interval_map[interval]
-
     params = urllib.parse.urlencode({
         "symbol": TWELVE_DATA_SYMBOL,
         "interval": td_interval,
         "outputsize": min(max(int(limit), 1), 5000),
         "timezone": "UTC",
         "apikey": TWELVE_DATA_API_KEY,
+        "format": "JSON",
     })
     payload = get_json(f"{TWELVE_DATA_BASE}/time_series?{params}")
     if not isinstance(payload, dict):
         raise RuntimeError(f"Twelve Data respons tidak sah: {interval}")
-    if payload.get("status") == "error" or "code" in payload and "values" not in payload:
-        message = payload.get("message", "API error")
-        raise RuntimeError(f"Twelve Data {interval}: {message}")
+    if payload.get("status") == "error" or ("code" in payload and "values" not in payload):
+        raise RuntimeError(f"Twelve Data {interval}: {payload.get('message', 'API error')}")
     values = payload.get("values")
-    if not isinstance(values, list):
+    if not isinstance(values, list) or not values:
         raise RuntimeError(f"Twelve Data tiada data OHLC: {interval}")
 
     unique = {}
     current_epoch = int(now().timestamp())
     for item in values:
         try:
-            stamp_text = str(item["datetime"])
-            # timezone=UTC is requested; parse naive timestamps as UTC.
-            stamp = datetime.fromisoformat(stamp_text.replace("Z", "+00:00"))
+            stamp = datetime.fromisoformat(str(item["datetime"]).replace("Z", "+00:00"))
             if stamp.tzinfo is None:
                 stamp = stamp.replace(tzinfo=timezone.utc)
             candle_time = int(stamp.timestamp())
             candle = {
-                "t": candle_time,
-                "o": float(item["open"]),
-                "h": float(item["high"]),
-                "l": float(item["low"]),
-                "c": float(item["close"]),
+                "t": candle_time, "o": float(item["open"]), "h": float(item["high"]),
+                "l": float(item["low"]), "c": float(item["close"]),
                 "is_open": candle_time + duration > current_epoch,
             }
             prices = [candle[k] for k in ("o", "h", "l", "c")]
@@ -154,68 +148,19 @@ def get_bars(interval="5m", limit=1000):
             unique[candle_time] = candle
         except (KeyError, TypeError, ValueError, OverflowError):
             continue
-
-    return [unique[t] for t in sorted(unique)]
-
-
-def get_twelve_bars(interval="5min", outputsize=1000):
-    """Fetch OHLC from Twelve Data. Requires TWELVE_DATA_API_KEY."""
-    if not TWELVE_DATA_API_KEY:
-        raise RuntimeError("TWELVE_DATA_API_KEY belum ditetapkan")
-    params = urllib.parse.urlencode({
-        "symbol": TWELVE_SYMBOL,
-        "interval": interval,
-        "outputsize": min(max(int(outputsize), 1), 5000),
-        "apikey": TWELVE_DATA_API_KEY,
-        "timezone": "UTC",
-        "format": "JSON",
-    })
-    payload = get_json(f"{TWELVE_BASE}/time_series?{params}")
-    if not isinstance(payload, dict):
-        raise RuntimeError("Respons Twelve Data tidak sah")
-    if payload.get("status") == "error" or payload.get("code"):
-        raise RuntimeError(
-            f"Twelve Data error {payload.get('code', '')}: "
-            f"{payload.get('message', 'unknown error')}"
-        )
-    values = payload.get("values")
-    if not isinstance(values, list) or not values:
-        raise RuntimeError("Twelve Data tidak memulangkan candle OHLC")
-    unique = {}
-    for item in values:
-        try:
-            # timezone=UTC returns date/time strings without a UTC offset.
-            stamp_text = str(item["datetime"]).replace("Z", "+00:00")
-            stamp = datetime.fromisoformat(stamp_text)
-            if stamp.tzinfo is None:
-                stamp = stamp.replace(tzinfo=timezone.utc)
-            candle = {
-                "t": int(stamp.timestamp()),
-                "o": float(item["open"]),
-                "h": float(item["high"]),
-                "l": float(item["low"]),
-                "c": float(item["close"]),
-                # Closed-bar filtering is done from the candle timestamp below.
-                "is_open": False,
-            }
-            prices = [candle[k] for k in ("o", "h", "l", "c")]
-            if not all(math.isfinite(x) for x in prices):
-                continue
-            if candle["h"] < max(candle["o"], candle["c"], candle["l"]):
-                continue
-            if candle["l"] > min(candle["o"], candle["c"], candle["h"]):
-                continue
-            unique[candle["t"]] = candle
-        except (KeyError, TypeError, ValueError, OverflowError):
-            continue
     return [unique[t] for t in sorted(unique)]
 
 
 def fetch_candles(interval_biquote, interval_twelve, limit):
-    """Use Twelve Data when a key exists; otherwise keep Biquote working."""
-    if TWELVE_DATA_API_KEY:
-        return get_twelve_bars(interval_twelve, limit), "Twelve Data"
-    return get_bars(interval_biquote, limit), "Biquote API (Twelve Data key not configured)"
+    """Use Twelve Data OHLC; Biquote is only used for the live quote."""
+    mapping = {
+        "5min": "5m", "15min": "15m", "30min": "30m",
+        "1h": "1h", "4h": "4h", "1day": "1d",
+    }
+    interval = mapping.get(interval_twelve)
+    if interval is None:
+        raise RuntimeError(f"Interval Twelve Data tidak disokong: {interval_twelve}")
+    return get_bars(interval, limit), "Twelve Data"
 
 
 def ema(values, period):
@@ -244,7 +189,7 @@ def atr(candles, period=14):
 
 
 def get_trend(interval):
-    candles, _source = fetch_candles(interval, {"1d": "1day", "4h": "4h", "1h": "1h", "30m": "30min", "15m": "15min"}.get(interval, interval), 120)
+    candles = get_bars(interval, 120)
     candles = [c for c in candles if not c["is_open"]]
     if len(candles) < 60:
         return "UNKNOWN"
@@ -284,14 +229,12 @@ def evaluate(candles, trends):
     bull_htf = sum(v == "BULLISH" for v in trends.values())
     bear_htf = sum(v == "BEARISH" for v in trends.values())
 
-    buy_score = max(0, min(8,
-        int(cur["c"] > e50[-1]) + int(buy_momentum)
+    buy_score = max(0, min(8, int(cur["c"] > e50[-1]) + int(buy_momentum)
         + int(abs(cur["c"] - support30) <= atr14)
         + int(any(buy_setups[k] for k in ("SnR Rejection", "Liquidity Sweep", "Engulfing")))
         + int(buy_setups["Breakout"]) + int(body_ok) + int(extension_ok)
         + int(bull_htf > 0) - int(bull_htf == 0)))
-    sell_score = max(0, min(8,
-        int(cur["c"] < e50[-1]) + int(sell_momentum)
+    sell_score = max(0, min(8, int(cur["c"] < e50[-1]) + int(sell_momentum)
         + int(abs(cur["c"] - resistance30) <= atr14)
         + int(any(sell_setups[k] for k in ("SnR Rejection", "Liquidity Sweep", "Engulfing")))
         + int(sell_setups["Breakout"]) + int(body_ok) + int(extension_ok)
@@ -391,13 +334,7 @@ def monitor_active(state, public, quote_data):
     sl_hit = price <= sl if side == "BUY" else price >= sl
     tp1_hit = price >= tp1 if side == "BUY" else price <= tp1
     tp2_hit = price >= tp2 if side == "BUY" else price <= tp2
-    event = None
-    if sl_hit:
-        event = "SL_HIT"
-    elif active["status"] == "ACTIVE" and tp1_hit:
-        event = "TP1_HIT"
-    elif active["status"] == "TP1_HIT" and tp2_hit:
-        event = "TP2_HIT"
+    event = "SL_HIT" if sl_hit else "TP1_HIT" if active["status"] == "ACTIVE" and tp1_hit else "TP2_HIT" if active["status"] == "TP1_HIT" and tp2_hit else None
     if event and active.get("last_event_notified") != event:
         msg = (f"MCD UPDATE - {event}\nSymbol: XAUUSD | M5\nSide: {side}\n"
                f"Price: {fmt(price)} ({'BID' if side == 'BUY' else 'ASK'})\n"
@@ -420,7 +357,7 @@ def main():
     run_time = now()
     state = read_json(STATE)
     public = {
-        "version": "V1.5", "symbol": SYMBOL, "timeframe": "M5",
+        "version": "V1.5.1", "symbol": SYMBOL, "timeframe": "M5",
         "data_source": "Twelve Data OHLC + Biquote quote; bukan feed rasmi HFM XAUUSDc",
         "updated_utc": run_time.isoformat(), "data_status": "DATA_ERROR",
         "signal": "WAIT", "score": 0, "quality": "WAIT", "reason": "Menunggu data sah.",
@@ -454,7 +391,6 @@ def main():
                 print(f"{key} trend unavailable: {exc}")
 
         result = evaluate(candles[-1000:], trends)
-        # Anti-chasing: BUY uses Ask, SELL uses Bid.
         if result["signal"] in ("BUY", "SELL"):
             live_price = q["ask"] if result["signal"] == "BUY" else q["bid"]
             drift = abs(live_price - result["entry"])
@@ -471,7 +407,7 @@ def main():
             "price": q["mid"], "quote_mid": q["mid"], "quote_bid": q["bid"],
             "quote_ask": q["ask"], "quote_spread": q["spread"],
             "quote_timestamp_utc": q["timestamp"], "quote_age_seconds": q["age"],
-            "quote_source": "Biquote API", "ohlc_source": "Twelve Data", "market_state": "open", "candle_close": last["c"],
+            "quote_source": "Biquote API", "ohlc_source": candle_source, "market_state": "open", "candle_close": last["c"],
             "chart_candles": [{k: c[k] for k in ("t", "o", "h", "l", "c")} for c in candles[-40:]],
             "reason": "Candle Twelve Data dan quote Biquote lulus semakan. Bandingkan harga dengan broker.",
         })
@@ -480,19 +416,15 @@ def main():
         if result["signal"] in ("BUY", "SELL"):
             key = f'{result["signal"]}-{last["t"]}'
             if state.get("last_signal_key") != key:
-                grade = (
-                    result["quality"].split("(")[-1].rstrip(")")
-                    if "(" in result["quality"]
-                    else result["quality"]
-                )
+                grade = result["quality"].split("(")[-1].rstrip(")") if "(" in result["quality"] else result["quality"]
                 emoji = "🔺" if result["signal"] == "BUY" else "🔻"
                 msg = (
-                    f'{emoji} MCD SIGNAL >> {result["signal"]}{emoji}\\n'
-                    f'Zone: {fmt(result["zone_low"])} – {fmt(result["zone_high"])}\\n'
-                    f'SL: {fmt(result["sl"])}\\n'
-                    f'TP1: {fmt(result["tp1"])}\\n'
-                    f'TP2: {fmt(result["tp2"])}\\n'
-                    f'Setup: {result["strategy"]}\\n'
+                    f'{emoji} MCD SIGNAL >> {result["signal"]}{emoji}\n'
+                    f'Zone: {fmt(result["zone_low"])} – {fmt(result["zone_high"])}\n'
+                    f'SL: {fmt(result["sl"])}\n'
+                    f'TP1: {fmt(result["tp1"])}\n'
+                    f'TP2: {fmt(result["tp2"])}\n'
+                    f'Setup: {result["strategy"]}\n'
                     f'Skor: {result["score"]}/8 - {grade}'
                 )
                 try:
@@ -524,7 +456,7 @@ def main():
             "data_status": "DATA_ERROR", "reason": f"DATA_ERROR - {exc}. Signal disekat.",
             "price": None, "quote_bid": None, "quote_ask": None, "quote_mid": None,
             "quote_spread": None, "quote_timestamp_utc": None, "quote_age_seconds": None,
-            "quote_source": None, "ohlc_source": "Twelve Data", "market_state": None, "candle_close": None, "chart_candles": [],
+            "quote_source": None, "ohlc_source": None, "market_state": None, "candle_close": None, "chart_candles": [],
         })
         state["last_status"], state["last_error"] = "DATA_ERROR", str(exc)
         print("WAIT / DATA_ERROR:", exc)
