@@ -1,9 +1,13 @@
 {
-  "version": "V2.0",
+  "version": "V2.1",
   "symbol": "XAUUSD",
   "timeframe": "M5",
-  "updated_utc": "2026-10-19T14:10:12.295726+00:00",
+  "updated_utc": "2026-10-19T14:30:41.762939+00:00",
   "data_status": "FRESH",
+  "data_source": "Twelve Data OHLC + Biquote quote",
+  "ohlc_source": "Twelve Data",
+  "quote_source": "Biquote API",
+  "data_note": "Biquote bukan feed rasmi HFM XAUUSDc.",
   "signal": "WAIT",
   "score": 4,
   "quality": "RISIKO",
@@ -21,42 +25,14 @@
     "pa": false,
     "breakout": false
   },
-  "price": 4147.064,
-  "quote_bid": 4146.98,
-  "quote_ask": 4147.148,
-  "quote_mid": 4147.064,
+  "price": 4148.426,
+  "quote_bid": 4148.342,
+  "quote_ask": 4148.51,
+  "quote_mid": 4148.426,
   "quote_spread": 0.168,
-  "quote_timestamp_utc": "2026-10-19T14:10:12+00:00",
-  "quote_age_seconds": 0,
+  "quote_timestamp_utc": "2026-10-19T14:30:41+00:00",
+  "quote_age_seconds": 1,
   "chart_candles": [
-    {
-      "t": 1792407000,
-      "o": 4164.12747,
-      "h": 4169.14383,
-      "l": 4161.09255,
-      "c": 4168.37684
-    },
-    {
-      "t": 1792407300,
-      "o": 4167.29372,
-      "h": 4170.8375,
-      "l": 4167.29372,
-      "c": 4169.6292
-    },
-    {
-      "t": 1792407600,
-      "o": 4169.67346,
-      "h": 4172.52609,
-      "l": 4169.27246,
-      "c": 4170.80981
-    },
-    {
-      "t": 1792407900,
-      "o": 4171.39862,
-      "h": 4174.14534,
-      "l": 4170.99498,
-      "c": 4173.91324
-    },
     {
       "t": 1792408200,
       "o": 4173.49881,
@@ -305,9 +281,37 @@
     {
       "t": 1792418700,
       "o": 4148.36571,
-      "h": 4148.84699,
+      "h": 4149.54977,
       "l": 4145.24436,
-      "c": 4145.85167
+      "c": 4149.23672
+    },
+    {
+      "t": 1792419000,
+      "o": 4148.78921,
+      "h": 4151.23985,
+      "l": 4143.87535,
+      "c": 4144.09764
+    },
+    {
+      "t": 1792419300,
+      "o": 4144.42008,
+      "h": 4150.23864,
+      "l": 4143.70364,
+      "c": 4149.84152
+    },
+    {
+      "t": 1792419600,
+      "o": 4149.01878,
+      "h": 4149.40532,
+      "l": 4146.28079,
+      "c": 4146.37316
+    },
+    {
+      "t": 1792419900,
+      "o": 4146.5636,
+      "h": 4150.0664,
+      "l": 4146.45086,
+      "c": 4148.38283
     }
   ],
   "entry": null,
@@ -316,6 +320,7 @@
   "sl": null,
   "tp1": null,
   "tp2": null,
+  "risk_distance": null,
   "active_setup": {
     "id": "BUY-1792408200",
     "side": "BUY",
@@ -335,20 +340,16 @@
     "last_event_notified": "SL_HIT",
     "closed_utc": "2026-10-19T11:53:55.400644+00:00"
   },
-  "ohlc_source": "Twelve Data",
-  "quote_source": "Biquote API",
-  "data_note": "Biquote bukan feed rasmi broker HFM.",
   "buy_score": 3,
   "sell_score": 4,
   "strategy": "None",
-  "atr14": 4.829816601686106,
-  "ema20": 4157.634325428284,
-  "ema50": 4163.243863671252,
+  "atr14": 4.951757612957039,
+  "ema20": 4154.436542886507,
+  "ema50": 4160.987457815168,
   "support": 4142.94133,
   "resistance": 4170.31729,
-  "risk_distance": null,
-  "last_candle_utc": "2026-10-19T14:10:00+00:00",
-  "candle_age_seconds": 12,
+  "last_candle_utc": "2026-10-19T14:30:00+00:00",
+  "candle_age_seconds": 41,
   "market_state": "open",
-  "candle_close": 4145.85167
+  "candle_close": 4148.38283
 }
