@@ -5,7 +5,7 @@
   "active_setup": {
     "id": "SELL-1792536000",
     "side": "SELL",
-    "status": "ACTIVE",
+    "status": "TP1_HIT",
     "entry": 4122.8936,
     "sl": 4126.355036,
     "tp1": 4117.701446000001,
@@ -15,14 +15,16 @@
     "score": 5,
     "created_candle_t": 1792536000,
     "created_utc": "2026-10-20T22:45:00+00:00",
-    "last_checked_quote_timestamp": "2026-10-20T23:10:15+00:00"
+    "last_checked_quote_timestamp": "2026-10-20T23:37:10+00:00",
+    "last_event_notified": "TP1_HIT",
+    "last_event_utc": "2026-10-20T23:37:12.890013+00:00"
   },
   "last_event": null,
   "last_event_time": null,
   "last_status": "DATA_VALID",
   "last_error": null,
-  "last_candle_t": 1792537500,
-  "last_run_utc": "2026-10-20T23:10:15.665528+00:00",
+  "last_candle_t": 1792539000,
+  "last_run_utc": "2026-10-20T23:37:10.676848+00:00",
   "active_setups": [
     {
       "id": "SELL-1792441500",
@@ -145,12 +147,12 @@
       "score": 5,
       "created_candle_t": 1792513200,
       "created_utc": "2026-10-20T16:25:00+00:00",
-      "last_checked_quote_timestamp": "2026-10-20T23:10:15+00:00"
+      "last_checked_quote_timestamp": "2026-10-20T23:37:10+00:00"
     },
     {
       "id": "SELL-1792536000",
       "side": "SELL",
-      "status": "ACTIVE",
+      "status": "TP1_HIT",
       "entry": 4122.8936,
       "sl": 4126.355036,
       "tp1": 4117.701446000001,
@@ -160,7 +162,9 @@
       "score": 5,
       "created_candle_t": 1792536000,
       "created_utc": "2026-10-20T22:45:00+00:00",
-      "last_checked_quote_timestamp": "2026-10-20T23:10:15+00:00"
+      "last_checked_quote_timestamp": "2026-10-20T23:37:10+00:00",
+      "last_event_notified": "TP1_HIT",
+      "last_event_utc": "2026-10-20T23:37:12.890013+00:00"
     }
   ]
 }
