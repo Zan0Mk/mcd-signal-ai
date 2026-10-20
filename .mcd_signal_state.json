@@ -14,14 +14,15 @@
     "strategy": "Liquidity Sweep",
     "score": 6,
     "created_candle_t": 1792509300,
-    "created_utc": "2026-10-20T15:20:00+00:00"
+    "created_utc": "2026-10-20T15:20:00+00:00",
+    "last_checked_quote_timestamp": "2026-10-20T15:58:37+00:00"
   },
   "last_event": null,
   "last_event_time": null,
   "last_status": "DATA_VALID",
   "last_error": null,
-  "last_candle_t": 1792509300,
-  "last_run_utc": "2026-10-20T15:23:38.980428+00:00",
+  "last_candle_t": 1792511400,
+  "last_run_utc": "2026-10-20T15:58:37.150588+00:00",
   "active_setups": [
     {
       "id": "SELL-1792441500",
@@ -125,7 +126,8 @@
       "strategy": "Liquidity Sweep",
       "score": 6,
       "created_candle_t": 1792509300,
-      "created_utc": "2026-10-20T15:20:00+00:00"
+      "created_utc": "2026-10-20T15:20:00+00:00",
+      "last_checked_quote_timestamp": "2026-10-20T15:58:37+00:00"
     }
   ]
 }
