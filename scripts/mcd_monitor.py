@@ -241,12 +241,23 @@ def evaluate(candles, trends):
         + int(bear_htf > 0) - int(bear_htf == 0)))
 
     side, score, setup = "WAIT", max(buy_score, sell_score), "None"
-    if any(buy_setups.values()) and buy_score >= MIN_SCORE and body_ok and extension_ok and not any(sell_setups.values()):
+    buy_valid = any(buy_setups.values()) and buy_score >= MIN_SCORE and body_ok and extension_ok
+    sell_valid = any(sell_setups.values()) and sell_score >= MIN_SCORE and body_ok and extension_ok
+    # Do not suppress every signal merely because a weak opposite setup exists.
+    # If both sides trigger, require a two-point score advantage to resolve direction.
+    if buy_valid and not sell_valid:
         side, score = "BUY", buy_score
         setup = next(k for k, v in buy_setups.items() if v)
-    elif any(sell_setups.values()) and sell_score >= MIN_SCORE and body_ok and extension_ok and not any(buy_setups.values()):
+    elif sell_valid and not buy_valid:
         side, score = "SELL", sell_score
         setup = next(k for k, v in sell_setups.items() if v)
+    elif buy_valid and sell_valid and abs(buy_score - sell_score) >= 2:
+        if buy_score > sell_score:
+            side, score = "BUY", buy_score
+            setup = next(k for k, v in buy_setups.items() if v)
+        else:
+            side, score = "SELL", sell_score
+            setup = next(k for k, v in sell_setups.items() if v)
 
     quality = "WAIT" if score <= 3 else "RISIKO" if score == 4 else "RENDAH (C)" if score <= 6 else "SEDERHANA (B)" if score == 7 else "KUAT (A)"
     support_pivots, resistance_pivots = [], []
@@ -350,15 +361,20 @@ def monitor_active(state, public, quote_data):
 
         # Conservative precedence: if SL and TP are both beyond a sampled quote,
         # report SL first because the polling data cannot establish intrabar order.
-        event = None
+        pending_events = []
         if sl_hit:
-            event = "SL_HIT"
+            pending_events = ["SL_HIT"]
+        elif status == "ACTIVE" and tp2_hit:
+            # Sampled quote crossed both targets since the last poll.
+            pending_events = ["TP1_HIT", "TP2_HIT"]
         elif status == "ACTIVE" and tp1_hit:
-            event = "TP1_HIT"
+            pending_events = ["TP1_HIT"]
         elif status == "TP1_HIT" and tp2_hit:
-            event = "TP2_HIT"
+            pending_events = ["TP2_HIT"]
 
-        if event and active.get("last_event_notified") != event:
+        for event in pending_events:
+            if active.get("last_event_notified") == event:
+                continue
             message = (
                 f"MCD UPDATE - {event}\n"
                 f"Symbol: XAUUSD | M5\nSide: {side}\n"
@@ -378,8 +394,10 @@ def monitor_active(state, public, quote_data):
                         active["closed_utc"] = now().isoformat()
                 else:
                     active["notification_error"] = "NTFY_TOPIC tiada; update tidak dihantar."
+                    break
             except Exception as exc:
                 active["notification_error"] = str(exc)
+                break
         remaining.append(active)
 
     state["active_setups"] = remaining
@@ -396,7 +414,7 @@ def main():
     run_time = now()
     state = read_json(STATE)
     public = {
-        "version": "V1.5.1", "symbol": SYMBOL, "timeframe": "M5",
+        "version": "V2.0.0", "symbol": SYMBOL, "timeframe": "M5",
         "data_source": "Twelve Data OHLC + Biquote quote; bukan feed rasmi HFM XAUUSDc",
         "updated_utc": run_time.isoformat(), "data_status": "DATA_ERROR",
         "signal": "WAIT", "score": 0, "quality": "WAIT", "reason": "Menunggu data sah.",
