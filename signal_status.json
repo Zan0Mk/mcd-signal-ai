@@ -3,12 +3,12 @@
   "symbol": "XAUUSD",
   "timeframe": "M5",
   "data_source": "Twelve Data OHLC + Biquote quote; bukan feed rasmi HFM XAUUSDc",
-  "updated_utc": "2026-10-20T05:45:15.699868+00:00",
+  "updated_utc": "2026-10-20T06:13:34.962320+00:00",
   "data_status": "FRESH",
   "signal": "WAIT",
   "score": 3,
   "quality": "WAIT",
-  "reason": "WAIT - BUY 2/8, SELL 3/8; tiada setup sah.",
+  "reason": "WAIT - BUY 1/8, SELL 3/8; tiada setup sah.",
   "trend": {
     "d1": "BEARISH",
     "h4": "BEARISH",
@@ -16,57 +16,22 @@
     "m30": "BEARISH",
     "m15": "BEARISH"
   },
-  "support": 4131.54128,
+  "support": 4115.56507,
   "resistance": 4136.8469,
   "techniques": {
     "snr": true,
-    "smc": false,
-    "pa": true,
+    "smc": true,
+    "pa": false,
     "breakout": false
   },
-  "price": 4131.792,
-  "quote_bid": 4131.708,
-  "quote_ask": 4131.876,
-  "quote_mid": 4131.792,
+  "price": 4120.21,
+  "quote_bid": 4120.126,
+  "quote_ask": 4120.294,
+  "quote_mid": 4120.21,
   "quote_spread": 0.168,
-  "quote_timestamp_utc": "2026-10-20T05:45:15+00:00",
+  "quote_timestamp_utc": "2026-10-20T06:13:34+00:00",
   "quote_age_seconds": 1,
   "chart_candles": [
-    {
-      "t": 1792463100,
-      "o": 4136.86099,
-      "h": 4139.3815,
-      "l": 4136.86099,
-      "c": 4139.28768
-    },
-    {
-      "t": 1792463400,
-      "o": 4139.15733,
-      "h": 4139.58687,
-      "l": 4135.21499,
-      "c": 4135.44602
-    },
-    {
-      "t": 1792463700,
-      "o": 4135.81638,
-      "h": 4136.8469,
-      "l": 4134.45239,
-      "c": 4134.72405
-    },
-    {
-      "t": 1792464000,
-      "o": 4134.90777,
-      "h": 4135.13625,
-      "l": 4132.57294,
-      "c": 4132.67979
-    },
-    {
-      "t": 1792464300,
-      "o": 4132.83692,
-      "h": 4138.21643,
-      "l": 4132.40217,
-      "c": 4137.96472
-    },
     {
       "t": 1792464600,
       "o": 4137.48945,
@@ -310,7 +275,42 @@
       "o": 4130.84643,
       "h": 4132.74373,
       "l": 4129.84224,
-      "c": 4132.47792
+      "c": 4132.6388
+    },
+    {
+      "t": 1792475100,
+      "o": 4132.35371,
+      "h": 4132.35371,
+      "l": 4126.43394,
+      "c": 4126.56611
+    },
+    {
+      "t": 1792475400,
+      "o": 4126.85749,
+      "h": 4128.16826,
+      "l": 4122.12714,
+      "c": 4122.51906
+    },
+    {
+      "t": 1792475700,
+      "o": 4123.14934,
+      "h": 4123.14934,
+      "l": 4121.16217,
+      "c": 4121.57774
+    },
+    {
+      "t": 1792476000,
+      "o": 4121.39691,
+      "h": 4122.76893,
+      "l": 4120.09616,
+      "c": 4120.50971
+    },
+    {
+      "t": 1792476300,
+      "o": 4121.04031,
+      "h": 4123.94327,
+      "l": 4119.29478,
+      "c": 4123.70966
     }
   ],
   "entry": null,
@@ -322,7 +322,7 @@
   "active_setup": {
     "id": "SELL-1792472700",
     "side": "SELL",
-    "status": "ACTIVE",
+    "status": "TP1_HIT",
     "entry": 4139.75463,
     "sl": 4145.413878,
     "tp1": 4131.2657580000005,
@@ -332,7 +332,9 @@
     "score": 5,
     "created_candle_t": 1792472700,
     "created_utc": "2026-10-20T05:10:00+00:00",
-    "last_checked_quote_timestamp": "2026-10-20T05:45:15+00:00"
+    "last_checked_quote_timestamp": "2026-10-20T06:13:34+00:00",
+    "last_event_notified": "TP1_HIT",
+    "last_event_utc": "2026-10-20T06:13:36.710433+00:00"
   },
   "active_setups": [
     {
@@ -392,7 +394,7 @@
     {
       "id": "SELL-1792472700",
       "side": "SELL",
-      "status": "ACTIVE",
+      "status": "TP1_HIT",
       "entry": 4139.75463,
       "sl": 4145.413878,
       "tp1": 4131.2657580000005,
@@ -402,23 +404,32 @@
       "score": 5,
       "created_candle_t": 1792472700,
       "created_utc": "2026-10-20T05:10:00+00:00",
-      "last_checked_quote_timestamp": "2026-10-20T05:45:15+00:00"
+      "last_checked_quote_timestamp": "2026-10-20T06:13:34+00:00",
+      "last_event_notified": "TP1_HIT",
+      "last_event_utc": "2026-10-20T06:13:36.710433+00:00"
     }
   ],
   "strategy": "None",
-  "buy_score": 2,
+  "buy_score": 1,
   "sell_score": 3,
-  "atr14": 2.9704207983489233,
-  "ema20": 4138.493483287579,
-  "ema50": 4138.755171373164,
+  "atr14": 3.3573598189396257,
+  "ema20": 4132.338424614237,
+  "ema50": 4135.889019650902,
   "risk_distance": null,
-  "last_candle_utc": "2026-10-20T05:45:00+00:00",
-  "candle_age_seconds": 15,
+  "last_candle_utc": "2026-10-20T06:10:00+00:00",
+  "candle_age_seconds": 214,
   "quote_source": "Biquote API",
   "ohlc_source": "Twelve Data",
   "market_state": "open",
-  "candle_close": 4132.47792,
-  "sl_tp_events": [],
-  "sampled_exit_price": 4131.708,
+  "candle_close": 4123.70966,
+  "sl_tp_events": [
+    {
+      "setup_id": "SELL-1792472700",
+      "event": "TP1_HIT",
+      "price": 4120.294,
+      "utc": "2026-10-20T06:13:34+00:00"
+    }
+  ],
+  "sampled_exit_price": 4120.126,
   "sampled_exit_price_type": "BID"
 }
