@@ -1,31 +1,27 @@
 {
-  "last_signal_key": "SELL-1792463400",
+  "last_signal_key": "SELL-1792472700",
   "last_signal_time": null,
   "last_checked_candle_t": null,
   "active_setup": {
-    "id": "SELL-1792463400",
+    "id": "SELL-1792472700",
     "side": "SELL",
-    "status": "SL_HIT",
-    "entry": 4135.44602,
-    "sl": 4141.351124917825,
-    "tp1": 4126.588362623264,
-    "tp2": 4117.730705246528,
-    "risk_distance": 5.9051049178242465,
-    "strategy": "SnR Rejection",
-    "score": 6,
-    "created_candle_t": 1792463400,
-    "created_utc": "2026-10-20T02:35:00+00:00",
-    "last_checked_quote_timestamp": "2026-10-20T03:09:00+00:00",
-    "last_event_notified": "SL_HIT",
-    "last_event_utc": "2026-10-20T03:09:01.617849+00:00",
-    "closed_utc": "2026-10-20T03:09:01.617868+00:00"
+    "status": "ACTIVE",
+    "entry": 4139.75463,
+    "sl": 4145.413878,
+    "tp1": 4131.2657580000005,
+    "tp2": 4122.776886000001,
+    "risk_distance": 5.659247999999934,
+    "strategy": "Breakout",
+    "score": 5,
+    "created_candle_t": 1792472700,
+    "created_utc": "2026-10-20T05:10:00+00:00"
   },
   "last_event": null,
   "last_event_time": null,
   "last_status": "DATA_VALID",
   "last_error": null,
-  "last_candle_t": 1792470900,
-  "last_run_utc": "2026-10-20T04:44:13.552862+00:00",
+  "last_candle_t": 1792472700,
+  "last_run_utc": "2026-10-20T05:13:15.316485+00:00",
   "active_setups": [
     {
       "id": "SELL-1792441500",
@@ -80,6 +76,20 @@
       "last_event_notified": "SL_HIT",
       "last_event_utc": "2026-10-20T03:09:01.617849+00:00",
       "closed_utc": "2026-10-20T03:09:01.617868+00:00"
+    },
+    {
+      "id": "SELL-1792472700",
+      "side": "SELL",
+      "status": "ACTIVE",
+      "entry": 4139.75463,
+      "sl": 4145.413878,
+      "tp1": 4131.2657580000005,
+      "tp2": 4122.776886000001,
+      "risk_distance": 5.659247999999934,
+      "strategy": "Breakout",
+      "score": 5,
+      "created_candle_t": 1792472700,
+      "created_utc": "2026-10-20T05:10:00+00:00"
     }
   ]
 }
