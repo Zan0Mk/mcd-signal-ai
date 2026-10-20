@@ -463,12 +463,12 @@ def main():
                     emoji = "🔴"
                     arrow = "▼"
                 msg = (
-                    f'{emoji} MCD SIGNAL >> {result["signal"]} {arrow}\\n'
-                    f'Zone: {fmt(result["zone_low"])} – {fmt(result["zone_high"])}\\n'
-                    f'SL: {fmt(result["sl"])}\\n'
-                    f'TP1: {fmt(result["tp1"])}\\n'
-                    f'TP2: {fmt(result["tp2"])}\\n'
-                    f'Setup: {result["strategy"]}\\n'
+                    f'{emoji} MCD SIGNAL >> {result["signal"]} {arrow}\n'
+                    f'Zone: {fmt(result["zone_low"])} – {fmt(result["zone_high"])}\n'
+                    f'SL: {fmt(result["sl"])}\n'
+                    f'TP1: {fmt(result["tp1"])}\n'
+                    f'TP2: {fmt(result["tp2"])}\n'
+                    f'Setup: {result["strategy"]}\n'
                     f'Skor: {result["score"]}/8 - {grade}'
                 )
                 try:
