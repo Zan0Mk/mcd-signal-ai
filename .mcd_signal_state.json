@@ -1,31 +1,27 @@
 {
-  "last_signal_key": "SELL-1792489500",
+  "last_signal_key": "BUY-1792509300",
   "last_signal_time": null,
   "last_checked_candle_t": null,
   "active_setup": {
-    "id": "SELL-1792489500",
-    "side": "SELL",
-    "status": "SL_HIT",
-    "entry": 4114.7914,
-    "sl": 4121.407708000001,
-    "tp1": 4104.866937999999,
-    "tp2": 4094.9424759999984,
-    "risk_distance": 6.616308000000572,
-    "strategy": "Breakout",
+    "id": "BUY-1792509300",
+    "side": "BUY",
+    "status": "ACTIVE",
+    "entry": 4138.93978,
+    "sl": 4128.930938668526,
+    "tp1": 4153.95304199721,
+    "tp2": 4168.96630399442,
+    "risk_distance": 10.008841331473377,
+    "strategy": "Liquidity Sweep",
     "score": 6,
-    "created_candle_t": 1792489500,
-    "created_utc": "2026-10-20T09:50:00+00:00",
-    "last_checked_quote_timestamp": "2026-10-20T10:52:16+00:00",
-    "last_event_notified": "SL_HIT",
-    "last_event_utc": "2026-10-20T10:52:18.274797+00:00",
-    "closed_utc": "2026-10-20T10:52:18.274812+00:00"
+    "created_candle_t": 1792509300,
+    "created_utc": "2026-10-20T15:20:00+00:00"
   },
   "last_event": null,
   "last_event_time": null,
   "last_status": "DATA_VALID",
   "last_error": null,
-  "last_candle_t": 1792507800,
-  "last_run_utc": "2026-10-20T14:55:19.778780+00:00",
+  "last_candle_t": 1792509300,
+  "last_run_utc": "2026-10-20T15:23:38.980428+00:00",
   "active_setups": [
     {
       "id": "SELL-1792441500",
@@ -116,6 +112,20 @@
       "last_event_notified": "SL_HIT",
       "last_event_utc": "2026-10-20T10:52:18.274797+00:00",
       "closed_utc": "2026-10-20T10:52:18.274812+00:00"
+    },
+    {
+      "id": "BUY-1792509300",
+      "side": "BUY",
+      "status": "ACTIVE",
+      "entry": 4138.93978,
+      "sl": 4128.930938668526,
+      "tp1": 4153.95304199721,
+      "tp2": 4168.96630399442,
+      "risk_distance": 10.008841331473377,
+      "strategy": "Liquidity Sweep",
+      "score": 6,
+      "created_candle_t": 1792509300,
+      "created_utc": "2026-10-20T15:20:00+00:00"
     }
   ]
 }
