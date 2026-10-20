@@ -3,7 +3,7 @@
   "symbol": "XAUUSD",
   "timeframe": "M5",
   "data_source": "Twelve Data OHLC + Biquote quote; bukan feed rasmi HFM XAUUSDc",
-  "updated_utc": "2026-10-20T19:51:12.403874+00:00",
+  "updated_utc": "2026-10-20T20:13:35.408230+00:00",
   "data_status": "FRESH",
   "signal": "WAIT",
   "score": 4,
@@ -24,42 +24,14 @@
     "pa": false,
     "breakout": false
   },
-  "price": 4123.082,
-  "quote_bid": 4122.998,
-  "quote_ask": 4123.166,
-  "quote_mid": 4123.082,
+  "price": 4124.086,
+  "quote_bid": 4124.002,
+  "quote_ask": 4124.17,
+  "quote_mid": 4124.086,
   "quote_spread": 0.168,
-  "quote_timestamp_utc": "2026-10-20T19:51:11+00:00",
-  "quote_age_seconds": 1,
+  "quote_timestamp_utc": "2026-10-20T20:13:35+00:00",
+  "quote_age_seconds": 0,
   "chart_candles": [
-    {
-      "t": 1792513800,
-      "o": 4124.51838,
-      "h": 4124.92321,
-      "l": 4123.19774,
-      "c": 4124.77224
-    },
-    {
-      "t": 1792514100,
-      "o": 4124.5247,
-      "h": 4127.28548,
-      "l": 4124.26954,
-      "c": 4127.05195
-    },
-    {
-      "t": 1792514400,
-      "o": 4126.92434,
-      "h": 4127.83432,
-      "l": 4125.29124,
-      "c": 4125.75432
-    },
-    {
-      "t": 1792514700,
-      "o": 4126.7163,
-      "h": 4126.7163,
-      "l": 4123.03125,
-      "c": 4124.51269
-    },
     {
       "t": 1792515000,
       "o": 4124.27562,
@@ -311,6 +283,34 @@
       "h": 4123.03125,
       "l": 4120.53756,
       "c": 4122.27045
+    },
+    {
+      "t": 1792525800,
+      "o": 4122.29531,
+      "h": 4123.20845,
+      "l": 4121.84164,
+      "c": 4121.913
+    },
+    {
+      "t": 1792526100,
+      "o": 4122.02353,
+      "h": 4122.08958,
+      "l": 4120.31314,
+      "c": 4120.79556
+    },
+    {
+      "t": 1792526400,
+      "o": 4120.71618,
+      "h": 4122.69129,
+      "l": 4120.14338,
+      "c": 4122.56573
+    },
+    {
+      "t": 1792526700,
+      "o": 4122.32938,
+      "h": 4123.43552,
+      "l": 4121.79166,
+      "c": 4123.29861
     }
   ],
   "entry": null,
@@ -332,7 +332,7 @@
     "score": 5,
     "created_candle_t": 1792513200,
     "created_utc": "2026-10-20T16:25:00+00:00",
-    "last_checked_quote_timestamp": "2026-10-20T19:51:11+00:00"
+    "last_checked_quote_timestamp": "2026-10-20T20:13:35+00:00"
   },
   "active_setups": [
     {
@@ -456,23 +456,23 @@
       "score": 5,
       "created_candle_t": 1792513200,
       "created_utc": "2026-10-20T16:25:00+00:00",
-      "last_checked_quote_timestamp": "2026-10-20T19:51:11+00:00"
+      "last_checked_quote_timestamp": "2026-10-20T20:13:35+00:00"
     }
   ],
   "strategy": "None",
   "buy_score": 1,
   "sell_score": 4,
-  "atr14": 2.144922948538372,
-  "ema20": 4122.486189217562,
-  "ema50": 4124.3192729362145,
+  "atr14": 2.068666947709371,
+  "ema20": 4122.398182020362,
+  "ema50": 4124.001926258635,
   "risk_distance": null,
-  "last_candle_utc": "2026-10-20T19:50:00+00:00",
-  "candle_age_seconds": 72,
+  "last_candle_utc": "2026-10-20T20:10:00+00:00",
+  "candle_age_seconds": 215,
   "quote_source": "Biquote API",
   "ohlc_source": "Twelve Data",
   "market_state": "open",
-  "candle_close": 4122.27045,
+  "candle_close": 4123.29861,
   "sl_tp_events": [],
-  "sampled_exit_price": 4122.998,
+  "sampled_exit_price": 4124.002,
   "sampled_exit_price_type": "BID"
 }
