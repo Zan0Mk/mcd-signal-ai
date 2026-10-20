@@ -15,7 +15,7 @@
     "score": 5,
     "created_candle_t": 1792472700,
     "created_utc": "2026-10-20T05:10:00+00:00",
-    "last_checked_quote_timestamp": "2026-10-20T06:58:09+00:00",
+    "last_checked_quote_timestamp": "2026-10-20T07:37:27+00:00",
     "last_event_notified": "TP1_HIT",
     "last_event_utc": "2026-10-20T06:13:36.710433+00:00"
   },
@@ -23,8 +23,8 @@
   "last_event_time": null,
   "last_status": "DATA_VALID",
   "last_error": null,
-  "last_candle_t": 1792479000,
-  "last_run_utc": "2026-10-20T06:58:10.169244+00:00",
+  "last_candle_t": 1792481400,
+  "last_run_utc": "2026-10-20T07:37:27.414551+00:00",
   "active_setups": [
     {
       "id": "SELL-1792441500",
@@ -93,7 +93,7 @@
       "score": 5,
       "created_candle_t": 1792472700,
       "created_utc": "2026-10-20T05:10:00+00:00",
-      "last_checked_quote_timestamp": "2026-10-20T06:58:09+00:00",
+      "last_checked_quote_timestamp": "2026-10-20T07:37:27+00:00",
       "last_event_notified": "TP1_HIT",
       "last_event_utc": "2026-10-20T06:13:36.710433+00:00"
     }
