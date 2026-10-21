@@ -10,26 +10,60 @@ concurrency:
   cancel-in-progress: false
 jobs:
   monitor:
+    name: Calibrate and Update MCD Dashboard
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 8
     steps:
+      # 1. Ambil kod terkini daripada branch main
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           ref: main
           fetch-depth: 0
+      # 2. Sediakan Python
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-          cache: "pip"
+      # 3. Pastikan fail penting wujud
       - name: Check required files
+        shell: bash
         run: |
-          test -f scripts/mcd_monitor.py
+          set -euo pipefail
           test -f index.html
+          test -f scripts/mcd_monitor.py
+      # 4. Semak sintaks Python
       - name: Validate Python syntax
         run: |
           python -m py_compile scripts/mcd_monitor.py
+      # 5. Semak sintaks JavaScript dalam dashboard
+      - name: Validate dashboard JavaScript
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          html = Path("index.html").read_text(encoding="utf-8")
+          scripts = re.findall(
+              r"<script\b[^>]*>(.*?)</script\s*>",
+              html,
+              flags=re.IGNORECASE | re.DOTALL,
+          )
+          if not scripts:
+              raise SystemExit("ERROR: Tiada blok JavaScript ditemukan.")
+          Path("/tmp/mcd_dashboard_check.js").write_text(
+              "\n".join(scripts),
+              encoding="utf-8",
+          )
+          print(f"Found {len(scripts)} inline script block(s).")
+          PY
+          if command -v node >/dev/null 2>&1; then
+            node --check /tmp/mcd_dashboard_check.js
+          else
+            echo "Node.js tidak tersedia; semakan JS dilangkau."
+          fi
+      # 6. Jalankan monitor
       - name: Run MCD Signal Monitor
         env:
           TWELVE_DATA_API_KEY: ${{ secrets.TWELVE_DATA_API_KEY }}
@@ -40,24 +74,68 @@ jobs:
           PYTHONIOENCODING: utf-8
         run: |
           python scripts/mcd_monitor.py
-      - name: Validate generated JSON
+      # 7. Sahkan output JSON
+      - name: Validate monitor JSON
+        shell: bash
         run: |
-          test -f signal_status.json
-          python -m json.tool signal_status.json > /dev/null
-          if [ -f .mcd_signal_state.json ]; then
-            python -m json.tool .mcd_signal_state.json > /dev/null
-          fi
+          set -euo pipefail
+          test -s signal_status.json
+          python - <<'PY'
+          import json
+          import math
+          from pathlib import Path
+          def reject_nonfinite(value):
+              if isinstance(value, float) and not math.isfinite(value):
+                  raise ValueError("Nilai NaN atau Infinity tidak dibenarkan.")
+              if isinstance(value, dict):
+                  for child in value.values():
+                      reject_nonfinite(child)
+              elif isinstance(value, list):
+                  for child in value:
+                      reject_nonfinite(child)
+          status_path = Path("signal_status.json")
+          status = json.loads(status_path.read_text(encoding="utf-8"))
+          if not isinstance(status, dict):
+              raise SystemExit("ERROR: signal_status.json mesti objek JSON.")
+          reject_nonfinite(status)
+          required = ["signal", "updated_utc", "data_status"]
+          missing = [key for key in required if key not in status]
+          if missing:
+              raise SystemExit(
+                  "ERROR: Medan wajib tiada: " + ", ".join(missing)
+              )
+          if status["signal"] not in ("BUY", "SELL", "WAIT"):
+              raise SystemExit("ERROR: Nilai signal tidak sah.")
+          print("signal_status.json valid.")
+          print("Signal:", status["signal"])
+          print("Data status:", status["data_status"])
+          state_path = Path(".mcd_signal_state.json")
+          if state_path.exists():
+              state = json.loads(state_path.read_text(encoding="utf-8"))
+              if not isinstance(state, dict):
+                  raise SystemExit(
+                      "ERROR: .mcd_signal_state.json mesti objek JSON."
+                  )
+              reject_nonfinite(state)
+              print(".mcd_signal_state.json valid.")
+          else:
+              print("State file belum diwujudkan.")
+          PY
+      # 8. Simpan perubahan status dan sejarah
       - name: Commit monitor data
+        shell: bash
         run: |
+          set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email \
             "41898282+github-actions[bot]@users.noreply.github.com"
           git add signal_status.json .mcd_signal_state.json
           if git diff --cached --quiet; then
-            echo "No monitor data changes to commit."
+            echo "Tiada perubahan data untuk disimpan."
             exit 0
           fi
           git commit -m "Update MCD signal status"
+          # Sinkronkan commit jika branch main berubah ketika workflow berjalan.
           git fetch origin main
           git rebase origin/main
           git push origin HEAD:main
