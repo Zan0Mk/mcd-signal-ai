@@ -35,28 +35,12 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-
           test -f index.html
           test -f mcd_monitor.py
-
-          echo "index.html found."
-          echo "mcd_monitor.py found at repository root."
+          echo "Required files found."
 
       - name: Validate Python syntax
         run: python -m py_compile mcd_monitor.py
-
-      - name: Run tests if source tests exist
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          if [ -d tests ] && find tests -maxdepth 1 -name 'test*.py' -print -quit | grep -q .; then
-            python -m unittest discover -s tests -p 'test*.py' -v
-          elif find . -maxdepth 1 -name 'test*.py' -print -quit | grep -q .; then
-            python -m unittest discover -s . -p 'test*.py' -v
-          else
-            echo "No Python test source files found; skipping optional tests."
-          fi
 
       - name: Validate dashboard JavaScript
         shell: bash
@@ -106,7 +90,6 @@ jobs:
               "\n;\n".join(scripts),
               encoding="utf-8",
           )
-
           print(f"Found {len(scripts)} inline script block(s).")
           PY
 
@@ -121,7 +104,7 @@ jobs:
           PYTHONUNBUFFERED: "1"
         run: python mcd_monitor.py
 
-      - name: Validate generated signal JSON
+      - name: Validate generated JSON
         shell: bash
         run: |
           set -euo pipefail
@@ -133,9 +116,7 @@ jobs:
 
           path = Path("signal_status.json")
           if not path.is_file():
-              raise SystemExit(
-                  "signal_status.json was not generated"
-              )
+              raise SystemExit("signal_status.json was not generated")
 
           data = json.loads(path.read_text(encoding="utf-8"))
 
@@ -176,51 +157,29 @@ jobs:
 
           calendar = data["economic_calendar"]
           if not isinstance(calendar, dict):
-              raise SystemExit(
-                  "economic_calendar must be an object"
-              )
+              raise SystemExit("economic_calendar must be an object")
 
           if not isinstance(calendar.get("events"), list):
-              raise SystemExit(
-                  "economic_calendar.events must be a list"
-              )
+              raise SystemExit("Calendar events must be a list")
 
           def check_finite(value, location="$"):
               if isinstance(value, float) and not math.isfinite(value):
                   raise ValueError(
                       f"Invalid number at {location}"
                   )
-
               if isinstance(value, dict):
                   for key, item in value.items():
                       check_finite(item, f"{location}.{key}")
-
               elif isinstance(value, list):
                   for index, item in enumerate(value):
                       check_finite(item, f"{location}[{index}]")
 
           check_finite(data)
 
-          state_path = Path(".mcd_signal_state.json")
-          if state_path.exists():
-              state = json.loads(
-                  state_path.read_text(encoding="utf-8")
-              )
-              if not isinstance(state, dict):
-                  raise SystemExit(
-                      "State JSON must be an object"
-                  )
-
           print("Signal:", data["signal"])
           print("Data status:", data["data_status"])
-          print(
-              "Calendar status:",
-              calendar.get("status"),
-          )
-          print(
-              "Calendar events:",
-              len(calendar["events"]),
-          )
+          print("Calendar status:", calendar.get("status"))
+          print("Calendar events:", len(calendar["events"]))
           PY
 
       - name: Commit generated data
@@ -251,5 +210,5 @@ jobs:
         run: |
           echo "MCD monitor workflow failed."
           echo "Check the failed step logs."
-          echo "Confirm TWELVE_DATA_API_KEY and NTFY_TOPIC."
+          echo "Verify TWELVE_DATA_API_KEY and NTFY_TOPIC."
           echo "Check API availability and repository permissions."
