@@ -1,31 +1,27 @@
 {
-  "last_signal_key": "SELL-1792556400",
+  "last_signal_key": "SELL-1792577700",
   "last_signal_time": null,
   "last_checked_candle_t": null,
   "active_setup": {
-    "id": "SELL-1792556400",
+    "id": "SELL-1792577700",
     "side": "SELL",
-    "status": "SL_HIT",
-    "entry": 4123.14683,
-    "sl": 4128.167298445879,
-    "tp1": 4115.616127331181,
-    "tp2": 4108.085424662361,
-    "risk_distance": 5.020468445879487,
-    "strategy": "SnR Rejection",
-    "score": 5,
-    "created_candle_t": 1792556400,
-    "created_utc": "2026-10-21T04:25:00+00:00",
-    "last_checked_quote_timestamp": "2026-10-21T05:30:39+00:00",
-    "last_event_notified": "SL_HIT",
-    "last_event_utc": "2026-10-21T05:30:40.703209+00:00",
-    "closed_utc": "2026-10-21T05:30:40.703227+00:00"
+    "status": "ACTIVE",
+    "entry": 4114.99759,
+    "sl": 4119.395674,
+    "tp1": 4108.400463999999,
+    "tp2": 4101.803337999999,
+    "risk_distance": 4.398084000000381,
+    "strategy": "Breakout",
+    "score": 6,
+    "created_candle_t": 1792577700,
+    "created_utc": "2026-10-21T10:20:00+00:00"
   },
   "last_event": null,
   "last_event_time": null,
   "last_status": "DATA_VALID",
   "last_error": null,
-  "last_candle_t": 1792575900,
-  "last_run_utc": "2026-10-21T09:53:55.043051+00:00",
+  "last_candle_t": 1792577700,
+  "last_run_utc": "2026-10-21T10:21:34.703808+00:00",
   "active_setups": [
     {
       "id": "SELL-1792441500",
@@ -148,7 +144,7 @@
       "score": 5,
       "created_candle_t": 1792513200,
       "created_utc": "2026-10-20T16:25:00+00:00",
-      "last_checked_quote_timestamp": "2026-10-21T09:53:58+00:00",
+      "last_checked_quote_timestamp": "2026-10-21T10:21:34+00:00",
       "last_event_notified": "TP1_HIT",
       "last_event_utc": "2026-10-21T01:18:09.666359+00:00"
     },
@@ -187,6 +183,20 @@
       "last_event_notified": "SL_HIT",
       "last_event_utc": "2026-10-21T05:30:40.703209+00:00",
       "closed_utc": "2026-10-21T05:30:40.703227+00:00"
+    },
+    {
+      "id": "SELL-1792577700",
+      "side": "SELL",
+      "status": "ACTIVE",
+      "entry": 4114.99759,
+      "sl": 4119.395674,
+      "tp1": 4108.400463999999,
+      "tp2": 4101.803337999999,
+      "risk_distance": 4.398084000000381,
+      "strategy": "Breakout",
+      "score": 6,
+      "created_candle_t": 1792577700,
+      "created_utc": "2026-10-21T10:20:00+00:00"
     }
   ]
 }

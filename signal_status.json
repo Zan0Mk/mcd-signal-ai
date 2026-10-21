@@ -3,77 +3,35 @@
   "symbol": "XAUUSD",
   "timeframe": "M5",
   "data_source": "Twelve Data OHLC + Biquote quote; bukan feed rasmi HFM XAUUSDc",
-  "updated_utc": "2026-10-21T09:53:55.043051+00:00",
+  "updated_utc": "2026-10-21T10:21:34.703808+00:00",
   "data_status": "FRESH",
-  "signal": "WAIT",
-  "score": 4,
-  "quality": "RISIKO",
-  "reason": "WAIT - BUY 4/8, SELL 3/8; tiada setup sah.",
+  "signal": "SELL",
+  "score": 6,
+  "quality": "RENDAH (C)",
+  "reason": "Candle Twelve Data dan quote Biquote lulus semakan. Bandingkan harga dengan broker.",
   "trend": {
     "d1": "BEARISH",
     "h4": "BEARISH",
     "h1": "BEARISH",
     "m30": "BEARISH",
-    "m15": "BULLISH"
+    "m15": "BEARISH"
   },
-  "support": 4119.34348,
-  "resistance": 4122.74587,
+  "support": 4113.70274,
+  "resistance": 4118.61614,
   "techniques": {
     "snr": false,
     "smc": false,
     "pa": false,
-    "breakout": false
+    "breakout": true
   },
-  "price": 4120.893,
-  "quote_bid": 4120.809,
-  "quote_ask": 4120.977,
-  "quote_mid": 4120.893,
+  "price": 4115.4,
+  "quote_bid": 4115.316,
+  "quote_ask": 4115.484,
+  "quote_mid": 4115.4,
   "quote_spread": 0.168,
-  "quote_timestamp_utc": "2026-10-21T09:53:58+00:00",
+  "quote_timestamp_utc": "2026-10-21T10:21:34+00:00",
   "quote_age_seconds": 1,
   "chart_candles": [
-    {
-      "t": 1792564200,
-      "o": 4113.31243,
-      "h": 4118.61614,
-      "l": 4113.31243,
-      "c": 4118.56058
-    },
-    {
-      "t": 1792564500,
-      "o": 4118.43907,
-      "h": 4118.60493,
-      "l": 4115.69735,
-      "c": 4116.56804
-    },
-    {
-      "t": 1792564800,
-      "o": 4116.311,
-      "h": 4116.311,
-      "l": 4113.87198,
-      "c": 4114.25426
-    },
-    {
-      "t": 1792565100,
-      "o": 4114.3514,
-      "h": 4114.43556,
-      "l": 4114.21048,
-      "c": 4114.21319
-    },
-    {
-      "t": 1792565400,
-      "o": 4114.21911,
-      "h": 4114.71943,
-      "l": 4111.50399,
-      "c": 4111.60039
-    },
-    {
-      "t": 1792565700,
-      "o": 4111.78186,
-      "h": 4112.52372,
-      "l": 4111.50399,
-      "c": 4111.59351
-    },
     {
       "t": 1792566000,
       "o": 4111.77872,
@@ -311,31 +269,69 @@
       "h": 4122.85589,
       "l": 4121.84164,
       "c": 4121.91797
+    },
+    {
+      "t": 1792576200,
+      "o": 4122.02567,
+      "h": 4122.60296,
+      "l": 4120.48292,
+      "c": 4121.26786
+    },
+    {
+      "t": 1792576500,
+      "o": 4121.06764,
+      "h": 4122.01154,
+      "l": 4117.59862,
+      "c": 4117.87428
+    },
+    {
+      "t": 1792576800,
+      "o": 4118.35867,
+      "h": 4118.35867,
+      "l": 4115.98441,
+      "c": 4116.15908
+    },
+    {
+      "t": 1792577100,
+      "o": 4116.25729,
+      "h": 4117.76817,
+      "l": 4116.24269,
+      "c": 4116.2984
+    },
+    {
+      "t": 1792577400,
+      "o": 4116.46958,
+      "h": 4117.32474,
+      "l": 4115.16335,
+      "c": 4115.32504
+    },
+    {
+      "t": 1792577700,
+      "o": 4115.59536,
+      "h": 4116.01446,
+      "l": 4112.34939,
+      "c": 4114.99759
     }
   ],
-  "entry": null,
-  "zone_low": null,
-  "zone_high": null,
-  "sl": null,
-  "tp1": null,
-  "tp2": null,
+  "entry": 4114.99759,
+  "zone_low": 4114.596737419201,
+  "zone_high": 4115.3984425807985,
+  "sl": 4119.395674,
+  "tp1": 4108.400463999999,
+  "tp2": 4101.803337999999,
   "active_setup": {
-    "id": "SELL-1792556400",
+    "id": "SELL-1792577700",
     "side": "SELL",
-    "status": "SL_HIT",
-    "entry": 4123.14683,
-    "sl": 4128.167298445879,
-    "tp1": 4115.616127331181,
-    "tp2": 4108.085424662361,
-    "risk_distance": 5.020468445879487,
-    "strategy": "SnR Rejection",
-    "score": 5,
-    "created_candle_t": 1792556400,
-    "created_utc": "2026-10-21T04:25:00+00:00",
-    "last_checked_quote_timestamp": "2026-10-21T05:30:39+00:00",
-    "last_event_notified": "SL_HIT",
-    "last_event_utc": "2026-10-21T05:30:40.703209+00:00",
-    "closed_utc": "2026-10-21T05:30:40.703227+00:00"
+    "status": "ACTIVE",
+    "entry": 4114.99759,
+    "sl": 4119.395674,
+    "tp1": 4108.400463999999,
+    "tp2": 4101.803337999999,
+    "risk_distance": 4.398084000000381,
+    "strategy": "Breakout",
+    "score": 6,
+    "created_candle_t": 1792577700,
+    "created_utc": "2026-10-21T10:20:00+00:00"
   },
   "active_setups": [
     {
@@ -459,7 +455,7 @@
       "score": 5,
       "created_candle_t": 1792513200,
       "created_utc": "2026-10-20T16:25:00+00:00",
-      "last_checked_quote_timestamp": "2026-10-21T09:53:58+00:00",
+      "last_checked_quote_timestamp": "2026-10-21T10:21:34+00:00",
       "last_event_notified": "TP1_HIT",
       "last_event_utc": "2026-10-21T01:18:09.666359+00:00"
     },
@@ -498,22 +494,36 @@
       "last_event_notified": "SL_HIT",
       "last_event_utc": "2026-10-21T05:30:40.703209+00:00",
       "closed_utc": "2026-10-21T05:30:40.703227+00:00"
+    },
+    {
+      "id": "SELL-1792577700",
+      "side": "SELL",
+      "status": "ACTIVE",
+      "entry": 4114.99759,
+      "sl": 4119.395674,
+      "tp1": 4108.400463999999,
+      "tp2": 4101.803337999999,
+      "risk_distance": 4.398084000000381,
+      "strategy": "Breakout",
+      "score": 6,
+      "created_candle_t": 1792577700,
+      "created_utc": "2026-10-21T10:20:00+00:00"
     }
   ],
-  "strategy": "None",
-  "buy_score": 4,
-  "sell_score": 3,
-  "atr14": 2.64164668373155,
-  "ema20": 4121.980711095536,
-  "ema50": 4120.6968162760395,
-  "risk_distance": null,
-  "last_candle_utc": "2026-10-21T09:50:00+00:00",
-  "candle_age_seconds": 235,
+  "strategy": "Breakout",
+  "buy_score": 2,
+  "sell_score": 6,
+  "atr14": 2.672350538654134,
+  "ema20": 4119.5852819716,
+  "ema50": 4119.877885500392,
+  "risk_distance": 4.398084000000381,
+  "last_candle_utc": "2026-10-21T10:20:00+00:00",
+  "candle_age_seconds": 94,
   "quote_source": "Biquote API",
   "ohlc_source": "Twelve Data",
   "market_state": "open",
-  "candle_close": 4121.91797,
+  "candle_close": 4114.99759,
   "sl_tp_events": [],
-  "sampled_exit_price": 4120.809,
+  "sampled_exit_price": 4115.316,
   "sampled_exit_price_type": "BID"
 }
