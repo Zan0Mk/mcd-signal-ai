@@ -1,8 +1,9 @@
 name: MCD Signal Monitor
 on:
-  schedule:
-    - cron: "*/5 * * * *"
   workflow_dispatch:
+  schedule:
+    # Run every 5 minutes
+    - cron: "*/5 * * * *"
 permissions:
   contents: write
 concurrency:
@@ -10,132 +11,238 @@ concurrency:
   cancel-in-progress: false
 jobs:
   monitor:
-    name: Calibrate and Update MCD Dashboard
+    name: Update XAUUSD M5 Signal
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 5
     steps:
-      # 1. Ambil kod terkini daripada branch main
+      # --------------------------------------------------
+      # 1. Checkout repository
+      # --------------------------------------------------
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           ref: main
           fetch-depth: 0
-      # 2. Sediakan Python
-      - name: Set up Python
+      # --------------------------------------------------
+      # 2. Setup Python
+      # --------------------------------------------------
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      # 3. Pastikan fail penting wujud
-      - name: Check required files
+          cache: "pip"
+          cache-dependency-path: requirements.txt
+      # --------------------------------------------------
+      # 3. Install dependencies
+      # --------------------------------------------------
+      - name: Install dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -f requirements.txt ]; then
+            python -m pip install --upgrade pip
+            python -m pip install -r requirements.txt
+          else
+            echo "ERROR: requirements.txt not found."
+            echo "Create requirements.txt containing the required Python packages."
+            exit 1
+          fi
+      # --------------------------------------------------
+      # 4. Verify project files
+      # --------------------------------------------------
+      - name: Verify required files
         shell: bash
         run: |
           set -euo pipefail
           test -f index.html
           test -f scripts/mcd_monitor.py
-      # 4. Semak sintaks Python
-      - name: Validate Python syntax
+          echo "Required files found."
+      # --------------------------------------------------
+      # 5. Check Python syntax
+      # --------------------------------------------------
+      - name: Check Python syntax
         run: |
           python -m py_compile scripts/mcd_monitor.py
-      # 5. Semak sintaks JavaScript dalam dashboard
-      - name: Validate dashboard JavaScript
+      # --------------------------------------------------
+      # 6. Check dashboard JavaScript syntax
+      # --------------------------------------------------
+      - name: Check dashboard JavaScript
         shell: bash
         run: |
           set -euo pipefail
           python - <<'PY'
+          from html.parser import HTMLParser
           from pathlib import Path
-          import re
+          class ScriptParser(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.in_script = False
+                  self.external = False
+                  self.parts = []
+                  self.scripts = []
+              def handle_starttag(self, tag, attrs):
+                  if tag.lower() == "script":
+                      attrs = dict(attrs)
+                      self.in_script = True
+                      self.external = bool(attrs.get("src"))
+                      self.parts = []
+              def handle_data(self, data):
+                  if self.in_script and not self.external:
+                      self.parts.append(data)
+              def handle_endtag(self, tag):
+                  if tag.lower() == "script" and self.in_script:
+                      if not self.external:
+                          self.scripts.append("".join(self.parts))
+                      self.in_script = False
+                      self.external = False
+                      self.parts = []
           html = Path("index.html").read_text(encoding="utf-8")
-          scripts = re.findall(
-              r"<script\b[^>]*>(.*?)</script\s*>",
-              html,
-              flags=re.IGNORECASE | re.DOTALL,
-          )
+          parser = ScriptParser()
+          parser.feed(html)
+          scripts = [
+              script for script in parser.scripts
+              if script.strip()
+          ]
           if not scripts:
-              raise SystemExit("ERROR: Tiada blok JavaScript ditemukan.")
+              raise SystemExit(
+                  "ERROR: No inline JavaScript found in index.html."
+              )
           Path("/tmp/mcd_dashboard_check.js").write_text(
-              "\n".join(scripts),
-              encoding="utf-8",
+              "\n;\n".join(scripts),
+              encoding="utf-8"
           )
-          print(f"Found {len(scripts)} inline script block(s).")
+          print(f"Extracted {len(scripts)} inline script(s).")
           PY
           if command -v node >/dev/null 2>&1; then
             node --check /tmp/mcd_dashboard_check.js
           else
-            echo "Node.js tidak tersedia; semakan JS dilangkau."
+            echo "WARNING: Node.js unavailable; JavaScript check skipped."
           fi
-      # 6. Jalankan monitor
-      - name: Run MCD Signal Monitor
+      # --------------------------------------------------
+      # 7. Run monitor
+      # --------------------------------------------------
+      - name: Run MCD monitor
         env:
           TWELVE_DATA_API_KEY: ${{ secrets.TWELVE_DATA_API_KEY }}
           TWELVE_DATA_SYMBOL: XAU/USD
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
           NTFY_SERVER: https://ntfy.sh
           PYTHONUNBUFFERED: "1"
-          PYTHONIOENCODING: utf-8
         run: |
           python scripts/mcd_monitor.py
-      # 7. Sahkan output JSON
-      - name: Validate monitor JSON
+      # --------------------------------------------------
+      # 8. Validate generated JSON
+      # --------------------------------------------------
+      - name: Validate signal JSON
         shell: bash
         run: |
           set -euo pipefail
-          test -s signal_status.json
           python - <<'PY'
           import json
           import math
           from pathlib import Path
-          def reject_nonfinite(value):
-              if isinstance(value, float) and not math.isfinite(value):
-                  raise ValueError("Nilai NaN atau Infinity tidak dibenarkan.")
-              if isinstance(value, dict):
-                  for child in value.values():
-                      reject_nonfinite(child)
-              elif isinstance(value, list):
-                  for child in value:
-                      reject_nonfinite(child)
-          status_path = Path("signal_status.json")
-          status = json.loads(status_path.read_text(encoding="utf-8"))
-          if not isinstance(status, dict):
-              raise SystemExit("ERROR: signal_status.json mesti objek JSON.")
-          reject_nonfinite(status)
-          required = ["signal", "updated_utc", "data_status"]
-          missing = [key for key in required if key not in status]
+          path = Path("signal_status.json")
+          if not path.exists():
+              raise SystemExit(
+                  "ERROR: signal_status.json was not generated."
+              )
+          try:
+              data = json.loads(path.read_text(encoding="utf-8"))
+          except Exception as exc:
+              raise SystemExit(f"ERROR: Invalid JSON: {exc}")
+          if not isinstance(data, dict):
+              raise SystemExit("ERROR: JSON root must be an object.")
+          required = [
+              "signal",
+              "updated_utc",
+              "data_status",
+          ]
+          missing = [
+              key for key in required
+              if key not in data
+          ]
           if missing:
               raise SystemExit(
-                  "ERROR: Medan wajib tiada: " + ", ".join(missing)
+                  "ERROR: Missing required fields: "
+                  + ", ".join(missing)
               )
-          if status["signal"] not in ("BUY", "SELL", "WAIT"):
-              raise SystemExit("ERROR: Nilai signal tidak sah.")
-          print("signal_status.json valid.")
-          print("Signal:", status["signal"])
-          print("Data status:", status["data_status"])
+          signal = str(data["signal"]).upper()
+          if signal not in {"BUY", "SELL", "WAIT"}:
+              raise SystemExit(
+                  f"ERROR: Invalid signal value: {signal}"
+              )
+          def check_finite(value, path="$"):
+              if isinstance(value, float) and not math.isfinite(value):
+                  raise ValueError(
+                      f"Non-finite numeric value at {path}"
+                  )
+              if isinstance(value, dict):
+                  for key, item in value.items():
+                      check_finite(item, f"{path}.{key}")
+              elif isinstance(value, list):
+                  for index, item in enumerate(value):
+                      check_finite(item, f"{path}[{index}]")
+          try:
+              check_finite(data)
+          except ValueError as exc:
+              raise SystemExit(f"ERROR: {exc}")
+          print("JSON validation passed.")
+          print(f"Signal: {signal}")
+          print(f"Data status: {data['data_status']}")
+          print(f"Updated UTC: {data['updated_utc']}")
           state_path = Path(".mcd_signal_state.json")
           if state_path.exists():
-              state = json.loads(state_path.read_text(encoding="utf-8"))
+              try:
+                  state = json.loads(
+                      state_path.read_text(encoding="utf-8")
+                  )
+              except Exception as exc:
+                  raise SystemExit(
+                      f"ERROR: Invalid state JSON: {exc}"
+                  )
               if not isinstance(state, dict):
                   raise SystemExit(
-                      "ERROR: .mcd_signal_state.json mesti objek JSON."
+                      "ERROR: State JSON root must be an object."
                   )
-              reject_nonfinite(state)
-              print(".mcd_signal_state.json valid.")
+              print("State JSON validation passed.")
           else:
-              print("State file belum diwujudkan.")
+              print(
+                  "INFO: State file not created; "
+                  "it may be optional for this monitor version."
+              )
           PY
-      # 8. Simpan perubahan status dan sejarah
-      - name: Commit monitor data
+      # --------------------------------------------------
+      # 9. Commit generated files
+      # --------------------------------------------------
+      - name: Commit generated signal data
         shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email \
             "41898282+github-actions[bot]@users.noreply.github.com"
-          git add signal_status.json .mcd_signal_state.json
+          git add signal_status.json
+          if [ -f .mcd_signal_state.json ]; then
+            git add .mcd_signal_state.json
+          fi
           if git diff --cached --quiet; then
-            echo "Tiada perubahan data untuk disimpan."
+            echo "No generated changes to commit."
             exit 0
           fi
-          git commit -m "Update MCD signal status"
-          # Sinkronkan commit jika branch main berubah ketika workflow berjalan.
+          git commit -m "chore: update MCD signal data"
+          # Retry a non-fast-forward update safely.
           git fetch origin main
           git rebase origin/main
           git push origin HEAD:main
+      # --------------------------------------------------
+      # 10. Failure diagnostics
+      # --------------------------------------------------
+      - name: Show diagnostics on failure
+        if: failure()
+        run: |
+          echo "MCD monitor workflow failed."
+          echo "Review the logs of the failed step above."
+          echo "Check API credentials, dependencies, file paths,"
+          echo "and the generated JSON structure."
