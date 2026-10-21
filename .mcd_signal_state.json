@@ -5,7 +5,7 @@
   "active_setup": {
     "id": "SELL-1792577700",
     "side": "SELL",
-    "status": "ACTIVE",
+    "status": "SL_HIT",
     "entry": 4114.99759,
     "sl": 4119.395674,
     "tp1": 4108.400463999999,
@@ -14,14 +14,17 @@
     "strategy": "Breakout",
     "score": 6,
     "created_candle_t": 1792577700,
-    "created_utc": "2026-10-21T10:20:00+00:00"
+    "created_utc": "2026-10-21T10:20:00+00:00",
+    "last_checked_quote_timestamp": "2026-10-21T11:58:59+00:00",
+    "last_event_notified": "SL_HIT",
+    "closed_utc": "2026-10-21T11:59:00.961328+00:00"
   },
   "last_event": null,
   "last_event_time": null,
-  "last_status": "DATA_ERROR",
-  "last_error": "name 'TWELVE_API_KEY' is not defined",
-  "last_candle_t": 1792577700,
-  "last_run_utc": "2026-10-21T10:54:14.782550+00:00",
+  "last_status": "DATA_VALID",
+  "last_error": null,
+  "last_candle_t": 1792583400,
+  "last_run_utc": "2026-10-21T11:59:00.114517+00:00",
   "active_setups": [
     {
       "id": "SELL-1792441500",
@@ -203,7 +206,7 @@
     {
       "id": "SELL-1792577700",
       "side": "SELL",
-      "status": "ACTIVE",
+      "status": "SL_HIT",
       "entry": 4114.99759,
       "sl": 4119.395674,
       "tp1": 4108.400463999999,
@@ -211,7 +214,9 @@
       "tp3": null,
       "created_utc": "2026-10-21T10:20:00+00:00",
       "strategy": "Breakout",
-      "score": 6
+      "score": 6,
+      "closed_utc": "2026-10-21T11:59:00.961328+00:00",
+      "last_event_notified": "SL_HIT"
     }
   ]
 }
