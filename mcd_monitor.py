@@ -1,0 +1,667 @@
+#!/usr/bin/env python3
+"""MCD Signal Monitor - XAUUSD M5, notifications only; no trades executed."""
+import json
+import math
+import os
+import urllib.parse
+import urllib.request
+from datetime import datetime, timezone
+
+BASE = "https://biquote.io/api"
+TWELVE_DATA_BASE = "https://api.twelvedata.com"
+TWELVE_DATA_API_KEY = os.getenv("TWELVE_DATA_API_KEY", "").strip()
+TWELVE_DATA_SYMBOL = os.getenv("TWELVE_DATA_SYMBOL", "XAU/USD").strip()
+# Backward-compatible aliases used by the existing Twelve Data adapter.
+TWELVE_API_KEY = TWELVE_DATA_API_KEY
+TWELVE_SYMBOL = TWELVE_DATA_SYMBOL
+TWELVE_BASE = TWELVE_DATA_BASE
+SYMBOL = "XAUUSD"
+STATE = ".mcd_signal_state.json"
+STATUS = "signal_status.json"
+TOPIC = os.getenv("NTFY_TOPIC", "").strip()
+SERVER = os.getenv("NTFY_SERVER", "https://ntfy.sh").rstrip("/")
+ECONOMIC_CALENDAR_URL = "https://www.financecalendar.com/wp-json/fc/v1/calendar"
+ECONOMIC_CALENDAR_PAGE = "https://www.financecalendar.com/api/economic-calendar/"
+
+MIN_BARS = 60
+MAX_CANDLE_AGE = 900
+MAX_QUOTE_AGE = 300
+MAX_ENTRY_DRIFT_ATR = 1.2
+TP_R = 1.5  # One take-profit target only
+MAX_HISTORY = 500
+MIN_SCORE = 5
+
+
+def now():
+    return datetime.now(timezone.utc)
+
+
+def iso(ts):
+    return datetime.fromtimestamp(ts, timezone.utc).isoformat()
+
+
+def fmt(value):
+    if isinstance(value, (int, float)) and math.isfinite(value):
+        return f"{value:.2f}"
+    return "N/A"
+
+
+def get_json(url):
+    req = urllib.request.Request(url, headers={"User-Agent": "MCD-SIGNAL/1.4"})
+    with urllib.request.urlopen(req, timeout=20) as response:
+        if not 200 <= response.status < 300:
+            raise RuntimeError(f"HTTP {response.status}")
+        return json.loads(response.read().decode("utf-8"))
+
+
+def read_json(path):
+    try:
+        with open(path, encoding="utf-8") as f:
+            data = json.load(f)
+        return data if isinstance(data, dict) else {}
+    except (OSError, ValueError):
+        return {}
+
+
+def write_json(path, data):
+    tmp = path + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2, ensure_ascii=False, allow_nan=False)
+    os.replace(tmp, path)
+
+
+def get_quote():
+    data = get_json(f"{BASE}/{SYMBOL}?allowStale=false")
+    try:
+        bid, ask, mid = float(data["bid"]), float(data["ask"]), float(data["mid"])
+        stamp = datetime.fromisoformat(str(data["timestamp"]).replace("Z", "+00:00"))
+        if stamp.tzinfo is None:
+            stamp = stamp.replace(tzinfo=timezone.utc)
+    except (KeyError, TypeError, ValueError) as exc:
+        raise RuntimeError(f"Quote tidak lengkap: {exc}") from exc
+
+    if not all(math.isfinite(x) and x > 0 for x in (bid, ask, mid)):
+        raise RuntimeError("Harga quote tidak sah")
+    if ask < bid:
+        raise RuntimeError("Ask lebih rendah daripada Bid")
+    age = int(now().timestamp() - stamp.timestamp())
+    if age < -60 or age > MAX_QUOTE_AGE:
+        raise RuntimeError(f"Quote lapuk ({age}s)")
+    if str(data.get("marketState", "")).lower() != "open":
+        raise RuntimeError(f"Pasaran bukan OPEN: {data.get('marketState', 'UNKNOWN')}")
+    spread = float(data.get("spread", ask - bid))
+    if not math.isfinite(spread) or spread < 0:
+        spread = ask - bid
+    return {
+        "bid": bid, "ask": ask, "mid": mid, "spread": spread,
+        "timestamp": stamp.astimezone(timezone.utc).isoformat(), "age": max(0, age),
+    }
+
+
+def get_bars(interval="5m", limit=1000):
+    """Fetch OHLC from Twelve Data only; do not silently mix candle providers."""
+    if not TWELVE_DATA_API_KEY:
+        raise RuntimeError("TWELVE_DATA_API_KEY belum ditetapkan dalam environment/ GitHub Secrets")
+
+    interval_map = {
+        "5m": ("5min", 300),
+        "15m": ("15min", 900),
+        "30m": ("30min", 1800),
+        "1h": ("1h", 3600),
+        "4h": ("4h", 14400),
+        "1d": ("1day", 86400),
+    }
+    if interval not in interval_map:
+        raise RuntimeError(f"Interval Twelve Data tidak disokong: {interval}")
+    td_interval, duration = interval_map[interval]
+
+    params = urllib.parse.urlencode({
+        "symbol": TWELVE_DATA_SYMBOL,
+        "interval": td_interval,
+        "outputsize": min(max(int(limit), 1), 5000),
+        "timezone": "UTC",
+        "apikey": TWELVE_DATA_API_KEY,
+    })
+    payload = get_json(f"{TWELVE_DATA_BASE}/time_series?{params}")
+    if not isinstance(payload, dict):
+        raise RuntimeError(f"Twelve Data respons tidak sah: {interval}")
+    if payload.get("status") == "error" or "code" in payload and "values" not in payload:
+        message = payload.get("message", "API error")
+        raise RuntimeError(f"Twelve Data {interval}: {message}")
+    values = payload.get("values")
+    if not isinstance(values, list):
+        raise RuntimeError(f"Twelve Data tiada data OHLC: {interval}")
+
+    unique = {}
+    current_epoch = int(now().timestamp())
+    for item in values:
+        try:
+            stamp_text = str(item["datetime"])
+            # timezone=UTC is requested; parse naive timestamps as UTC.
+            stamp = datetime.fromisoformat(stamp_text.replace("Z", "+00:00"))
+            if stamp.tzinfo is None:
+                stamp = stamp.replace(tzinfo=timezone.utc)
+            candle_time = int(stamp.timestamp())
+            candle = {
+                "t": candle_time,
+                "o": float(item["open"]),
+                "h": float(item["high"]),
+                "l": float(item["low"]),
+                "c": float(item["close"]),
+                "is_open": candle_time + duration > current_epoch,
+            }
+            prices = [candle[k] for k in ("o", "h", "l", "c")]
+            if not all(math.isfinite(v) and v > 0 for v in prices):
+                continue
+            if candle["h"] < max(candle["o"], candle["c"], candle["l"]):
+                continue
+            if candle["l"] > min(candle["o"], candle["c"], candle["h"]):
+                continue
+            unique[candle_time] = candle
+        except (KeyError, TypeError, ValueError, OverflowError):
+            continue
+
+    return [unique[t] for t in sorted(unique)]
+
+
+def get_twelve_bars(interval="5min", outputsize=1000):
+    """Fetch OHLC from Twelve Data. Requires TWELVE_DATA_API_KEY."""
+    if not TWELVE_API_KEY:
+        raise RuntimeError("TWELVE_DATA_API_KEY belum ditetapkan")
+    params = urllib.parse.urlencode({
+        "symbol": TWELVE_SYMBOL,
+        "interval": interval,
+        "outputsize": min(max(int(outputsize), 1), 5000),
+        "apikey": TWELVE_API_KEY,
+        "timezone": "UTC",
+        "format": "JSON",
+    })
+    payload = get_json(f"{TWELVE_BASE}/time_series?{params}")
+    if not isinstance(payload, dict):
+        raise RuntimeError("Respons Twelve Data tidak sah")
+    if payload.get("status") == "error" or payload.get("code"):
+        raise RuntimeError(
+            f"Twelve Data error {payload.get('code', '')}: "
+            f"{payload.get('message', 'unknown error')}"
+        )
+    values = payload.get("values")
+    if not isinstance(values, list) or not values:
+        raise RuntimeError("Twelve Data tidak memulangkan candle OHLC")
+    unique = {}
+    for item in values:
+        try:
+            # timezone=UTC returns date/time strings without a UTC offset.
+            stamp_text = str(item["datetime"]).replace("Z", "+00:00")
+            stamp = datetime.fromisoformat(stamp_text)
+            if stamp.tzinfo is None:
+                stamp = stamp.replace(tzinfo=timezone.utc)
+            candle = {
+                "t": int(stamp.timestamp()),
+                "o": float(item["open"]),
+                "h": float(item["high"]),
+                "l": float(item["low"]),
+                "c": float(item["close"]),
+                # Closed-bar filtering is done from the candle timestamp below.
+                "is_open": False,
+            }
+            prices = [candle[k] for k in ("o", "h", "l", "c")]
+            if not all(math.isfinite(x) for x in prices):
+                continue
+            if candle["h"] < max(candle["o"], candle["c"], candle["l"]):
+                continue
+            if candle["l"] > min(candle["o"], candle["c"], candle["h"]):
+                continue
+            unique[candle["t"]] = candle
+        except (KeyError, TypeError, ValueError, OverflowError):
+            continue
+    return [unique[t] for t in sorted(unique)]
+
+
+def fetch_candles(interval_biquote, interval_twelve, limit):
+    """Fetch OHLC from Twelve Data; fail clearly if its API key is absent.
+
+    The quote feed remains Biquote, while OHLC candles use Twelve Data.
+    These are separate sources and must not be described as one broker feed.
+    """
+    if not TWELVE_DATA_API_KEY:
+        raise RuntimeError("TWELVE_DATA_API_KEY belum ditetapkan dalam GitHub Secrets")
+    return get_bars(interval_biquote, limit), "Twelve Data"
+
+
+def ema(values, period):
+    if len(values) < period:
+        raise RuntimeError(f"Candle tidak cukup untuk EMA{period}")
+    alpha = 2 / (period + 1)
+    result = [float(values[0])]
+    for value in values[1:]:
+        result.append(alpha * float(value) + (1 - alpha) * result[-1])
+    return result
+
+
+def atr(candles, period=14):
+    tr = []
+    for i in range(1, len(candles)):
+        cur, prev = candles[i], candles[i - 1]["c"]
+        tr.append(max(cur["h"] - cur["l"], abs(cur["h"] - prev), abs(cur["l"] - prev)))
+    if len(tr) < period:
+        raise RuntimeError("Candle tidak cukup untuk ATR")
+    value = sum(tr[:period]) / period
+    for x in tr[period:]:
+        value = (value * (period - 1) + x) / period
+    if not math.isfinite(value) or value <= 0:
+        raise RuntimeError("ATR tidak sah")
+    return value
+
+
+def get_trend(interval):
+    candles, _source = fetch_candles(interval, {"1d": "1day", "4h": "4h", "1h": "1h", "30m": "30min", "15m": "15min"}.get(interval, interval), 120)
+    candles = [c for c in candles if not c["is_open"]]
+    if len(candles) < 60:
+        return "UNKNOWN"
+    closes = [c["c"] for c in candles]
+    fast, slow = ema(closes, 20)[-1], ema(closes, 50)[-1]
+    return "BULLISH" if fast > slow else "BEARISH" if fast < slow else "FLAT"
+
+
+def evaluate(candles, trends):
+    closes = [c["c"] for c in candles]
+    e20, e50 = ema(closes, 20), ema(closes, 50)
+    atr14 = atr(candles)
+    cur, prev = candles[-1], candles[-2]
+    high20 = max(c["h"] for c in candles[-21:-1])
+    low20 = min(c["l"] for c in candles[-21:-1])
+    low10 = min(c["l"] for c in candles[-11:-1])
+    high10 = max(c["h"] for c in candles[-11:-1])
+    support30 = min(c["l"] for c in candles[-31:-1])
+    resistance30 = max(c["h"] for c in candles[-31:-1])
+    bull, bear = cur["c"] > cur["o"], cur["c"] < cur["o"]
+
+    buy_setups = {
+        "SnR Rejection": cur["l"] <= support30 + atr14 * .25 and cur["c"] > support30 and bull,
+        "Liquidity Sweep": cur["l"] < low10 and cur["c"] > low10 and bull,
+        "Engulfing": bull and prev["c"] < prev["o"] and cur["o"] <= prev["c"] and cur["c"] >= prev["o"],
+        "Breakout": cur["c"] > high20 and prev["c"] <= high20,
+    }
+    sell_setups = {
+        "SnR Rejection": cur["h"] >= resistance30 - atr14 * .25 and cur["c"] < resistance30 and bear,
+        "Liquidity Sweep": cur["h"] > high10 and cur["c"] < high10 and bear,
+        "Engulfing": bear and prev["c"] > prev["o"] and cur["o"] >= prev["c"] and cur["c"] <= prev["o"],
+        "Breakout": cur["c"] < low20 and prev["c"] >= low20,
+    }
+    body_ok = abs(cur["c"] - cur["o"]) >= atr14 * .1
+    extension_ok = abs(cur["c"] - e20[-1]) <= atr14 * 2
+    buy_momentum, sell_momentum = e20[-1] > e50[-1] and bull, e20[-1] < e50[-1] and bear
+    bull_htf = sum(v == "BULLISH" for v in trends.values())
+    bear_htf = sum(v == "BEARISH" for v in trends.values())
+
+    buy_score = max(0, min(8,
+        int(cur["c"] > e50[-1]) + int(buy_momentum)
+        + int(abs(cur["c"] - support30) <= atr14)
+        + int(any(buy_setups[k] for k in ("SnR Rejection", "Liquidity Sweep", "Engulfing")))
+        + int(buy_setups["Breakout"]) + int(body_ok) + int(extension_ok)
+        + int(bull_htf > 0) - int(bull_htf == 0)))
+    sell_score = max(0, min(8,
+        int(cur["c"] < e50[-1]) + int(sell_momentum)
+        + int(abs(cur["c"] - resistance30) <= atr14)
+        + int(any(sell_setups[k] for k in ("SnR Rejection", "Liquidity Sweep", "Engulfing")))
+        + int(sell_setups["Breakout"]) + int(body_ok) + int(extension_ok)
+        + int(bear_htf > 0) - int(bear_htf == 0)))
+
+    side, score, setup = "WAIT", max(buy_score, sell_score), "None"
+    if any(buy_setups.values()) and buy_score >= MIN_SCORE and body_ok and extension_ok and not any(sell_setups.values()):
+        side, score = "BUY", buy_score
+        setup = next(k for k, v in buy_setups.items() if v)
+    elif any(sell_setups.values()) and sell_score >= MIN_SCORE and body_ok and extension_ok and not any(buy_setups.values()):
+        side, score = "SELL", sell_score
+        setup = next(k for k, v in sell_setups.items() if v)
+
+    quality = "WAIT" if score <= 3 else "RISIKO" if score == 4 else "RENDAH (C)" if score <= 6 else "SEDERHANA (B)" if score == 7 else "KUAT (A)"
+    support_pivots, resistance_pivots = [], []
+    look = candles[-100:]
+    for i in range(3, len(look) - 3):
+        window = look[i-3:i+4]
+        if look[i]["l"] == min(c["l"] for c in window) and look[i]["l"] < cur["c"] - atr14 * .25:
+            support_pivots.append(look[i]["l"])
+        if look[i]["h"] == max(c["h"] for c in window) and look[i]["h"] > cur["c"] + atr14 * .25:
+            resistance_pivots.append(look[i]["h"])
+    support = max(support_pivots) if support_pivots else None
+    resistance = min(resistance_pivots) if resistance_pivots else None
+
+    result = {
+        "signal": side, "score": score, "quality": quality, "strategy": setup,
+        "buy_score": buy_score, "sell_score": sell_score, "atr14": atr14,
+        "ema20": e20[-1], "ema50": e50[-1], "support": support, "resistance": resistance,
+        "trend": trends,
+        "techniques": {
+            "snr": bool(buy_setups["SnR Rejection"] or sell_setups["SnR Rejection"]),
+            "smc": bool(buy_setups["Liquidity Sweep"] or sell_setups["Liquidity Sweep"]),
+            "pa": bool(buy_setups["Engulfing"] or sell_setups["Engulfing"]),
+            "breakout": bool(buy_setups["Breakout"] or sell_setups["Breakout"]),
+        },
+    }
+    if side in ("BUY", "SELL"):
+        entry = cur["c"]
+        distance = max(atr14 * 1.5, (cur["h"] - cur["l"]) * 1.2)
+        if side == "BUY":
+            sl = min(cur["l"] - atr14 * .15, entry - distance)
+            risk = entry - sl
+            tp1 = entry + risk * TP_R
+        else:
+            sl = max(cur["h"] + atr14 * .15, entry + distance)
+            risk = sl - entry
+            tp1 = entry - risk * TP_R
+        result.update({"entry": entry, "zone_low": entry-atr14*.15, "zone_high": entry+atr14*.15,
+                       "sl": sl, "tp1": tp1, "risk_distance": risk})
+    else:
+        result.update({"entry": None, "zone_low": None, "zone_high": None,
+                       "sl": None, "tp1": None, "risk_distance": None})
+    return result
+
+
+def fetch_economic_calendar():
+    """Fetch free, keyless US economic events relevant to XAUUSD.
+
+    Finance Calendar requires visible attribution. Calendar failures are
+    non-fatal and must never stop price/signal generation.
+    """
+    params = urllib.parse.urlencode({
+        "country": "US",
+        "impact": "high,medium",
+        "tz": "Asia/Kuala_Lumpur",
+        "limit": "500",
+    })
+    calendar_url = f"{ECONOMIC_CALENDAR_URL}?{params}"
+    try:
+        payload = get_json(calendar_url)
+        if not isinstance(payload, dict) or not isinstance(payload.get("events"), list):
+            raise RuntimeError("Format respons Finance Calendar tidak sah")
+
+        # Keep all high-impact US releases and only the most XAUUSD-relevant
+        # medium-impact releases to avoid filling the dashboard with noise.
+        relevant_terms = (
+            "fomc", "federal reserve", "fed ", "interest rate", "rate decision",
+            "cpi", "pce", "inflation", "nonfarm", "payroll", "unemployment",
+            "jobless claims", "gdp", "ism", "retail sales", "producer price",
+            "ppi", "powell", "minutes", "jolts", "adp employment",
+        )
+        events = []
+        for item in payload["events"]:
+            if not isinstance(item, dict):
+                continue
+            impact_text = str(item.get("impact") or "").strip().lower()
+            importance = {"high": 3, "medium": 2, "low": 1}.get(impact_text, 0)
+            event_name = str(item.get("title") or item.get("name") or item.get("series_name") or "").strip()
+            if not event_name or importance < 2:
+                continue
+            if importance == 2 and not any(term in event_name.lower() for term in relevant_terms):
+                continue
+
+            event_date = str(
+                item.get("release_at_utc") or item.get("time_utc") or item.get("date") or ""
+            ).strip()
+            if not event_date:
+                continue
+            events.append({
+                "date": event_date,
+                "country": str(item.get("country") or "US"),
+                "event": event_name,
+                "importance": importance,
+                "actual": item.get("actual") or "",
+                "forecast": item.get("consensus") or item.get("forecast") or "",
+                "previous": item.get("prior") or item.get("previous") or "",
+                "currency": "USD",
+                "source_url": str(item.get("url") or item.get("source_url") or ECONOMIC_CALENDAR_PAGE),
+            })
+        events.sort(key=lambda x: x["date"])
+        return {
+            "status": "FRESH", "source": "Finance Calendar API",
+            "updated_utc": now().isoformat(),
+            "timezone_note": "Masa acara dipaparkan dalam MYT (Asia/Kuala_Lumpur) jika timestamp sumber mengandungi zon waktu. Sumber dikemas kini secara berkala; semak pengumuman rasmi untuk keputusan kritikal.",
+            "events": events[:80],
+            "message": "Kalendar ekonomi USD berjaya dikemas kini.",
+            "url": ECONOMIC_CALENDAR_PAGE,
+            "attribution_url": "https://www.financecalendar.com/",
+        }
+    except Exception as exc:
+        print(f"Economic calendar unavailable: {exc}")
+        return {
+            "status": "ERROR", "source": "Finance Calendar API",
+            "updated_utc": now().isoformat(), "timezone_note": "Masa acara belum disahkan kerana sumber kalendar tidak tersedia.",
+            "events": [], "message": f"Kalendar tidak tersedia buat sementara waktu: {exc}",
+            "url": ECONOMIC_CALENDAR_PAGE,
+            "attribution_url": "https://www.financecalendar.com/",
+        }
+
+
+def notify(title, message):
+    if not TOPIC:
+        print("NTFY_SKIPPED: NTFY_TOPIC tiada")
+        return False
+    req = urllib.request.Request(
+        f"{SERVER}/{TOPIC}", data=message.encode("utf-8"), method="POST",
+        headers={"Title": title.encode("ascii", "replace").decode("ascii"),
+                 "Priority": "high", "Tags": "chart"})
+    with urllib.request.urlopen(req, timeout=20) as response:
+        if not 200 <= response.status < 300:
+            raise RuntimeError(f"ntfy HTTP {response.status}")
+    return True
+
+
+def clear_signal(public):
+    for key in ("entry", "zone_low", "zone_high", "sl", "tp1", "risk_distance"):
+        public[key] = None
+    public.update({"signal": "WAIT", "score": 0, "quality": "WAIT", "strategy": "None"})
+
+
+def monitor_active(state, public, quote_data):
+    """Monitor sampled quote against one SL and one TP; not broker fill verification."""
+    active = state.get("active_setup")
+    if not isinstance(active, dict) or active.get("status") != "ACTIVE":
+        public["active_setup"] = active
+        return
+    side = active.get("side")
+    if side not in ("BUY", "SELL"):
+        public["active_setup"] = active
+        return
+    stamp = quote_data["timestamp"]
+    if stamp == active.get("last_checked_quote_timestamp"):
+        public["active_setup"] = active
+        return
+    active["last_checked_quote_timestamp"] = stamp
+    price = quote_data["bid"] if side == "BUY" else quote_data["ask"]
+    try:
+        sl, tp1 = float(active["sl"]), float(active["tp1"])
+    except (KeyError, TypeError, ValueError):
+        public["active_setup"] = active
+        return
+    sl_hit = price <= sl if side == "BUY" else price >= sl
+    tp_hit = price >= tp1 if side == "BUY" else price <= tp1
+    event = "SL_HIT" if sl_hit else "TP_HIT" if tp_hit else None
+    if event:
+        active["status"] = event
+        active["last_event_utc"] = now().isoformat()
+        active["last_event_price"] = price
+        active["last_event_price_type"] = "BID" if side == "BUY" else "ASK"
+        active["closed_utc"] = now().isoformat()
+        if active.get("last_event_notified") != event:
+            msg = (f"MCD UPDATE - {event}\nSymbol: XAUUSD | M5\nSide: {side}\n"
+                   f"Sampled price: {fmt(price)} ({'BID' if side == 'BUY' else 'ASK'})\n"
+                   f"Entry: {fmt(active.get('entry'))}\nSL: {fmt(sl)}\nTP: {fmt(tp1)}\n"
+                   f"Quote UTC: {stamp}\nSource: Biquote; bukan feed rasmi HFM XAUUSDc. "
+                   "Event berdasarkan semakan berkala, bukan pengesahan fill broker.")
+            try:
+                if notify(f"MCD UPDATE - {event}", msg):
+                    active["last_event_notified"] = event
+            except Exception as exc:
+                active["notification_error"] = str(exc)
+    public["active_setup"] = active
+    public["sampled_exit_price"] = price
+    public["sampled_exit_price_type"] = "BID" if side == "BUY" else "ASK"
+
+
+def update_history_and_stats(state, public):
+    """Maintain bounded, source-derived signal history and dashboard stats."""
+    history = state.get("signal_history", [])
+    if not isinstance(history, list):
+        history = []
+    active = state.get("active_setup")
+    if isinstance(active, dict):
+        sid = active.get("id")
+        row = next((x for x in history if isinstance(x, dict) and x.get("id") == sid), None)
+        if row is None and sid:
+            row = {
+                "id": sid, "side": active.get("side"), "status": active.get("status", "ACTIVE"),
+                "entry": active.get("entry"), "sl": active.get("sl"), "tp1": active.get("tp1"),
+                "created_utc": active.get("created_utc"), "strategy": active.get("strategy"),
+                "score": active.get("score"),
+            }
+            history.append(row)
+        elif row is not None:
+            row["status"] = active.get("status", row.get("status"))
+            row["closed_utc"] = active.get("closed_utc")
+            row["last_event_notified"] = active.get("last_event_notified")
+    history = history[-MAX_HISTORY:]
+    state["signal_history"] = history
+    terminal = [x for x in history if isinstance(x, dict) and x.get("status") in ("TP_HIT", "SL_HIT", "EXPIRED", "BREAK_EVEN")]
+    tp = sum(x.get("status") == "TP_HIT" for x in terminal)
+    sl = sum(x.get("status") == "SL_HIT" for x in terminal)
+    be = sum(x.get("status") == "BREAK_EVEN" for x in terminal)
+    expired = sum(x.get("status") == "EXPIRED" for x in terminal)
+    public["signal_history"] = history
+    public["performance"] = {
+        "total_signals": len(history), "tp_hits": tp, "sl_hits": sl,
+        "break_even": be, "expired": expired,
+        "decided_signals": len(terminal),
+        "win_rate_percent": round(tp / len(terminal) * 100, 2) if terminal else None,
+        "note": "TP_HIT bermaksud quote yang disampel mencapai satu sasaran TP; bukan pengesahan fill broker."
+    }
+
+
+def main():
+    run_time = now()
+    state = read_json(STATE)
+    public = {
+        "version": "V2.0-M5-SINGLE-TP", "symbol": SYMBOL, "timeframe": "M5",
+        "data_source": "OHLC + Biquote quote; bukan feed rasmi HFM XAUUSDc",
+        "data_note": "Harga rujukan mungkin berbeza daripada broker HFM XAUUSDc. Signal hanya dinilai daripada candle M5 yang telah tutup.",
+        "refresh_model": "GitHub Actions cron 5 minit; browser hanya refresh snapshot JSON.",
+        "updated_utc": run_time.isoformat(), "data_status": "DATA_ERROR",
+        "signal": "WAIT", "score": 0, "quality": "WAIT", "reason": "Menunggu data sah.",
+        "trend_45m": "UNKNOWN",
+        "economic_calendar": {"status": "ERROR", "source": "Finance Calendar API", "updated_utc": None, "events": [], "message": "Kalendar belum dimuatkan.", "url": "https://www.financecalendar.com/api/economic-calendar/", "attribution_url": "https://www.financecalendar.com/", "timezone_note": "Semak zon waktu sumber."},
+        "trend": {"d1": "UNKNOWN", "h4": "UNKNOWN", "h1": "UNKNOWN", "m30": "UNKNOWN", "m15": "UNKNOWN"},
+        "support": None, "resistance": None, "techniques": {"snr": False, "smc": False, "pa": False, "breakout": False},
+        "price": None, "quote_bid": None, "quote_ask": None, "quote_mid": None,
+        "quote_spread": None, "quote_timestamp_utc": None, "quote_age_seconds": None,
+        "chart_candles": [], "entry": None, "zone_low": None, "zone_high": None,
+        "sl": None, "tp1": None, "active_setup": state.get("active_setup"),
+    }
+    # Economic calendar is independent: a calendar/API failure must never
+    # prevent the XAUUSD quote and signal monitor from running.
+    public["economic_calendar"] = fetch_economic_calendar()
+    try:
+        q = get_quote()
+        epoch = int(run_time.timestamp())
+        raw, candle_source = fetch_candles("5m", "5min", 1000)
+        candles = [c for c in raw if not c["is_open"] and c["t"] + 300 <= epoch]
+        if len(candles) < MIN_BARS:
+            raise RuntimeError(f"Candle M5 tidak cukup: {len(candles)}")
+        last = candles[-1]
+        candle_age = epoch - (last["t"] + 300)
+        if candle_age < 0 or candle_age > MAX_CANDLE_AGE:
+            raise RuntimeError(f"Candle M5 lapuk ({candle_age}s)")
+        if len(candles) > 1 and last["t"] - candles[-2]["t"] > 600:
+            raise RuntimeError("Jurang candle M5 terlalu besar")
+
+        trends = {}
+        for key, interval in (("d1", "1d"), ("h4", "4h"), ("h1", "1h"), ("m30", "30m"), ("m15", "15m")):
+            try:
+                trends[key] = get_trend(interval)
+            except Exception as exc:
+                trends[key] = "UNKNOWN"
+                print(f"{key} trend unavailable: {exc}")
+
+        result = evaluate(candles[-1000:], trends)
+        # Anti-chasing: BUY uses Ask, SELL uses Bid.
+        if result["signal"] in ("BUY", "SELL"):
+            live_price = q["ask"] if result["signal"] == "BUY" else q["bid"]
+            drift = abs(live_price - result["entry"])
+            if drift > result["atr14"] * MAX_ENTRY_DRIFT_ATR:
+                rejected = result["signal"]
+                result.update({"signal": "WAIT", "strategy": "NO CHASE", "entry": None,
+                               "zone_low": None, "zone_high": None, "sl": None,
+                               "tp1": None, "risk_distance": None,
+                               "no_chase_rejected": rejected, "no_chase_drift": drift})
+        public.update(result)
+        public.update({
+            "data_status": "FRESH", "updated_utc": run_time.isoformat(),
+            "last_candle_utc": iso(last["t"] + 300), "candle_age_seconds": candle_age,
+            "trend_45m": ("BULLISH" if candles[-1]["c"] > candles[-10]["c"] else "BEARISH" if candles[-1]["c"] < candles[-10]["c"] else "FLAT"),
+            "price": q["mid"], "quote_mid": q["mid"], "quote_bid": q["bid"],
+            "quote_ask": q["ask"], "quote_spread": q["spread"],
+            "quote_timestamp_utc": q["timestamp"], "quote_age_seconds": q["age"],
+            "quote_source": "Biquote API", "ohlc_source": candle_source, "market_state": "open", "candle_close": last["c"],
+            "quote_live_endpoint": f"{BASE}/{SYMBOL}?allowStale=false",
+            "chart_candles": [{k: c[k] for k in ("t", "o", "h", "l", "c")} for c in candles[-40:]],
+            "reason": f"Candle {candle_source} dan quote Biquote lulus semakan. Bandingkan harga dengan broker.",
+        })
+        monitor_active(state, public, q)
+
+        if result["signal"] in ("BUY", "SELL"):
+            key = f'{result["signal"]}-{last["t"]}'
+            if state.get("last_setup_key") != key:
+                state["active_setup"] = {
+                    "id": key, "side": result["signal"], "status": "ACTIVE",
+                    "entry": result["entry"], "sl": result["sl"], "tp1": result["tp1"],
+                    "risk_distance": result["risk_distance"],
+                    "strategy": result["strategy"], "score": result["score"],
+                    "created_candle_t": last["t"], "created_utc": iso(last["t"] + 300),
+                }
+                state["last_setup_key"] = key
+            public["active_setup"] = state.get("active_setup")
+            if state.get("last_signal_key") != key:
+                msg = (
+                    f'MCD SIGNAL - {result["signal"]}\nSymbol: XAUUSD | M5\n'
+                    f'Entry: {fmt(result["entry"])}\nSL: {fmt(result["sl"])}\n'
+                    f'TP: {fmt(result["tp1"])} ({TP_R:g}R)\n'
+                    f'Quality: {result["score"]}/8 - {result["quality"]}\nSetup: {result["strategy"]}\n'
+                    f'Current price: {fmt(q["mid"])} | Bid/Ask: {fmt(q["bid"])} / {fmt(q["ask"])}\n'
+                    f'Spread: {fmt(q["spread"])}\nQuote UTC: {q["timestamp"]}\n'
+                    f'Source: {candle_source} OHLC + Biquote quote; bukan feed rasmi HFM XAUUSDc. Notification only.'
+                )
+                try:
+                    sent = notify(f'MCD SIGNAL - {result["signal"]}', msg)
+                    if sent:
+                        state["last_signal_key"] = key
+                    else:
+                        public["notification_error"] = "NTFY_TOPIC tiada; signal tidak dihantar."
+                except Exception as exc:
+                    public["notification_error"] = str(exc)
+        else:
+            public["reason"] = (
+                "WAIT - harga sudah bergerak terlalu jauh daripada entry; jangan kejar harga."
+                if result.get("strategy") == "NO CHASE"
+                else f'WAIT - BUY {result["buy_score"]}/8, SELL {result["sell_score"]}/8; tiada setup sah.'
+            )
+        state["last_status"], state["last_error"], state["last_candle_t"] = "DATA_VALID", None, last["t"]
+    except Exception as exc:
+        clear_signal(public)
+        public.update({
+            "data_status": "DATA_ERROR", "reason": f"DATA_ERROR - {exc}. Signal disekat.",
+            "price": None, "quote_bid": None, "quote_ask": None, "quote_mid": None,
+            "quote_spread": None, "quote_timestamp_utc": None, "quote_age_seconds": None,
+            "quote_source": None, "ohlc_source": None, "market_state": None, "candle_close": None, "chart_candles": [],
+        })
+        state["last_status"], state["last_error"] = "DATA_ERROR", str(exc)
+        print("WAIT / DATA_ERROR:", exc)
+
+    state["last_run_utc"] = run_time.isoformat()
+    public["updated_utc"] = run_time.isoformat()
+    public["active_setup"] = state.get("active_setup")
+    update_history_and_stats(state, public)
+    write_json(STATUS, public)
+    write_json(STATE, state)
+
+
+if __name__ == "__main__":
+    main()
