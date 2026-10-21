@@ -20,8 +20,8 @@ STATE = ".mcd_signal_state.json"
 STATUS = "signal_status.json"
 TOPIC = os.getenv("NTFY_TOPIC", "").strip()
 SERVER = os.getenv("NTFY_SERVER", "https://ntfy.sh").rstrip("/")
-TRADING_ECONOMICS_API_KEY = os.getenv("TRADING_ECONOMICS_API_KEY", "").strip()
-ECONOMIC_CALENDAR_BASE = "https://api.tradingeconomics.com"
+ECONOMIC_CALENDAR_URL = "https://www.financecalendar.com/wp-json/fc/v1/calendar"
+ECONOMIC_CALENDAR_PAGE = "https://www.financecalendar.com/api/economic-calendar/"
 
 MIN_BARS = 60
 MAX_CANDLE_AGE = 900
@@ -359,74 +359,77 @@ def evaluate(candles, trends):
 
 
 def fetch_economic_calendar():
-    """Fetch upcoming US macro events from Trading Economics when configured.
+    """Fetch free, keyless US economic events relevant to XAUUSD.
 
-    Calendar failure is deliberately non-fatal to price/signal generation.
-    Event timestamps are kept as the provider's original text because the API
-    response may not include an explicit timezone offset.
+    Finance Calendar requires visible attribution. Calendar failures are
+    non-fatal and must never stop price/signal generation.
     """
-    calendar_url = "https://tradingeconomics.com/calendar"
-    if not TRADING_ECONOMICS_API_KEY:
-        return {
-            "status": "CONFIG_REQUIRED", "source": "Trading Economics",
-            "updated_utc": now().isoformat(), "timezone_note": "Waktu event dipaparkan seperti yang dibekalkan sumber; semak zon waktu sumber.",
-            "events": [], "message": "Tambah GitHub Secret TRADING_ECONOMICS_API_KEY untuk memuatkan data kalendar ekonomi.",
-            "url": calendar_url,
-        }
-
-    from datetime import timedelta
-    start_date = now().date().isoformat()
-    end_date = (now().date() + timedelta(days=7)).isoformat()
-    path = (
-        f"{ECONOMIC_CALENDAR_BASE}/calendar/country/united%20states/"
-        f"{start_date}/{end_date}?c={urllib.parse.quote(TRADING_ECONOMICS_API_KEY)}&f=json"
-    )
+    params = urllib.parse.urlencode({
+        "country": "US",
+        "impact": "high,medium",
+        "tz": "Asia/Kuala_Lumpur",
+        "limit": "500",
+    })
+    calendar_url = f"{ECONOMIC_CALENDAR_URL}?{params}"
     try:
-        payload = get_json(path)
-        if not isinstance(payload, list):
-            raise RuntimeError("Format respons kalendar bukan senarai")
+        payload = get_json(calendar_url)
+        if not isinstance(payload, dict) or not isinstance(payload.get("events"), list):
+            raise RuntimeError("Format respons Finance Calendar tidak sah")
+
+        # Keep all high-impact US releases and only the most XAUUSD-relevant
+        # medium-impact releases to avoid filling the dashboard with noise.
+        relevant_terms = (
+            "fomc", "federal reserve", "fed ", "interest rate", "rate decision",
+            "cpi", "pce", "inflation", "nonfarm", "payroll", "unemployment",
+            "jobless claims", "gdp", "ism", "retail sales", "producer price",
+            "ppi", "powell", "minutes", "jolts", "adp employment",
+        )
         events = []
-        for item in payload:
+        for item in payload["events"]:
             if not isinstance(item, dict):
                 continue
-            try:
-                importance = int(item.get("Importance") or 0)
-            except (TypeError, ValueError):
-                importance = 0
-            # XAUUSD is especially sensitive to major US releases; include
-            # medium/high impact events and keep source values unmodified.
-            if importance < 2:
+            impact_text = str(item.get("impact") or "").strip().lower()
+            importance = {"high": 3, "medium": 2, "low": 1}.get(impact_text, 0)
+            event_name = str(item.get("title") or item.get("name") or item.get("series_name") or "").strip()
+            if not event_name or importance < 2:
                 continue
-            event_date = str(item.get("Date") or "").strip()
-            event = str(item.get("Event") or item.get("Category") or "").strip()
-            if not event or not event_date:
+            if importance == 2 and not any(term in event_name.lower() for term in relevant_terms):
+                continue
+
+            event_date = str(
+                item.get("release_at_utc") or item.get("time_utc") or item.get("date") or ""
+            ).strip()
+            if not event_date:
                 continue
             events.append({
                 "date": event_date,
-                "country": str(item.get("Country") or "United States"),
-                "event": event,
+                "country": str(item.get("country") or "US"),
+                "event": event_name,
                 "importance": importance,
-                "actual": item.get("Actual") or "",
-                "forecast": item.get("Forecast") or item.get("TEForecast") or "",
-                "previous": item.get("Previous") or "",
-                "currency": str(item.get("Currency") or "USD"),
-                "source_url": str(item.get("SourceURL") or ""),
+                "actual": item.get("actual") or "",
+                "forecast": item.get("consensus") or item.get("forecast") or "",
+                "previous": item.get("prior") or item.get("previous") or "",
+                "currency": "USD",
+                "source_url": str(item.get("url") or item.get("source_url") or ECONOMIC_CALENDAR_PAGE),
             })
         events.sort(key=lambda x: x["date"])
         return {
-            "status": "FRESH", "source": "Trading Economics API",
+            "status": "FRESH", "source": "Finance Calendar API",
             "updated_utc": now().isoformat(),
-            "timezone_note": "Masa event mengekalkan format sumber; semak zon waktu sebelum merancang trading.",
-            "events": events[:80], "message": "Kalendar berjaya dikemas kini.",
-            "url": calendar_url,
+            "timezone_note": "Masa acara dipaparkan dalam MYT (Asia/Kuala_Lumpur) jika timestamp sumber mengandungi zon waktu. Sumber dikemas kini secara berkala; semak pengumuman rasmi untuk keputusan kritikal.",
+            "events": events[:80],
+            "message": "Kalendar ekonomi USD berjaya dikemas kini.",
+            "url": ECONOMIC_CALENDAR_PAGE,
+            "attribution_url": "https://www.financecalendar.com/",
         }
     except Exception as exc:
         print(f"Economic calendar unavailable: {exc}")
         return {
-            "status": "ERROR", "source": "Trading Economics API",
-            "updated_utc": now().isoformat(), "timezone_note": "Masa event mengekalkan format sumber.",
-            "events": [], "message": f"Kalendar tidak dapat dikemas kini: {exc}",
-            "url": calendar_url,
+            "status": "ERROR", "source": "Finance Calendar API",
+            "updated_utc": now().isoformat(), "timezone_note": "Masa acara belum disahkan kerana sumber kalendar tidak tersedia.",
+            "events": [], "message": f"Kalendar tidak tersedia buat sementara waktu: {exc}",
+            "url": ECONOMIC_CALENDAR_PAGE,
+            "attribution_url": "https://www.financecalendar.com/",
         }
 
 
@@ -545,7 +548,7 @@ def main():
         "updated_utc": run_time.isoformat(), "data_status": "DATA_ERROR",
         "signal": "WAIT", "score": 0, "quality": "WAIT", "reason": "Menunggu data sah.",
         "trend_45m": "UNKNOWN",
-        "economic_calendar": {"status": "CONFIG_REQUIRED", "source": "Trading Economics", "updated_utc": None, "events": [], "message": "Calendar belum dimuatkan.", "url": "https://tradingeconomics.com/calendar", "timezone_note": "Semak zon waktu sumber."},
+        "economic_calendar": {"status": "ERROR", "source": "Finance Calendar API", "updated_utc": None, "events": [], "message": "Kalendar belum dimuatkan.", "url": "https://www.financecalendar.com/api/economic-calendar/", "attribution_url": "https://www.financecalendar.com/", "timezone_note": "Semak zon waktu sumber."},
         "trend": {"d1": "UNKNOWN", "h4": "UNKNOWN", "h1": "UNKNOWN", "m30": "UNKNOWN", "m15": "UNKNOWN"},
         "support": None, "resistance": None, "techniques": {"snr": False, "smc": False, "pa": False, "breakout": False},
         "price": None, "quote_bid": None, "quote_ask": None, "quote_mid": None,
