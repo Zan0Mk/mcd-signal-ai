@@ -20,14 +20,14 @@ STATE = ".mcd_signal_state.json"
 STATUS = "signal_status.json"
 TOPIC = os.getenv("NTFY_TOPIC", "").strip()
 SERVER = os.getenv("NTFY_SERVER", "https://ntfy.sh").rstrip("/")
+TRADING_ECONOMICS_API_KEY = os.getenv("TRADING_ECONOMICS_API_KEY", "").strip()
+ECONOMIC_CALENDAR_BASE = "https://api.tradingeconomics.com"
 
 MIN_BARS = 60
 MAX_CANDLE_AGE = 900
 MAX_QUOTE_AGE = 300
 MAX_ENTRY_DRIFT_ATR = 1.2
-TP1_R = 1.5
-TP2_R = 3.0
-TP3_R = 4.5
+TP_R = 1.5  # One take-profit target only
 MAX_HISTORY = 500
 MIN_SCORE = 5
 
@@ -345,17 +345,89 @@ def evaluate(candles, trends):
         if side == "BUY":
             sl = min(cur["l"] - atr14 * .15, entry - distance)
             risk = entry - sl
-            tp1, tp2, tp3 = entry + risk * TP1_R, entry + risk * TP2_R, entry + risk * TP3_R
+            tp1 = entry + risk * TP_R
         else:
             sl = max(cur["h"] + atr14 * .15, entry + distance)
             risk = sl - entry
-            tp1, tp2, tp3 = entry - risk * TP1_R, entry - risk * TP2_R, entry - risk * TP3_R
+            tp1 = entry - risk * TP_R
         result.update({"entry": entry, "zone_low": entry-atr14*.15, "zone_high": entry+atr14*.15,
-                       "sl": sl, "tp1": tp1, "tp2": tp2, "tp3": tp3, "risk_distance": risk})
+                       "sl": sl, "tp1": tp1, "risk_distance": risk})
     else:
         result.update({"entry": None, "zone_low": None, "zone_high": None,
-                       "sl": None, "tp1": None, "tp2": None, "tp3": None, "risk_distance": None})
+                       "sl": None, "tp1": None, "risk_distance": None})
     return result
+
+
+def fetch_economic_calendar():
+    """Fetch upcoming US macro events from Trading Economics when configured.
+
+    Calendar failure is deliberately non-fatal to price/signal generation.
+    Event timestamps are kept as the provider's original text because the API
+    response may not include an explicit timezone offset.
+    """
+    calendar_url = "https://tradingeconomics.com/calendar"
+    if not TRADING_ECONOMICS_API_KEY:
+        return {
+            "status": "CONFIG_REQUIRED", "source": "Trading Economics",
+            "updated_utc": now().isoformat(), "timezone_note": "Waktu event dipaparkan seperti yang dibekalkan sumber; semak zon waktu sumber.",
+            "events": [], "message": "Tambah GitHub Secret TRADING_ECONOMICS_API_KEY untuk memuatkan data kalendar ekonomi.",
+            "url": calendar_url,
+        }
+
+    from datetime import timedelta
+    start_date = now().date().isoformat()
+    end_date = (now().date() + timedelta(days=7)).isoformat()
+    path = (
+        f"{ECONOMIC_CALENDAR_BASE}/calendar/country/united%20states/"
+        f"{start_date}/{end_date}?c={urllib.parse.quote(TRADING_ECONOMICS_API_KEY)}&f=json"
+    )
+    try:
+        payload = get_json(path)
+        if not isinstance(payload, list):
+            raise RuntimeError("Format respons kalendar bukan senarai")
+        events = []
+        for item in payload:
+            if not isinstance(item, dict):
+                continue
+            try:
+                importance = int(item.get("Importance") or 0)
+            except (TypeError, ValueError):
+                importance = 0
+            # XAUUSD is especially sensitive to major US releases; include
+            # medium/high impact events and keep source values unmodified.
+            if importance < 2:
+                continue
+            event_date = str(item.get("Date") or "").strip()
+            event = str(item.get("Event") or item.get("Category") or "").strip()
+            if not event or not event_date:
+                continue
+            events.append({
+                "date": event_date,
+                "country": str(item.get("Country") or "United States"),
+                "event": event,
+                "importance": importance,
+                "actual": item.get("Actual") or "",
+                "forecast": item.get("Forecast") or item.get("TEForecast") or "",
+                "previous": item.get("Previous") or "",
+                "currency": str(item.get("Currency") or "USD"),
+                "source_url": str(item.get("SourceURL") or ""),
+            })
+        events.sort(key=lambda x: x["date"])
+        return {
+            "status": "FRESH", "source": "Trading Economics API",
+            "updated_utc": now().isoformat(),
+            "timezone_note": "Masa event mengekalkan format sumber; semak zon waktu sebelum merancang trading.",
+            "events": events[:80], "message": "Kalendar berjaya dikemas kini.",
+            "url": calendar_url,
+        }
+    except Exception as exc:
+        print(f"Economic calendar unavailable: {exc}")
+        return {
+            "status": "ERROR", "source": "Trading Economics API",
+            "updated_utc": now().isoformat(), "timezone_note": "Masa event mengekalkan format sumber.",
+            "events": [], "message": f"Kalendar tidak dapat dikemas kini: {exc}",
+            "url": calendar_url,
+        }
 
 
 def notify(title, message):
@@ -373,14 +445,15 @@ def notify(title, message):
 
 
 def clear_signal(public):
-    for key in ("entry", "zone_low", "zone_high", "sl", "tp1", "tp2", "tp3", "risk_distance"):
+    for key in ("entry", "zone_low", "zone_high", "sl", "tp1", "risk_distance"):
         public[key] = None
     public.update({"signal": "WAIT", "score": 0, "quality": "WAIT", "strategy": "None"})
 
 
 def monitor_active(state, public, quote_data):
+    """Monitor sampled quote against one SL and one TP; not broker fill verification."""
     active = state.get("active_setup")
-    if not isinstance(active, dict) or active.get("status") not in ("ACTIVE", "TP1_HIT"):
+    if not isinstance(active, dict) or active.get("status") != "ACTIVE":
         public["active_setup"] = active
         return
     side = active.get("side")
@@ -394,34 +467,25 @@ def monitor_active(state, public, quote_data):
     active["last_checked_quote_timestamp"] = stamp
     price = quote_data["bid"] if side == "BUY" else quote_data["ask"]
     try:
-        sl, tp1, tp2 = (float(active[k]) for k in ("sl", "tp1", "tp2"))
+        sl, tp1 = float(active["sl"]), float(active["tp1"])
     except (KeyError, TypeError, ValueError):
         public["active_setup"] = active
         return
     sl_hit = price <= sl if side == "BUY" else price >= sl
-    tp1_hit = price >= tp1 if side == "BUY" else price <= tp1
-    tp2_hit = price >= tp2 if side == "BUY" else price <= tp2
-    event = None
-    if sl_hit:
-        event = "SL_HIT"
-    elif active["status"] == "ACTIVE" and tp1_hit:
-        event = "TP1_HIT"
-    elif active["status"] == "TP1_HIT" and tp2_hit:
-        event = "TP2_HIT"
+    tp_hit = price >= tp1 if side == "BUY" else price <= tp1
+    event = "SL_HIT" if sl_hit else "TP_HIT" if tp_hit else None
     if event:
-        # Record the sampled price event independently from notification delivery.
-        # This is monitoring, not broker execution or guaranteed fill verification.
         active["status"] = event
         active["last_event_utc"] = now().isoformat()
         active["last_event_price"] = price
         active["last_event_price_type"] = "BID" if side == "BUY" else "ASK"
-        if event in ("SL_HIT", "TP2_HIT"):
-            active["closed_utc"] = now().isoformat()
+        active["closed_utc"] = now().isoformat()
         if active.get("last_event_notified") != event:
             msg = (f"MCD UPDATE - {event}\nSymbol: XAUUSD | M5\nSide: {side}\n"
                    f"Sampled price: {fmt(price)} ({'BID' if side == 'BUY' else 'ASK'})\n"
-                   f"Entry: {fmt(active.get('entry'))}\nSL: {fmt(sl)}\nTP1: {fmt(tp1)}\nTP2: {fmt(tp2)}\n"
-                   f"Quote UTC: {stamp}\nSource: Biquote; bukan feed rasmi HFM XAUUSDc. Event berdasarkan semakan berkala, bukan pengesahan fill broker.")
+                   f"Entry: {fmt(active.get('entry'))}\nSL: {fmt(sl)}\nTP: {fmt(tp1)}\n"
+                   f"Quote UTC: {stamp}\nSource: Biquote; bukan feed rasmi HFM XAUUSDc. "
+                   "Event berdasarkan semakan berkala, bukan pengesahan fill broker.")
             try:
                 if notify(f"MCD UPDATE - {event}", msg):
                     active["last_event_notified"] = event
@@ -445,7 +509,6 @@ def update_history_and_stats(state, public):
             row = {
                 "id": sid, "side": active.get("side"), "status": active.get("status", "ACTIVE"),
                 "entry": active.get("entry"), "sl": active.get("sl"), "tp1": active.get("tp1"),
-                "tp2": active.get("tp2"), "tp3": active.get("tp3"),
                 "created_utc": active.get("created_utc"), "strategy": active.get("strategy"),
                 "score": active.get("score"),
             }
@@ -456,8 +519,8 @@ def update_history_and_stats(state, public):
             row["last_event_notified"] = active.get("last_event_notified")
     history = history[-MAX_HISTORY:]
     state["signal_history"] = history
-    terminal = [x for x in history if isinstance(x, dict) and x.get("status") in ("TP2_HIT", "SL_HIT", "EXPIRED", "BREAK_EVEN")]
-    tp = sum(x.get("status") == "TP2_HIT" for x in terminal)
+    terminal = [x for x in history if isinstance(x, dict) and x.get("status") in ("TP_HIT", "SL_HIT", "EXPIRED", "BREAK_EVEN")]
+    tp = sum(x.get("status") == "TP_HIT" for x in terminal)
     sl = sum(x.get("status") == "SL_HIT" for x in terminal)
     be = sum(x.get("status") == "BREAK_EVEN" for x in terminal)
     expired = sum(x.get("status") == "EXPIRED" for x in terminal)
@@ -467,7 +530,7 @@ def update_history_and_stats(state, public):
         "break_even": be, "expired": expired,
         "decided_signals": len(terminal),
         "win_rate_percent": round(tp / len(terminal) * 100, 2) if terminal else None,
-        "note": "TP hit dikira selepas TP2_HIT; keputusan terminal sahaja masuk win rate."
+        "note": "TP_HIT bermaksud quote yang disampel mencapai satu sasaran TP; bukan pengesahan fill broker."
     }
 
 
@@ -475,18 +538,24 @@ def main():
     run_time = now()
     state = read_json(STATE)
     public = {
-        "version": "V1.5", "symbol": SYMBOL, "timeframe": "M5",
+        "version": "V2.0-M5-SINGLE-TP", "symbol": SYMBOL, "timeframe": "M5",
         "data_source": "OHLC + Biquote quote; bukan feed rasmi HFM XAUUSDc",
+        "data_note": "Harga rujukan mungkin berbeza daripada broker HFM XAUUSDc. Signal hanya dinilai daripada candle M5 yang telah tutup.",
+        "refresh_model": "GitHub Actions cron 5 minit; browser hanya refresh snapshot JSON.",
         "updated_utc": run_time.isoformat(), "data_status": "DATA_ERROR",
         "signal": "WAIT", "score": 0, "quality": "WAIT", "reason": "Menunggu data sah.",
         "trend_45m": "UNKNOWN",
+        "economic_calendar": {"status": "CONFIG_REQUIRED", "source": "Trading Economics", "updated_utc": None, "events": [], "message": "Calendar belum dimuatkan.", "url": "https://tradingeconomics.com/calendar", "timezone_note": "Semak zon waktu sumber."},
         "trend": {"d1": "UNKNOWN", "h4": "UNKNOWN", "h1": "UNKNOWN", "m30": "UNKNOWN", "m15": "UNKNOWN"},
         "support": None, "resistance": None, "techniques": {"snr": False, "smc": False, "pa": False, "breakout": False},
         "price": None, "quote_bid": None, "quote_ask": None, "quote_mid": None,
         "quote_spread": None, "quote_timestamp_utc": None, "quote_age_seconds": None,
         "chart_candles": [], "entry": None, "zone_low": None, "zone_high": None,
-        "sl": None, "tp1": None, "tp2": None, "tp3": None, "active_setup": state.get("active_setup"),
+        "sl": None, "tp1": None, "active_setup": state.get("active_setup"),
     }
+    # Economic calendar is independent: a calendar/API failure must never
+    # prevent the XAUUSD quote and signal monitor from running.
+    public["economic_calendar"] = fetch_economic_calendar()
     try:
         q = get_quote()
         epoch = int(run_time.timestamp())
@@ -518,7 +587,7 @@ def main():
                 rejected = result["signal"]
                 result.update({"signal": "WAIT", "strategy": "NO CHASE", "entry": None,
                                "zone_low": None, "zone_high": None, "sl": None,
-                               "tp1": None, "tp2": None, "tp3": None, "risk_distance": None,
+                               "tp1": None, "risk_distance": None,
                                "no_chase_rejected": rejected, "no_chase_drift": drift})
         public.update(result)
         public.update({
@@ -529,6 +598,7 @@ def main():
             "quote_ask": q["ask"], "quote_spread": q["spread"],
             "quote_timestamp_utc": q["timestamp"], "quote_age_seconds": q["age"],
             "quote_source": "Biquote API", "ohlc_source": candle_source, "market_state": "open", "candle_close": last["c"],
+            "quote_live_endpoint": f"{BASE}/{SYMBOL}?allowStale=false",
             "chart_candles": [{k: c[k] for k in ("t", "o", "h", "l", "c")} for c in candles[-40:]],
             "reason": f"Candle {candle_source} dan quote Biquote lulus semakan. Bandingkan harga dengan broker.",
         })
@@ -540,7 +610,7 @@ def main():
                 state["active_setup"] = {
                     "id": key, "side": result["signal"], "status": "ACTIVE",
                     "entry": result["entry"], "sl": result["sl"], "tp1": result["tp1"],
-                    "tp2": result["tp2"], "tp3": result["tp3"], "risk_distance": result["risk_distance"],
+                    "risk_distance": result["risk_distance"],
                     "strategy": result["strategy"], "score": result["score"],
                     "created_candle_t": last["t"], "created_utc": iso(last["t"] + 300),
                 }
@@ -550,7 +620,7 @@ def main():
                 msg = (
                     f'MCD SIGNAL - {result["signal"]}\nSymbol: XAUUSD | M5\n'
                     f'Entry: {fmt(result["entry"])}\nSL: {fmt(result["sl"])}\n'
-                    f'TP1: {fmt(result["tp1"])} ({TP1_R:g}R)\nTP2: {fmt(result["tp2"])} ({TP2_R:g}R)\n'
+                    f'TP: {fmt(result["tp1"])} ({TP_R:g}R)\n'
                     f'Quality: {result["score"]}/8 - {result["quality"]}\nSetup: {result["strategy"]}\n'
                     f'Current price: {fmt(q["mid"])} | Bid/Ask: {fmt(q["bid"])} / {fmt(q["ask"])}\n'
                     f'Spread: {fmt(q["spread"])}\nQuote UTC: {q["timestamp"]}\n'
