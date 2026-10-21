@@ -23,6 +23,8 @@ MAX_QUOTE_AGE = 300
 MAX_ENTRY_DRIFT_ATR = 1.2
 TP1_R = 1.5
 TP2_R = 3.0
+TP3_R = 4.5
+MAX_HISTORY = 500
 MIN_SCORE = 5
 
 
@@ -41,7 +43,7 @@ def fmt(value):
 
 
 def get_json(url):
-    req = urllib.request.Request(url, headers={"User-Agent": "MCD-SIGNAL/1.5"})
+    req = urllib.request.Request(url, headers={"User-Agent": "MCD-SIGNAL/1.4"})
     with urllib.request.urlopen(req, timeout=20) as response:
         if not 200 <= response.status < 300:
             raise RuntimeError(f"HTTP {response.status}")
@@ -60,7 +62,7 @@ def read_json(path):
 def write_json(path, data):
     tmp = path + ".tmp"
     with open(tmp, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2, ensure_ascii=False)
+        json.dump(data, f, indent=2, ensure_ascii=False, allow_nan=False)
     os.replace(tmp, path)
 
 
@@ -93,9 +95,9 @@ def get_quote():
 
 
 def get_bars(interval="5m", limit=1000):
-    """Fetch OHLC from Twelve Data; requires the TWELVE_DATA_API_KEY secret."""
+    """Fetch OHLC from Twelve Data only; do not silently mix candle providers."""
     if not TWELVE_DATA_API_KEY:
-        raise RuntimeError("TWELVE_DATA_API_KEY belum ditetapkan dalam GitHub Secrets/environment")
+        raise RuntimeError("TWELVE_DATA_API_KEY belum ditetapkan dalam environment/ GitHub Secrets")
 
     interval_map = {
         "5m": ("5min", 300),
@@ -108,34 +110,40 @@ def get_bars(interval="5m", limit=1000):
     if interval not in interval_map:
         raise RuntimeError(f"Interval Twelve Data tidak disokong: {interval}")
     td_interval, duration = interval_map[interval]
+
     params = urllib.parse.urlencode({
         "symbol": TWELVE_DATA_SYMBOL,
         "interval": td_interval,
         "outputsize": min(max(int(limit), 1), 5000),
         "timezone": "UTC",
         "apikey": TWELVE_DATA_API_KEY,
-        "format": "JSON",
     })
     payload = get_json(f"{TWELVE_DATA_BASE}/time_series?{params}")
     if not isinstance(payload, dict):
         raise RuntimeError(f"Twelve Data respons tidak sah: {interval}")
-    if payload.get("status") == "error" or ("code" in payload and "values" not in payload):
-        raise RuntimeError(f"Twelve Data {interval}: {payload.get('message', 'API error')}")
+    if payload.get("status") == "error" or "code" in payload and "values" not in payload:
+        message = payload.get("message", "API error")
+        raise RuntimeError(f"Twelve Data {interval}: {message}")
     values = payload.get("values")
-    if not isinstance(values, list) or not values:
+    if not isinstance(values, list):
         raise RuntimeError(f"Twelve Data tiada data OHLC: {interval}")
 
     unique = {}
     current_epoch = int(now().timestamp())
     for item in values:
         try:
-            stamp = datetime.fromisoformat(str(item["datetime"]).replace("Z", "+00:00"))
+            stamp_text = str(item["datetime"])
+            # timezone=UTC is requested; parse naive timestamps as UTC.
+            stamp = datetime.fromisoformat(stamp_text.replace("Z", "+00:00"))
             if stamp.tzinfo is None:
                 stamp = stamp.replace(tzinfo=timezone.utc)
             candle_time = int(stamp.timestamp())
             candle = {
-                "t": candle_time, "o": float(item["open"]), "h": float(item["high"]),
-                "l": float(item["low"]), "c": float(item["close"]),
+                "t": candle_time,
+                "o": float(item["open"]),
+                "h": float(item["high"]),
+                "l": float(item["low"]),
+                "c": float(item["close"]),
                 "is_open": candle_time + duration > current_epoch,
             }
             prices = [candle[k] for k in ("o", "h", "l", "c")]
@@ -148,19 +156,68 @@ def get_bars(interval="5m", limit=1000):
             unique[candle_time] = candle
         except (KeyError, TypeError, ValueError, OverflowError):
             continue
+
+    return [unique[t] for t in sorted(unique)]
+
+
+def get_twelve_bars(interval="5min", outputsize=1000):
+    """Fetch OHLC from Twelve Data. Requires TWELVE_DATA_API_KEY."""
+    if not TWELVE_API_KEY:
+        raise RuntimeError("TWELVE_DATA_API_KEY belum ditetapkan")
+    params = urllib.parse.urlencode({
+        "symbol": TWELVE_SYMBOL,
+        "interval": interval,
+        "outputsize": min(max(int(outputsize), 1), 5000),
+        "apikey": TWELVE_API_KEY,
+        "timezone": "UTC",
+        "format": "JSON",
+    })
+    payload = get_json(f"{TWELVE_BASE}/time_series?{params}")
+    if not isinstance(payload, dict):
+        raise RuntimeError("Respons Twelve Data tidak sah")
+    if payload.get("status") == "error" or payload.get("code"):
+        raise RuntimeError(
+            f"Twelve Data error {payload.get('code', '')}: "
+            f"{payload.get('message', 'unknown error')}"
+        )
+    values = payload.get("values")
+    if not isinstance(values, list) or not values:
+        raise RuntimeError("Twelve Data tidak memulangkan candle OHLC")
+    unique = {}
+    for item in values:
+        try:
+            # timezone=UTC returns date/time strings without a UTC offset.
+            stamp_text = str(item["datetime"]).replace("Z", "+00:00")
+            stamp = datetime.fromisoformat(stamp_text)
+            if stamp.tzinfo is None:
+                stamp = stamp.replace(tzinfo=timezone.utc)
+            candle = {
+                "t": int(stamp.timestamp()),
+                "o": float(item["open"]),
+                "h": float(item["high"]),
+                "l": float(item["low"]),
+                "c": float(item["close"]),
+                # Closed-bar filtering is done from the candle timestamp below.
+                "is_open": False,
+            }
+            prices = [candle[k] for k in ("o", "h", "l", "c")]
+            if not all(math.isfinite(x) for x in prices):
+                continue
+            if candle["h"] < max(candle["o"], candle["c"], candle["l"]):
+                continue
+            if candle["l"] > min(candle["o"], candle["c"], candle["h"]):
+                continue
+            unique[candle["t"]] = candle
+        except (KeyError, TypeError, ValueError, OverflowError):
+            continue
     return [unique[t] for t in sorted(unique)]
 
 
 def fetch_candles(interval_biquote, interval_twelve, limit):
-    """Use Twelve Data OHLC; Biquote is only used for the live quote."""
-    mapping = {
-        "5min": "5m", "15min": "15m", "30min": "30m",
-        "1h": "1h", "4h": "4h", "1day": "1d",
-    }
-    interval = mapping.get(interval_twelve)
-    if interval is None:
-        raise RuntimeError(f"Interval Twelve Data tidak disokong: {interval_twelve}")
-    return get_bars(interval, limit), "Twelve Data"
+    """Use Twelve Data when a key exists; otherwise keep Biquote working."""
+    if TWELVE_API_KEY:
+        return get_twelve_bars(interval_twelve, limit), "Twelve Data"
+    return get_bars(interval_biquote, limit), "Biquote API (Twelve Data key not configured)"
 
 
 def ema(values, period):
@@ -189,7 +246,7 @@ def atr(candles, period=14):
 
 
 def get_trend(interval):
-    candles = get_bars(interval, 120)
+    candles, _source = fetch_candles(interval, {"1d": "1day", "4h": "4h", "1h": "1h", "30m": "30min", "15m": "15min"}.get(interval, interval), 120)
     candles = [c for c in candles if not c["is_open"]]
     if len(candles) < 60:
         return "UNKNOWN"
@@ -229,35 +286,26 @@ def evaluate(candles, trends):
     bull_htf = sum(v == "BULLISH" for v in trends.values())
     bear_htf = sum(v == "BEARISH" for v in trends.values())
 
-    buy_score = max(0, min(8, int(cur["c"] > e50[-1]) + int(buy_momentum)
+    buy_score = max(0, min(8,
+        int(cur["c"] > e50[-1]) + int(buy_momentum)
         + int(abs(cur["c"] - support30) <= atr14)
         + int(any(buy_setups[k] for k in ("SnR Rejection", "Liquidity Sweep", "Engulfing")))
         + int(buy_setups["Breakout"]) + int(body_ok) + int(extension_ok)
         + int(bull_htf > 0) - int(bull_htf == 0)))
-    sell_score = max(0, min(8, int(cur["c"] < e50[-1]) + int(sell_momentum)
+    sell_score = max(0, min(8,
+        int(cur["c"] < e50[-1]) + int(sell_momentum)
         + int(abs(cur["c"] - resistance30) <= atr14)
         + int(any(sell_setups[k] for k in ("SnR Rejection", "Liquidity Sweep", "Engulfing")))
         + int(sell_setups["Breakout"]) + int(body_ok) + int(extension_ok)
         + int(bear_htf > 0) - int(bear_htf == 0)))
 
     side, score, setup = "WAIT", max(buy_score, sell_score), "None"
-    buy_valid = any(buy_setups.values()) and buy_score >= MIN_SCORE and body_ok and extension_ok
-    sell_valid = any(sell_setups.values()) and sell_score >= MIN_SCORE and body_ok and extension_ok
-    # Do not suppress every signal merely because a weak opposite setup exists.
-    # If both sides trigger, require a two-point score advantage to resolve direction.
-    if buy_valid and not sell_valid:
+    if any(buy_setups.values()) and buy_score >= MIN_SCORE and body_ok and extension_ok and not any(sell_setups.values()):
         side, score = "BUY", buy_score
         setup = next(k for k, v in buy_setups.items() if v)
-    elif sell_valid and not buy_valid:
+    elif any(sell_setups.values()) and sell_score >= MIN_SCORE and body_ok and extension_ok and not any(buy_setups.values()):
         side, score = "SELL", sell_score
         setup = next(k for k, v in sell_setups.items() if v)
-    elif buy_valid and sell_valid and abs(buy_score - sell_score) >= 2:
-        if buy_score > sell_score:
-            side, score = "BUY", buy_score
-            setup = next(k for k, v in buy_setups.items() if v)
-        else:
-            side, score = "SELL", sell_score
-            setup = next(k for k, v in sell_setups.items() if v)
 
     quality = "WAIT" if score <= 3 else "RISIKO" if score == 4 else "RENDAH (C)" if score <= 6 else "SEDERHANA (B)" if score == 7 else "KUAT (A)"
     support_pivots, resistance_pivots = [], []
@@ -289,16 +337,16 @@ def evaluate(candles, trends):
         if side == "BUY":
             sl = min(cur["l"] - atr14 * .15, entry - distance)
             risk = entry - sl
-            tp1, tp2 = entry + risk * TP1_R, entry + risk * TP2_R
+            tp1, tp2, tp3 = entry + risk * TP1_R, entry + risk * TP2_R, entry + risk * TP3_R
         else:
             sl = max(cur["h"] + atr14 * .15, entry + distance)
             risk = sl - entry
-            tp1, tp2 = entry - risk * TP1_R, entry - risk * TP2_R
+            tp1, tp2, tp3 = entry - risk * TP1_R, entry - risk * TP2_R, entry - risk * TP3_R
         result.update({"entry": entry, "zone_low": entry-atr14*.15, "zone_high": entry+atr14*.15,
-                       "sl": sl, "tp1": tp1, "tp2": tp2, "risk_distance": risk})
+                       "sl": sl, "tp1": tp1, "tp2": tp2, "tp3": tp3, "risk_distance": risk})
     else:
         result.update({"entry": None, "zone_low": None, "zone_high": None,
-                       "sl": None, "tp1": None, "tp2": None, "risk_distance": None})
+                       "sl": None, "tp1": None, "tp2": None, "tp3": None, "risk_distance": None})
     return result
 
 
@@ -317,104 +365,103 @@ def notify(title, message):
 
 
 def clear_signal(public):
-    for key in ("entry", "zone_low", "zone_high", "sl", "tp1", "tp2", "risk_distance"):
+    for key in ("entry", "zone_low", "zone_high", "sl", "tp1", "tp2", "tp3", "risk_distance"):
         public[key] = None
     public.update({"signal": "WAIT", "score": 0, "quality": "WAIT", "strategy": "None"})
 
 
 def monitor_active(state, public, quote_data):
-    """Monitor every persisted setup; quote polling can miss intrainterval touches."""
-    setups = state.get("active_setups")
-    if not isinstance(setups, list):
-        legacy = state.get("active_setup")
-        setups = [legacy] if isinstance(legacy, dict) else []
-
-    remaining = []
-    events = []
+    active = state.get("active_setup")
+    if not isinstance(active, dict) or active.get("status") not in ("ACTIVE", "TP1_HIT"):
+        public["active_setup"] = active
+        return
+    side = active.get("side")
+    if side not in ("BUY", "SELL"):
+        public["active_setup"] = active
+        return
     stamp = quote_data["timestamp"]
-
-    for active in setups:
-        if not isinstance(active, dict):
-            continue
-        status = active.get("status")
-        side = active.get("side")
-        if status not in ("ACTIVE", "TP1_HIT") or side not in ("BUY", "SELL"):
-            # Keep closed setups for dashboard/history, but don't monitor them.
-            remaining.append(active)
-            continue
-        if stamp == active.get("last_checked_quote_timestamp"):
-            remaining.append(active)
-            continue
-
-        active["last_checked_quote_timestamp"] = stamp
-        price = quote_data["bid"] if side == "BUY" else quote_data["ask"]
+    if stamp == active.get("last_checked_quote_timestamp"):
+        public["active_setup"] = active
+        return
+    active["last_checked_quote_timestamp"] = stamp
+    price = quote_data["bid"] if side == "BUY" else quote_data["ask"]
+    try:
+        sl, tp1, tp2 = (float(active[k]) for k in ("sl", "tp1", "tp2"))
+    except (KeyError, TypeError, ValueError):
+        public["active_setup"] = active
+        return
+    sl_hit = price <= sl if side == "BUY" else price >= sl
+    tp1_hit = price >= tp1 if side == "BUY" else price <= tp1
+    tp2_hit = price >= tp2 if side == "BUY" else price <= tp2
+    event = None
+    if sl_hit:
+        event = "SL_HIT"
+    elif active["status"] == "ACTIVE" and tp1_hit:
+        event = "TP1_HIT"
+    elif active["status"] == "TP1_HIT" and tp2_hit:
+        event = "TP2_HIT"
+    if event and active.get("last_event_notified") != event:
+        msg = (f"MCD UPDATE - {event}\nSymbol: XAUUSD | M5\nSide: {side}\n"
+               f"Price: {fmt(price)} ({'BID' if side == 'BUY' else 'ASK'})\n"
+               f"Entry: {fmt(active.get('entry'))}\nSL: {fmt(sl)}\nTP1: {fmt(tp1)}\nTP2: {fmt(tp2)}\n"
+               f"Quote UTC: {stamp}\nSource: Biquote; bukan feed rasmi HFM XAUUSDc.")
         try:
-            sl, tp1, tp2 = (float(active[k]) for k in ("sl", "tp1", "tp2"))
-        except (KeyError, TypeError, ValueError):
-            active["monitor_error"] = "SL/TP missing or invalid"
-            remaining.append(active)
-            continue
+            if notify(f"MCD UPDATE - {event}", msg):
+                active["status"] = event
+                active["last_event_notified"] = event
+                if event in ("SL_HIT", "TP2_HIT"):
+                    active["closed_utc"] = now().isoformat()
+        except Exception as exc:
+            active["notification_error"] = str(exc)
+    public["active_setup"] = active
+    public["sampled_exit_price"] = price
+    public["sampled_exit_price_type"] = "BID" if side == "BUY" else "ASK"
 
-        sl_hit = price <= sl if side == "BUY" else price >= sl
-        tp1_hit = price >= tp1 if side == "BUY" else price <= tp1
-        tp2_hit = price >= tp2 if side == "BUY" else price <= tp2
 
-        # Conservative precedence: if SL and TP are both beyond a sampled quote,
-        # report SL first because the polling data cannot establish intrabar order.
-        pending_events = []
-        if sl_hit:
-            pending_events = ["SL_HIT"]
-        elif status == "ACTIVE" and tp2_hit:
-            # Sampled quote crossed both targets since the last poll.
-            pending_events = ["TP1_HIT", "TP2_HIT"]
-        elif status == "ACTIVE" and tp1_hit:
-            pending_events = ["TP1_HIT"]
-        elif status == "TP1_HIT" and tp2_hit:
-            pending_events = ["TP2_HIT"]
-
-        for event in pending_events:
-            if active.get("last_event_notified") == event:
-                continue
-            message = (
-                f"MCD UPDATE - {event}\n"
-                f"Symbol: XAUUSD | M5\nSide: {side}\n"
-                f"Observed price: {fmt(price)} ({'BID' if side == 'BUY' else 'ASK'})\n"
-                f"Entry: {fmt(active.get('entry'))}\n"
-                f"SL: {fmt(sl)}\nTP1: {fmt(tp1)}\nTP2: {fmt(tp2)}\n"
-                f"Quote UTC: {stamp}\n"
-                "Nota: pemeriksaan berkala; bukan pengesahan tick/eksekusi HFM MT5."
-            )
-            try:
-                if notify(f"MCD UPDATE - {event}", message):
-                    active["status"] = event
-                    active["last_event_notified"] = event
-                    active["last_event_utc"] = now().isoformat()
-                    events.append({"setup_id": active.get("id"), "event": event, "price": price, "utc": stamp})
-                    if event in ("SL_HIT", "TP2_HIT"):
-                        active["closed_utc"] = now().isoformat()
-                else:
-                    active["notification_error"] = "NTFY_TOPIC tiada; update tidak dihantar."
-                    break
-            except Exception as exc:
-                active["notification_error"] = str(exc)
-                break
-        remaining.append(active)
-
-    state["active_setups"] = remaining
-    # Legacy compatibility: expose latest setup for dashboards that still use this field.
-    state["active_setup"] = remaining[-1] if remaining else None
-    public["active_setups"] = remaining
-    public["active_setup"] = state["active_setup"]
-    public["sl_tp_events"] = events
-    public["sampled_exit_price"] = quote_data["bid"]
-    public["sampled_exit_price_type"] = "BID"
+def update_history_and_stats(state, public):
+    """Maintain bounded, source-derived signal history and dashboard stats."""
+    history = state.get("signal_history", [])
+    if not isinstance(history, list):
+        history = []
+    active = state.get("active_setup")
+    if isinstance(active, dict):
+        sid = active.get("id")
+        row = next((x for x in history if isinstance(x, dict) and x.get("id") == sid), None)
+        if row is None and sid:
+            row = {
+                "id": sid, "side": active.get("side"), "status": active.get("status", "ACTIVE"),
+                "entry": active.get("entry"), "sl": active.get("sl"), "tp1": active.get("tp1"),
+                "tp2": active.get("tp2"), "tp3": active.get("tp3"),
+                "created_utc": active.get("created_utc"), "strategy": active.get("strategy"),
+                "score": active.get("score"),
+            }
+            history.append(row)
+        elif row is not None:
+            row["status"] = active.get("status", row.get("status"))
+            row["closed_utc"] = active.get("closed_utc")
+            row["last_event_notified"] = active.get("last_event_notified")
+    history = history[-MAX_HISTORY:]
+    state["signal_history"] = history
+    terminal = [x for x in history if isinstance(x, dict) and x.get("status") in ("TP2_HIT", "SL_HIT", "EXPIRED", "BREAK_EVEN")]
+    tp = sum(x.get("status") == "TP2_HIT" for x in terminal)
+    sl = sum(x.get("status") == "SL_HIT" for x in terminal)
+    be = sum(x.get("status") == "BREAK_EVEN" for x in terminal)
+    expired = sum(x.get("status") == "EXPIRED" for x in terminal)
+    public["signal_history"] = history
+    public["performance"] = {
+        "total_signals": len(history), "tp_hits": tp, "sl_hits": sl,
+        "break_even": be, "expired": expired,
+        "decided_signals": len(terminal),
+        "win_rate_percent": round(tp / len(terminal) * 100, 2) if terminal else None,
+        "note": "TP hit dikira selepas TP2_HIT; keputusan terminal sahaja masuk win rate."
+    }
 
 
 def main():
     run_time = now()
     state = read_json(STATE)
     public = {
-        "version": "V2.0.0", "symbol": SYMBOL, "timeframe": "M5",
+        "version": "V1.5", "symbol": SYMBOL, "timeframe": "M5",
         "data_source": "Twelve Data OHLC + Biquote quote; bukan feed rasmi HFM XAUUSDc",
         "updated_utc": run_time.isoformat(), "data_status": "DATA_ERROR",
         "signal": "WAIT", "score": 0, "quality": "WAIT", "reason": "Menunggu data sah.",
@@ -423,7 +470,7 @@ def main():
         "price": None, "quote_bid": None, "quote_ask": None, "quote_mid": None,
         "quote_spread": None, "quote_timestamp_utc": None, "quote_age_seconds": None,
         "chart_candles": [], "entry": None, "zone_low": None, "zone_high": None,
-        "sl": None, "tp1": None, "tp2": None, "active_setup": state.get("active_setup"), "active_setups": state.get("active_setups", []),
+        "sl": None, "tp1": None, "tp2": None, "tp3": None, "active_setup": state.get("active_setup"),
     }
     try:
         q = get_quote()
@@ -448,6 +495,7 @@ def main():
                 print(f"{key} trend unavailable: {exc}")
 
         result = evaluate(candles[-1000:], trends)
+        # Anti-chasing: BUY uses Ask, SELL uses Bid.
         if result["signal"] in ("BUY", "SELL"):
             live_price = q["ask"] if result["signal"] == "BUY" else q["bid"]
             drift = abs(live_price - result["entry"])
@@ -455,7 +503,7 @@ def main():
                 rejected = result["signal"]
                 result.update({"signal": "WAIT", "strategy": "NO CHASE", "entry": None,
                                "zone_low": None, "zone_high": None, "sl": None,
-                               "tp1": None, "tp2": None, "risk_distance": None,
+                               "tp1": None, "tp2": None, "tp3": None, "risk_distance": None,
                                "no_chase_rejected": rejected, "no_chase_drift": drift})
         public.update(result)
         public.update({
@@ -464,7 +512,7 @@ def main():
             "price": q["mid"], "quote_mid": q["mid"], "quote_bid": q["bid"],
             "quote_ask": q["ask"], "quote_spread": q["spread"],
             "quote_timestamp_utc": q["timestamp"], "quote_age_seconds": q["age"],
-            "quote_source": "Biquote API", "ohlc_source": candle_source, "market_state": "open", "candle_close": last["c"],
+            "quote_source": "Biquote API", "ohlc_source": "Twelve Data", "market_state": "open", "candle_close": last["c"],
             "chart_candles": [{k: c[k] for k in ("t", "o", "h", "l", "c")} for c in candles[-40:]],
             "reason": "Candle Twelve Data dan quote Biquote lulus semakan. Bandingkan harga dengan broker.",
         })
@@ -473,42 +521,27 @@ def main():
         if result["signal"] in ("BUY", "SELL"):
             key = f'{result["signal"]}-{last["t"]}'
             if state.get("last_signal_key") != key:
-                grade = result["quality"].split("(")[-1].rstrip(")") if "(" in result["quality"] else result["quality"]
-                if result["signal"] == "BUY":
-                    emoji = "🟢"
-                    arrow = "▲"
-                else:
-                    emoji = "🔴"
-                    arrow = "▼"
                 msg = (
-                    f'{emoji} MCD SIGNAL >> {result["signal"]} {arrow}\n'
-                    f'Zone: {fmt(result["zone_low"])} – {fmt(result["zone_high"])}\n'
-                    f'SL: {fmt(result["sl"])}\n'
-                    f'TP1: {fmt(result["tp1"])}\n'
-                    f'TP2: {fmt(result["tp2"])}\n'
-                    f'Setup: {result["strategy"]}\n'
-                    f'Skor: {result["score"]}/8 - {grade}'
+                    f'MCD SIGNAL - {result["signal"]}\nSymbol: XAUUSD | M5\n'
+                    f'Entry: {fmt(result["entry"])}\nSL: {fmt(result["sl"])}\n'
+                    f'TP1: {fmt(result["tp1"])} ({TP1_R:g}R)\nTP2: {fmt(result["tp2"])} ({TP2_R:g}R)\n'
+                    f'Quality: {result["score"]}/8 - {result["quality"]}\nSetup: {result["strategy"]}\n'
+                    f'Current price: {fmt(q["mid"])} | Bid/Ask: {fmt(q["bid"])}/{fmt(q["ask"])}\n'
+                    f'Spread: {fmt(q["spread"])}\nQuote UTC: {q["timestamp"]}\n'
+                    'Source: Twelve Data OHLC + Biquote quote; bukan feed rasmi HFM XAUUSDc. Notification only.'
                 )
                 try:
                     sent = notify(f'MCD SIGNAL - {result["signal"]}', msg)
                     if sent:
                         state["last_signal_key"] = key
-                        new_setup = {
+                        state["active_setup"] = {
                             "id": key, "side": result["signal"], "status": "ACTIVE",
                             "entry": result["entry"], "sl": result["sl"], "tp1": result["tp1"],
-                            "tp2": result["tp2"], "risk_distance": result["risk_distance"],
+                            "tp2": result["tp2"], "tp3": result["tp3"], "risk_distance": result["risk_distance"],
                             "strategy": result["strategy"], "score": result["score"],
                             "created_candle_t": last["t"], "created_utc": iso(last["t"] + 300),
                         }
-                        setups = state.get("active_setups")
-                        if not isinstance(setups, list):
-                            legacy = state.get("active_setup")
-                            setups = [legacy] if isinstance(legacy, dict) else []
-                        setups.append(new_setup)
-                        state["active_setups"] = setups
-                        state["active_setup"] = new_setup
-                        public["active_setups"] = setups
-                        public["active_setup"] = new_setup
+                        public["active_setup"] = state["active_setup"]
                     else:
                         public["notification_error"] = "NTFY_TOPIC tiada; signal tidak dihantar."
                 except Exception as exc:
@@ -526,7 +559,7 @@ def main():
             "data_status": "DATA_ERROR", "reason": f"DATA_ERROR - {exc}. Signal disekat.",
             "price": None, "quote_bid": None, "quote_ask": None, "quote_mid": None,
             "quote_spread": None, "quote_timestamp_utc": None, "quote_age_seconds": None,
-            "quote_source": None, "ohlc_source": None, "market_state": None, "candle_close": None, "chart_candles": [],
+            "quote_source": None, "ohlc_source": "Twelve Data", "market_state": None, "candle_close": None, "chart_candles": [],
         })
         state["last_status"], state["last_error"] = "DATA_ERROR", str(exc)
         print("WAIT / DATA_ERROR:", exc)
@@ -534,7 +567,7 @@ def main():
     state["last_run_utc"] = run_time.isoformat()
     public["updated_utc"] = run_time.isoformat()
     public["active_setup"] = state.get("active_setup")
-    public["active_setups"] = state.get("active_setups", [])
+    update_history_and_stats(state, public)
     write_json(STATUS, public)
     write_json(STATE, state)
 
