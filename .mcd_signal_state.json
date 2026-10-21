@@ -18,10 +18,10 @@
   },
   "last_event": null,
   "last_event_time": null,
-  "last_status": "DATA_VALID",
-  "last_error": null,
+  "last_status": "DATA_ERROR",
+  "last_error": "name 'TWELVE_API_KEY' is not defined",
   "last_candle_t": 1792577700,
-  "last_run_utc": "2026-10-21T10:21:34.703808+00:00",
+  "last_run_utc": "2026-10-21T10:54:14.782550+00:00",
   "active_setups": [
     {
       "id": "SELL-1792441500",
@@ -197,6 +197,21 @@
       "score": 6,
       "created_candle_t": 1792577700,
       "created_utc": "2026-10-21T10:20:00+00:00"
+    }
+  ],
+  "signal_history": [
+    {
+      "id": "SELL-1792577700",
+      "side": "SELL",
+      "status": "ACTIVE",
+      "entry": 4114.99759,
+      "sl": 4119.395674,
+      "tp1": 4108.400463999999,
+      "tp2": 4101.803337999999,
+      "tp3": null,
+      "created_utc": "2026-10-21T10:20:00+00:00",
+      "strategy": "Breakout",
+      "score": 6
     }
   ]
 }
