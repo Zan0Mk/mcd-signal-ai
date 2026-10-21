@@ -376,13 +376,15 @@ def fetch_economic_calendar():
         if not isinstance(payload, dict) or not isinstance(payload.get("events"), list):
             raise RuntimeError("Format respons Finance Calendar tidak sah")
 
-        # Keep all high-impact US releases and only the most XAUUSD-relevant
-        # medium-impact releases to avoid filling the dashboard with noise.
+        # Show only releases that are commonly relevant to gold/USD.
+        # This avoids filling the phone dashboard with unrelated high-impact news.
         relevant_terms = (
             "fomc", "federal reserve", "fed ", "interest rate", "rate decision",
             "cpi", "pce", "inflation", "nonfarm", "payroll", "unemployment",
             "jobless claims", "gdp", "ism", "retail sales", "producer price",
             "ppi", "powell", "minutes", "jolts", "adp employment",
+            "personal income", "personal spending", "employment cost index",
+            "consumer confidence", "durable goods", "treasury", "beige book",
         )
         events = []
         for item in payload["events"]:
@@ -391,13 +393,14 @@ def fetch_economic_calendar():
             impact_text = str(item.get("impact") or "").strip().lower()
             importance = {"high": 3, "medium": 2, "low": 1}.get(impact_text, 0)
             event_name = str(item.get("title") or item.get("name") or item.get("series_name") or "").strip()
+            name_lower = event_name.lower()
             if not event_name or importance < 2:
                 continue
-            if importance == 2 and not any(term in event_name.lower() for term in relevant_terms):
+            if not any(term in name_lower for term in relevant_terms):
                 continue
 
             event_date = str(
-                item.get("release_at_utc") or item.get("time_utc") or item.get("date") or ""
+                item.get("release_at_utc") or item.get("time_utc") or item.get("time_local") or item.get("date") or ""
             ).strip()
             if not event_date:
                 continue
@@ -412,11 +415,23 @@ def fetch_economic_calendar():
                 "currency": "USD",
                 "source_url": str(item.get("url") or item.get("source_url") or ECONOMIC_CALENDAR_PAGE),
             })
-        events.sort(key=lambda x: x["date"])
+        # Sort timestamps chronologically; naive times are treated as MYT because
+        # the API request explicitly asks for Asia/Kuala_Lumpur.
+        def calendar_sort_key(event):
+            raw = event["date"].strip()
+            try:
+                parsed = datetime.fromisoformat(raw.replace("Z", "+00:00"))
+                if parsed.tzinfo is None:
+                    from datetime import timedelta
+                    parsed = parsed.replace(tzinfo=timezone(timedelta(hours=8)))
+                return parsed.astimezone(timezone.utc).timestamp()
+            except (TypeError, ValueError, OverflowError):
+                return float("inf")
+        events.sort(key=calendar_sort_key)
         return {
             "status": "FRESH", "source": "Finance Calendar API",
             "updated_utc": now().isoformat(),
-            "timezone_note": "Masa acara dipaparkan dalam MYT (Asia/Kuala_Lumpur) jika timestamp sumber mengandungi zon waktu. Sumber dikemas kini secara berkala; semak pengumuman rasmi untuk keputusan kritikal.",
+            "timezone_note": "Masa dipaparkan dalam MYT (Asia/Kuala_Lumpur). Timestamp dengan zon waktu ditukar kepada MYT; masa tanpa zon dianggap MYT kerana parameter API meminta Asia/Kuala_Lumpur. Sahkan pengumuman rasmi untuk keputusan kritikal.",
             "events": events[:80],
             "message": "Kalendar ekonomi USD berjaya dikemas kini.",
             "url": ECONOMIC_CALENDAR_PAGE,
@@ -432,6 +447,96 @@ def fetch_economic_calendar():
             "attribution_url": "https://www.financecalendar.com/",
         }
 
+
+
+def analyze_news_impact(calendar, candles, technical_signal, atr_value):
+    """Return a conservative news filter from high-impact events and closed M5 reaction.
+
+    No direction is guessed from Actual/Forecast alone. A directional bias requires
+    a measurable post-event XAUUSD move and a confirming closed M5 candle.
+    """
+    from datetime import timedelta
+
+    current = now()
+    events = calendar.get("events", []) if isinstance(calendar, dict) else []
+    high_events = []
+    for event in events:
+        if not isinstance(event, dict):
+            continue
+        try:
+            importance = int(event.get("importance", 0) or 0)
+        except (TypeError, ValueError):
+            importance = 0
+        if importance < 3:
+            continue
+        raw = str(event.get("date") or "").strip()
+        if not raw:
+            continue
+        try:
+            stamp = datetime.fromisoformat(raw.replace("Z", "+00:00"))
+            if stamp.tzinfo is None:
+                # Calendar requested in MYT; interpret naive timestamps as MYT.
+                from datetime import timedelta as _td
+                stamp = stamp.replace(tzinfo=timezone(_td(hours=8)))
+            stamp = stamp.astimezone(timezone.utc)
+        except (TypeError, ValueError, OverflowError):
+            continue
+        high_events.append((stamp, event))
+
+    upcoming = [(stamp, ev) for stamp, ev in high_events
+                if timedelta(minutes=-15) <= stamp - current <= timedelta(minutes=30)]
+    if upcoming:
+        stamp, event = min(upcoming, key=lambda pair: abs((pair[0] - current).total_seconds()))
+        mins = int(round((stamp - current).total_seconds() / 60))
+        when = "dalam" if mins >= 0 else "selepas"
+        return {
+            "status": "NEWS_LOCK", "bias": "WAIT", "blocks_signal": True,
+            "event": event.get("event", "High-impact USD event"),
+            "minutes_to_event": mins,
+            "message": f"NEWS LOCK — {event.get('event', 'berita USD berimpak tinggi')} {when} {abs(mins)} minit. Signal baharu disekat.",
+            "source": "Finance Calendar API",
+        }
+
+    recent = [(stamp, ev) for stamp, ev in high_events
+              if timedelta(minutes=15) < current - stamp <= timedelta(minutes=60)]
+    if recent:
+        stamp, event = max(recent, key=lambda pair: pair[0])
+        if len(candles) >= 4 and atr_value and math.isfinite(float(atr_value)):
+            close_now = float(candles[-1]["c"])
+            close_before = float(candles[-4]["c"])
+            candle = candles[-1]
+            move = close_now - close_before
+            threshold = float(atr_value) * 0.25
+            confirms_up = move >= threshold and candle["c"] > candle["o"]
+            confirms_down = move <= -threshold and candle["c"] < candle["o"]
+            if confirms_up:
+                bias = "BUY BIAS"
+            elif confirms_down:
+                bias = "SELL BIAS"
+            else:
+                bias = "WAIT"
+        else:
+            bias = "WAIT"
+        blocks = bias == "WAIT" or (technical_signal in ("BUY", "SELL") and technical_signal != bias.replace(" BIAS", ""))
+        age = int((current - stamp).total_seconds() / 60)
+        if bias == "WAIT":
+            message = f"NEWS WAIT — reaksi harga selepas {event.get('event', 'berita USD')} belum mengesahkan arah. Signal disekat sementara."
+        elif blocks:
+            message = f"{bias} selepas {event.get('event', 'berita USD')}, tetapi tidak sehaluan dengan setup teknikal. Signal disekat."
+        else:
+            message = f"{bias} selepas {event.get('event', 'berita USD')}; disahkan oleh pergerakan candle M5."
+        return {
+            "status": bias if not blocks else "NEWS_WAIT", "bias": bias,
+            "blocks_signal": blocks, "event": event.get("event", "High-impact USD event"),
+            "minutes_since_event": age, "message": message,
+            "source": "Finance Calendar API + reaksi candle M5",
+        }
+
+    return {
+        "status": "NORMAL", "bias": "NEUTRAL", "blocks_signal": False,
+        "event": None, "message": "Tiada berita USD berimpak tinggi dalam tetingkap sekatan. Penapis news tidak menghalang setup.",
+        "source": "Finance Calendar API",
+    }
 
 def notify(title, message):
     if not TOPIC:
@@ -549,6 +654,7 @@ def main():
         "signal": "WAIT", "score": 0, "quality": "WAIT", "reason": "Menunggu data sah.",
         "trend_45m": "UNKNOWN",
         "economic_calendar": {"status": "ERROR", "source": "Finance Calendar API", "updated_utc": None, "events": [], "message": "Kalendar belum dimuatkan.", "url": "https://www.financecalendar.com/api/economic-calendar/", "attribution_url": "https://www.financecalendar.com/", "timezone_note": "Semak zon waktu sumber."},
+        "news_impact": {"status": "WAIT", "bias": "WAIT", "blocks_signal": True, "event": None, "message": "News filter belum dapat dinilai; signal menunggu pengesahan.", "source": "Finance Calendar API"},
         "trend": {"d1": "UNKNOWN", "h4": "UNKNOWN", "h1": "UNKNOWN", "m30": "UNKNOWN", "m15": "UNKNOWN"},
         "support": None, "resistance": None, "techniques": {"snr": False, "smc": False, "pa": False, "breakout": False},
         "price": None, "quote_bid": None, "quote_ask": None, "quote_mid": None,
@@ -582,6 +688,18 @@ def main():
                 print(f"{key} trend unavailable: {exc}")
 
         result = evaluate(candles[-1000:], trends)
+        news_impact = analyze_news_impact(
+            public["economic_calendar"], candles, result["signal"], result.get("atr14")
+        )
+        public["news_impact"] = news_impact
+        if news_impact.get("blocks_signal") and result["signal"] in ("BUY", "SELL"):
+            rejected = result["signal"]
+            result.update({
+                "signal": "WAIT", "strategy": "NEWS FILTER", "entry": None,
+                "zone_low": None, "zone_high": None, "sl": None,
+                "tp1": None, "risk_distance": None,
+                "news_filter_rejected": rejected,
+            })
         # Anti-chasing: BUY uses Ask, SELL uses Bid.
         if result["signal"] in ("BUY", "SELL"):
             live_price = q["ask"] if result["signal"] == "BUY" else q["bid"]
@@ -638,14 +756,19 @@ def main():
                 except Exception as exc:
                     public["notification_error"] = str(exc)
         else:
-            public["reason"] = (
-                "WAIT - harga sudah bergerak terlalu jauh daripada entry; jangan kejar harga."
-                if result.get("strategy") == "NO CHASE"
-                else f'WAIT - BUY {result["buy_score"]}/8, SELL {result["sell_score"]}/8; tiada setup sah.'
-            )
+            if result.get("strategy") == "NEWS FILTER":
+                public["reason"] = public.get("news_impact", {}).get(
+                    "message", "WAIT — news filter menyekat signal baharu."
+                )
+            elif result.get("strategy") == "NO CHASE":
+                public["reason"] = "WAIT - harga sudah bergerak terlalu jauh daripada entry; jangan kejar harga."
+            else:
+                public["reason"] = f'WAIT - BUY {result["buy_score"]}/8, SELL {result["sell_score"]}/8; tiada setup sah.'
         state["last_status"], state["last_error"], state["last_candle_t"] = "DATA_VALID", None, last["t"]
     except Exception as exc:
         clear_signal(public)
+        if not isinstance(public.get("news_impact"), dict):
+            public["news_impact"] = {"status": "WAIT", "bias": "WAIT", "blocks_signal": True, "event": None, "message": "News filter tidak dapat dinilai; signal disekat.", "source": "Finance Calendar API"}
         public.update({
             "data_status": "DATA_ERROR", "reason": f"DATA_ERROR - {exc}. Signal disekat.",
             "price": None, "quote_bid": None, "quote_ask": None, "quote_mid": None,
