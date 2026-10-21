@@ -5,17 +5,17 @@
   "data_source": "OHLC + Biquote quote; bukan feed rasmi HFM XAUUSDc",
   "data_note": "Harga rujukan mungkin berbeza daripada broker HFM XAUUSDc. Signal hanya dinilai daripada candle M5 yang telah tutup.",
   "refresh_model": "GitHub Actions cron 5 minit; browser hanya refresh snapshot JSON.",
-  "updated_utc": "2026-10-21T22:37:36.251059+00:00",
+  "updated_utc": "2026-10-21T23:04:53.259960+00:00",
   "data_status": "FRESH",
   "signal": "WAIT",
   "score": 4,
   "quality": "RISIKO",
-  "reason": "WAIT - BUY 2/8, SELL 4/8; tiada setup sah.",
+  "reason": "WAIT - BUY 4/8, SELL 3/8; tiada setup sah.",
   "trend_45m": "BEARISH",
   "economic_calendar": {
     "status": "FRESH",
     "source": "Finance Calendar API",
-    "updated_utc": "2026-10-21T22:37:36.583594+00:00",
+    "updated_utc": "2026-10-21T23:04:53.566007+00:00",
     "timezone_note": "Masa dipaparkan dalam MYT (Asia/Kuala_Lumpur). Timestamp dengan zon waktu ditukar kepada MYT; masa tanpa zon dianggap MYT kerana parameter API meminta Asia/Kuala_Lumpur. Sahkan pengumuman rasmi untuk keputusan kritikal.",
     "events": [
       {
@@ -313,57 +313,22 @@
     "m30": "BULLISH",
     "m15": "BULLISH"
   },
-  "support": 4132.40217,
-  "resistance": 4135.30725,
+  "support": 4131.03648,
+  "resistance": 4133.39704,
   "techniques": {
     "snr": false,
     "smc": false,
     "pa": false,
-    "breakout": true
+    "breakout": false
   },
-  "price": 4133.929,
-  "quote_bid": 4133.845,
-  "quote_ask": 4134.013,
-  "quote_mid": 4133.929,
+  "price": 4128.019,
+  "quote_bid": 4127.935,
+  "quote_ask": 4128.103,
+  "quote_mid": 4128.019,
   "quote_spread": 0.168,
-  "quote_timestamp_utc": "2026-10-21T22:37:36+00:00",
+  "quote_timestamp_utc": "2026-10-21T23:04:53+00:00",
   "quote_age_seconds": 1,
   "chart_candles": [
-    {
-      "t": 1792610100,
-      "o": 4116.27479,
-      "h": 4119.8039,
-      "l": 4115.50432,
-      "c": 4119.5011
-    },
-    {
-      "t": 1792610400,
-      "o": 4119.42227,
-      "h": 4119.893,
-      "l": 4115.73445,
-      "c": 4116.73239
-    },
-    {
-      "t": 1792610700,
-      "o": 4116.65649,
-      "h": 4124.46074,
-      "l": 4115.73445,
-      "c": 4123.86879
-    },
-    {
-      "t": 1792611000,
-      "o": 4123.03268,
-      "h": 4128.81916,
-      "l": 4123.03268,
-      "c": 4128.60374
-    },
-    {
-      "t": 1792611300,
-      "o": 4128.14738,
-      "h": 4133.2244,
-      "l": 4127.45584,
-      "c": 4132.43136
-    },
     {
       "t": 1792611600,
       "o": 4130.95363,
@@ -608,6 +573,41 @@
       "h": 4137.2012,
       "l": 4134.45239,
       "c": 4134.59987
+    },
+    {
+      "t": 1792622100,
+      "o": 4134.80963,
+      "h": 4135.13625,
+      "l": 4134.04141,
+      "c": 4134.71936
+    },
+    {
+      "t": 1792622400,
+      "o": 4134.60582,
+      "h": 4134.93939,
+      "l": 4133.42702,
+      "c": 4133.78541
+    },
+    {
+      "t": 1792622700,
+      "o": 4133.59937,
+      "h": 4134.30753,
+      "l": 4132.2314,
+      "c": 4132.29273
+    },
+    {
+      "t": 1792623000,
+      "o": 4132.37776,
+      "h": 4132.41625,
+      "l": 4130.18338,
+      "c": 4131.08496
+    },
+    {
+      "t": 1792623300,
+      "o": 4130.879,
+      "h": 4131.95499,
+      "l": 4130.77446,
+      "c": 4131.91412
     }
   ],
   "entry": null,
@@ -637,18 +637,18 @@
     "last_event_notified": "SL_HIT"
   },
   "strategy": "None",
-  "buy_score": 2,
-  "sell_score": 4,
-  "atr14": 1.8342053816557249,
-  "ema20": 4138.322127985685,
-  "ema50": 4136.350230675721,
+  "buy_score": 4,
+  "sell_score": 3,
+  "atr14": 1.7711867259756022,
+  "ema20": 4136.068242746325,
+  "ema50": 4135.687294694665,
   "risk_distance": null,
-  "last_candle_utc": "2026-10-21T22:35:00+00:00",
-  "candle_age_seconds": 156,
+  "last_candle_utc": "2026-10-21T23:00:00+00:00",
+  "candle_age_seconds": 293,
   "quote_source": "Biquote API",
   "ohlc_source": "Twelve Data",
   "market_state": "open",
-  "candle_close": 4134.59987,
+  "candle_close": 4131.91412,
   "quote_live_endpoint": "https://biquote.io/api/XAUUSD?allowStale=false",
   "signal_history": [
     {
