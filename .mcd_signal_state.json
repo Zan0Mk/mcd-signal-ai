@@ -5,7 +5,7 @@
   "active_setup": {
     "id": "SELL-1792536000",
     "side": "SELL",
-    "status": "TP1_HIT",
+    "status": "TP2_HIT",
     "entry": 4122.8936,
     "sl": 4126.355036,
     "tp1": 4117.701446000001,
@@ -15,16 +15,17 @@
     "score": 5,
     "created_candle_t": 1792536000,
     "created_utc": "2026-10-20T22:45:00+00:00",
-    "last_checked_quote_timestamp": "2026-10-21T00:38:15+00:00",
-    "last_event_notified": "TP1_HIT",
-    "last_event_utc": "2026-10-20T23:37:12.890013+00:00"
+    "last_checked_quote_timestamp": "2026-10-21T01:18:08+00:00",
+    "last_event_notified": "TP2_HIT",
+    "last_event_utc": "2026-10-21T01:18:09.782520+00:00",
+    "closed_utc": "2026-10-21T01:18:09.782542+00:00"
   },
   "last_event": null,
   "last_event_time": null,
   "last_status": "DATA_VALID",
   "last_error": null,
-  "last_candle_t": 1792542600,
-  "last_run_utc": "2026-10-21T00:38:15.639722+00:00",
+  "last_candle_t": 1792545000,
+  "last_run_utc": "2026-10-21T01:18:07.683336+00:00",
   "active_setups": [
     {
       "id": "SELL-1792441500",
@@ -137,7 +138,7 @@
     {
       "id": "SELL-1792513200",
       "side": "SELL",
-      "status": "ACTIVE",
+      "status": "TP1_HIT",
       "entry": 4122.69169,
       "sl": 4129.5755124044845,
       "tp1": 4112.365956393272,
@@ -147,12 +148,14 @@
       "score": 5,
       "created_candle_t": 1792513200,
       "created_utc": "2026-10-20T16:25:00+00:00",
-      "last_checked_quote_timestamp": "2026-10-21T00:38:15+00:00"
+      "last_checked_quote_timestamp": "2026-10-21T01:18:08+00:00",
+      "last_event_notified": "TP1_HIT",
+      "last_event_utc": "2026-10-21T01:18:09.666359+00:00"
     },
     {
       "id": "SELL-1792536000",
       "side": "SELL",
-      "status": "TP1_HIT",
+      "status": "TP2_HIT",
       "entry": 4122.8936,
       "sl": 4126.355036,
       "tp1": 4117.701446000001,
@@ -162,9 +165,10 @@
       "score": 5,
       "created_candle_t": 1792536000,
       "created_utc": "2026-10-20T22:45:00+00:00",
-      "last_checked_quote_timestamp": "2026-10-21T00:38:15+00:00",
-      "last_event_notified": "TP1_HIT",
-      "last_event_utc": "2026-10-20T23:37:12.890013+00:00"
+      "last_checked_quote_timestamp": "2026-10-21T01:18:08+00:00",
+      "last_event_notified": "TP2_HIT",
+      "last_event_utc": "2026-10-21T01:18:09.782520+00:00",
+      "closed_utc": "2026-10-21T01:18:09.782542+00:00"
     }
   ]
 }
