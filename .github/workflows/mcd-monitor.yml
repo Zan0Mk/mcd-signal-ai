@@ -1,65 +1,63 @@
-
 name: MCD Signal Monitor
-
 on:
   schedule:
     - cron: "*/5 * * * *"
   workflow_dispatch:
-
 permissions:
   contents: write
-
 concurrency:
   group: mcd-signal-monitor
   cancel-in-progress: false
-
 jobs:
   monitor:
     runs-on: ubuntu-latest
     timeout-minutes: 5
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           ref: main
           fetch-depth: 0
-
-      - name: Setup Python
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-
+          cache: "pip"
+      - name: Check required files
+        run: |
+          test -f scripts/mcd_monitor.py
+          test -f index.html
       - name: Validate Python syntax
-        run: python -m py_compile scripts/mcd_monitor.py
-
+        run: |
+          python -m py_compile scripts/mcd_monitor.py
       - name: Run MCD Signal Monitor
         env:
           TWELVE_DATA_API_KEY: ${{ secrets.TWELVE_DATA_API_KEY }}
           TWELVE_DATA_SYMBOL: XAU/USD
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+          NTFY_SERVER: https://ntfy.sh
           PYTHONUNBUFFERED: "1"
-        run: python scripts/mcd_monitor.py
-
-      - name: Validate JSON
+          PYTHONIOENCODING: utf-8
         run: |
+          python scripts/mcd_monitor.py
+      - name: Validate generated JSON
+        run: |
+          test -f signal_status.json
           python -m json.tool signal_status.json > /dev/null
-          python -m json.tool .mcd_signal_state.json > /dev/null
-
-      - name: Commit signal status
+          if [ -f .mcd_signal_state.json ]; then
+            python -m json.tool .mcd_signal_state.json > /dev/null
+          fi
+      - name: Commit monitor data
         run: |
           git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
+          git config user.email \
+            "41898282+github-actions[bot]@users.noreply.github.com"
           git add signal_status.json .mcd_signal_state.json
-
           if git diff --cached --quiet; then
-            echo "No changes to commit"
+            echo "No monitor data changes to commit."
             exit 0
           fi
-
           git commit -m "Update MCD signal status"
-
           git fetch origin main
           git rebase origin/main
           git push origin HEAD:main
