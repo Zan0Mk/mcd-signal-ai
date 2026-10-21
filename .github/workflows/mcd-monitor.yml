@@ -78,17 +78,14 @@ jobs:
                       self.parts = []
 
           parser = Scripts()
-          parser.feed(
-              Path("index.html").read_text(encoding="utf-8")
-          )
-
+          parser.feed(Path("index.html").read_text(encoding="utf-8"))
           scripts = [s for s in parser.items if s.strip()]
+
           if not scripts:
               raise SystemExit("No inline JavaScript found")
 
           Path("/tmp/mcd-dashboard.js").write_text(
-              "\n;\n".join(scripts),
-              encoding="utf-8",
+              "\n;\n".join(scripts), encoding="utf-8"
           )
           print(f"Found {len(scripts)} inline script block(s).")
           PY
@@ -124,36 +121,21 @@ jobs:
               raise SystemExit("JSON root must be an object")
 
           required = [
-              "version",
-              "symbol",
-              "timeframe",
-              "updated_utc",
-              "data_status",
-              "signal",
-              "entry",
-              "sl",
-              "tp1",
-              "chart_candles",
-              "trend",
-              "techniques",
-              "economic_calendar",
-              "performance",
+              "version", "symbol", "timeframe", "updated_utc",
+              "data_status", "signal", "entry", "sl", "tp1",
+              "chart_candles", "trend", "techniques",
+              "economic_calendar", "performance", "news_impact",
           ]
 
-          missing = [key for key in required if key not in data]
+          missing = [k for k in required if k not in data]
           if missing:
-              raise SystemExit(
-                  "Missing fields: " + ", ".join(missing)
-              )
+              raise SystemExit("Missing fields: " + ", ".join(missing))
 
           if data["signal"] not in {"BUY", "SELL", "WAIT"}:
               raise SystemExit("Invalid signal")
 
           if data.get("tp2") is not None or data.get("tp3") is not None:
               raise SystemExit("Only one TP is permitted")
-
-          if not isinstance(data["chart_candles"], list):
-              raise SystemExit("chart_candles must be a list")
 
           calendar = data["economic_calendar"]
           if not isinstance(calendar, dict):
@@ -162,11 +144,16 @@ jobs:
           if not isinstance(calendar.get("events"), list):
               raise SystemExit("Calendar events must be a list")
 
+          news = data["news_impact"]
+          if not isinstance(news, dict):
+              raise SystemExit("news_impact must be an object")
+
+          if not isinstance(news.get("blocks_signal"), bool):
+              raise SystemExit("news_impact.blocks_signal must be boolean")
+
           def check_finite(value, location="$"):
               if isinstance(value, float) and not math.isfinite(value):
-                  raise ValueError(
-                      f"Invalid number at {location}"
-                  )
+                  raise ValueError(f"Invalid number at {location}")
               if isinstance(value, dict):
                   for key, item in value.items():
                       check_finite(item, f"{location}.{key}")
@@ -180,6 +167,8 @@ jobs:
           print("Data status:", data["data_status"])
           print("Calendar status:", calendar.get("status"))
           print("Calendar events:", len(calendar["events"]))
+          print("News impact:", news.get("status"))
+          print("News blocks signal:", news.get("blocks_signal"))
           PY
 
       - name: Commit generated data
@@ -198,7 +187,7 @@ jobs:
             exit 0
           fi
 
-          git commit -m "chore: update MCD signal and calendar data"
+          git commit -m "chore: update MCD signal and news filter"
 
           git fetch origin main
           git rebase origin/main
@@ -209,6 +198,5 @@ jobs:
         shell: bash
         run: |
           echo "MCD monitor workflow failed."
-          echo "Check the failed step logs."
-          echo "Verify TWELVE_DATA_API_KEY and NTFY_TOPIC."
-          echo "Check API availability and repository permissions."
+          echo "Check TWELVE_DATA_API_KEY and NTFY_TOPIC."
+          echo "Check calendar API, news filter and repository permissions."
