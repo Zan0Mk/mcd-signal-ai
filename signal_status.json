@@ -5,18 +5,18 @@
   "data_source": "OHLC + Biquote quote; bukan feed rasmi HFM XAUUSDc",
   "data_note": "Harga rujukan mungkin berbeza daripada broker HFM XAUUSDc. Signal hanya dinilai daripada candle M5 yang telah tutup.",
   "refresh_model": "GitHub Actions cron 5 minit; browser hanya refresh snapshot JSON.",
-  "updated_utc": "2026-10-21T17:18:19.525623+00:00",
+  "updated_utc": "2026-10-21T17:51:22.986434+00:00",
   "data_status": "FRESH",
   "signal": "WAIT",
-  "score": 5,
-  "quality": "RENDAH (C)",
-  "reason": "WAIT - BUY 5/8, SELL 3/8; tiada setup sah.",
-  "trend_45m": "BEARISH",
+  "score": 4,
+  "quality": "RISIKO",
+  "reason": "WAIT - BUY 4/8, SELL 4/8; tiada setup sah.",
+  "trend_45m": "BULLISH",
   "economic_calendar": {
     "status": "FRESH",
     "source": "Finance Calendar API",
-    "updated_utc": "2026-10-21T17:18:19.907095+00:00",
-    "timezone_note": "Masa acara dipaparkan dalam MYT (Asia/Kuala_Lumpur) jika timestamp sumber mengandungi zon waktu. Sumber dikemas kini secara berkala; semak pengumuman rasmi untuk keputusan kritikal.",
+    "updated_utc": "2026-10-21T17:51:23.294549+00:00",
+    "timezone_note": "Masa dipaparkan dalam MYT (Asia/Kuala_Lumpur). Timestamp dengan zon waktu ditukar kepada MYT; masa tanpa zon dianggap MYT kerana parameter API meminta Asia/Kuala_Lumpur. Sahkan pengumuman rasmi untuk keputusan kritikal.",
     "events": [
       {
         "date": "2026-10-22T12:30:00+00:00",
@@ -30,6 +30,17 @@
         "source_url": "https://www.financecalendar.com/event/us-initial-jobless-claims-october-22-2026/"
       },
       {
+        "date": "2026-10-27T14:00:00+00:00",
+        "country": "US",
+        "event": "US Consumer Confidence October 2026",
+        "importance": 2,
+        "actual": "",
+        "forecast": "",
+        "previous": "89.4 (August 2026)",
+        "currency": "USD",
+        "source_url": "https://www.financecalendar.com/event/us-consumer-confidence-october-2026/"
+      },
+      {
         "date": "2026-10-28T18:00:00+00:00",
         "country": "US",
         "event": "FOMC Rate Decision October 2026",
@@ -39,17 +50,6 @@
         "previous": "",
         "currency": "USD",
         "source_url": "https://www.financecalendar.com/event/fomc-rate-decision-october-2026/"
-      },
-      {
-        "date": "2026-10-29T12:30:00+00:00",
-        "country": "US",
-        "event": "US Gross Domestic Product October 2026",
-        "importance": 3,
-        "actual": "",
-        "forecast": "",
-        "previous": "",
-        "currency": "USD",
-        "source_url": "https://www.financecalendar.com/event/us-gross-domestic-product-october-2026/"
       },
       {
         "date": "2026-10-29T12:30:00+00:00",
@@ -122,6 +122,14 @@
     "url": "https://www.financecalendar.com/api/economic-calendar/",
     "attribution_url": "https://www.financecalendar.com/"
   },
+  "news_impact": {
+    "status": "NORMAL",
+    "bias": "NEUTRAL",
+    "blocks_signal": false,
+    "event": null,
+    "message": "Tiada berita USD berimpak tinggi dalam tetingkap sekatan. Penapis news tidak menghalang setup.",
+    "source": "Finance Calendar API"
+  },
   "trend": {
     "d1": "BEARISH",
     "h4": "BEARISH",
@@ -129,71 +137,22 @@
     "m30": "BULLISH",
     "m15": "BULLISH"
   },
-  "support": 4131.03648,
-  "resistance": 4133.00049,
+  "support": 4133.08535,
+  "resistance": 4135.47827,
   "techniques": {
     "snr": false,
-    "smc": false,
-    "pa": false,
+    "smc": true,
+    "pa": true,
     "breakout": false
   },
-  "price": 4132.485,
-  "quote_bid": 4132.401,
-  "quote_ask": 4132.569,
-  "quote_mid": 4132.485,
+  "price": 4135.771,
+  "quote_bid": 4135.687,
+  "quote_ask": 4135.855,
+  "quote_mid": 4135.771,
   "quote_spread": 0.168,
-  "quote_timestamp_utc": "2026-10-21T17:18:19+00:00",
-  "quote_age_seconds": 1,
+  "quote_timestamp_utc": "2026-10-21T17:51:23+00:00",
+  "quote_age_seconds": 0,
   "chart_candles": [
-    {
-      "t": 1792590900,
-      "o": 4133.82026,
-      "h": 4134.62994,
-      "l": 4129.79941,
-      "c": 4130.30053
-    },
-    {
-      "t": 1792591200,
-      "o": 4131.39266,
-      "h": 4131.39266,
-      "l": 4126.26367,
-      "c": 4126.95885
-    },
-    {
-      "t": 1792591500,
-      "o": 4127.51263,
-      "h": 4129.09884,
-      "l": 4122.8427,
-      "c": 4123.39689
-    },
-    {
-      "t": 1792591800,
-      "o": 4124.29232,
-      "h": 4128.64869,
-      "l": 4121.84164,
-      "c": 4128.43081
-    },
-    {
-      "t": 1792592100,
-      "o": 4127.91655,
-      "h": 4129.52783,
-      "l": 4126.77451,
-      "c": 4127.27172
-    },
-    {
-      "t": 1792592400,
-      "o": 4127.18472,
-      "h": 4129.10758,
-      "l": 4126.60422,
-      "c": 4127.84784
-    },
-    {
-      "t": 1792592700,
-      "o": 4128.37692,
-      "h": 4135.47827,
-      "l": 4128.37692,
-      "c": 4135.071
-    },
     {
       "t": 1792593000,
       "o": 4134.27638,
@@ -424,6 +383,55 @@
       "h": 4132.15906,
       "l": 4130.40489,
       "c": 4132.04903
+    },
+    {
+      "t": 1792602900,
+      "o": 4131.89572,
+      "h": 4133.25618,
+      "l": 4131.36881,
+      "c": 4132.45671
+    },
+    {
+      "t": 1792603200,
+      "o": 4132.88569,
+      "h": 4132.88569,
+      "l": 4131.37781,
+      "c": 4132.06065
+    },
+    {
+      "t": 1792603500,
+      "o": 4131.99678,
+      "h": 4132.3166,
+      "l": 4130.51394,
+      "c": 4130.81124
+    },
+    {
+      "t": 1792603800,
+      "o": 4131.43123,
+      "h": 4133.42702,
+      "l": 4131.43123,
+      "c": 4133.33137
+    },
+    {
+      "t": 1792604100,
+      "o": 4133.18183,
+      "h": 4135.05214,
+      "l": 4133.18183,
+      "c": 4134.87104
+    },
+    {
+      "t": 1792604400,
+      "o": 4134.60325,
+      "h": 4136.87636,
+      "l": 4134.60325,
+      "c": 4136.37243
+    },
+    {
+      "t": 1792604700,
+      "o": 4136.45447,
+      "h": 4136.96929,
+      "l": 4134.11055,
+      "c": 4134.17224
     }
   ],
   "entry": null,
@@ -445,23 +453,23 @@
     "score": 6,
     "created_candle_t": 1792588500,
     "created_utc": "2026-10-21T13:20:00+00:00",
-    "last_checked_quote_timestamp": "2026-10-21T17:18:19+00:00"
+    "last_checked_quote_timestamp": "2026-10-21T17:51:23+00:00"
   },
   "strategy": "None",
-  "buy_score": 5,
-  "sell_score": 3,
-  "atr14": 3.349306504276622,
-  "ema20": 4131.645128763924,
-  "ema50": 4131.422156576081,
+  "buy_score": 4,
+  "sell_score": 4,
+  "atr14": 2.869966839704907,
+  "ema20": 4132.676758136652,
+  "ema50": 4131.9397704419935,
   "risk_distance": null,
-  "last_candle_utc": "2026-10-21T17:15:00+00:00",
-  "candle_age_seconds": 199,
+  "last_candle_utc": "2026-10-21T17:50:00+00:00",
+  "candle_age_seconds": 82,
   "quote_source": "Biquote API",
   "ohlc_source": "Twelve Data",
   "market_state": "open",
-  "candle_close": 4132.04903,
+  "candle_close": 4134.17224,
   "quote_live_endpoint": "https://biquote.io/api/XAUUSD?allowStale=false",
-  "sampled_exit_price": 4132.401,
+  "sampled_exit_price": 4135.687,
   "sampled_exit_price_type": "BID",
   "signal_history": [
     {
