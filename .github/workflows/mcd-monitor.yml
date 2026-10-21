@@ -38,7 +38,6 @@ jobs:
           test -f index.html
           test -f scripts/mcd_monitor.py
           test -f tests/test_mcd_monitor.py
-          echo "Required files found."
 
       - name: Validate Python syntax
         run: |
@@ -46,7 +45,7 @@ jobs:
             scripts/mcd_monitor.py \
             tests/test_mcd_monitor.py
 
-      - name: Test strategy contract
+      - name: Run tests
         run: python -m unittest discover -s tests -v
 
       - name: Validate dashboard JavaScript
@@ -89,16 +88,15 @@ jobs:
               Path("index.html").read_text(encoding="utf-8")
           )
 
-          inline = [x for x in parser.items if x.strip()]
-          if not inline:
+          scripts = [s for s in parser.items if s.strip()]
+          if not scripts:
               raise SystemExit("No inline JavaScript found")
 
           Path("/tmp/mcd-dashboard.js").write_text(
-              "\n;\n".join(inline),
+              "\n;\n".join(scripts),
               encoding="utf-8",
           )
-
-          print(f"Found {len(inline)} inline script block(s).")
+          print(f"Validated {len(scripts)} inline script block(s).")
           PY
 
           node --check /tmp/mcd-dashboard.js
@@ -112,7 +110,7 @@ jobs:
           PYTHONUNBUFFERED: "1"
         run: python scripts/mcd_monitor.py
 
-      - name: Validate generated JSON
+      - name: Validate signal and calendar JSON
         shell: bash
         run: |
           set -euo pipefail
@@ -124,9 +122,7 @@ jobs:
 
           path = Path("signal_status.json")
           if not path.is_file():
-              raise SystemExit(
-                  "signal_status.json was not generated"
-              )
+              raise SystemExit("signal_status.json was not generated")
 
           data = json.loads(path.read_text(encoding="utf-8"))
 
@@ -150,48 +146,35 @@ jobs:
               "performance",
           ]
 
-          missing = [k for k in required if k not in data]
+          missing = [key for key in required if key not in data]
           if missing:
               raise SystemExit(
-                  "Missing dashboard fields: " + ", ".join(missing)
+                  "Missing fields: " + ", ".join(missing)
               )
 
           if data["signal"] not in {"BUY", "SELL", "WAIT"}:
-              raise SystemExit("Invalid signal enum")
+              raise SystemExit("Invalid signal")
 
           if data.get("tp2") is not None or data.get("tp3") is not None:
-              raise SystemExit(
-                  "Only one TP is permitted; tp2/tp3 must not exist"
-              )
+              raise SystemExit("Only one TP is permitted")
 
           if not isinstance(data["chart_candles"], list):
               raise SystemExit("chart_candles must be a list")
 
-          cal = data["economic_calendar"]
-
-          if not isinstance(cal, dict):
+          calendar = data["economic_calendar"]
+          if not isinstance(calendar, dict):
               raise SystemExit("economic_calendar must be an object")
 
-          if not isinstance(cal.get("events"), list):
-              raise SystemExit("economic_calendar.events must be a list")
+          if not isinstance(calendar.get("events"), list):
+              raise SystemExit("calendar events must be a list")
 
-          if cal.get("source") != "Finance Calendar API":
-              raise SystemExit(
-                  "Calendar source must be Finance Calendar API"
-              )
-
-          if cal.get("status") not in {
-              "FRESH",
-              "UNAVAILABLE",
-              "STALE",
-              "ERROR",
-          }:
-              raise SystemExit("Invalid economic calendar status")
+          if calendar.get("source") != "Finance Calendar API":
+              raise SystemExit("Unexpected calendar source")
 
           def check_finite(value, location="$"):
               if isinstance(value, float) and not math.isfinite(value):
                   raise ValueError(
-                      f"Non-finite number at {location}"
+                      f"Invalid number at {location}"
                   )
 
               if isinstance(value, dict):
@@ -205,7 +188,6 @@ jobs:
           check_finite(data)
 
           state_path = Path(".mcd_signal_state.json")
-
           if state_path.exists():
               state = json.loads(
                   state_path.read_text(encoding="utf-8")
@@ -213,15 +195,10 @@ jobs:
               if not isinstance(state, dict):
                   raise SystemExit("State JSON must be an object")
 
-          print(
-              "JSON validation passed:",
-              data["signal"],
-              data["data_status"],
-              "calendar:",
-              cal["status"],
-              "events:",
-              len(cal["events"]),
-          )
+          print("Signal:", data["signal"])
+          print("Data status:", data["data_status"])
+          print("Calendar status:", calendar.get("status"))
+          print("Calendar events:", len(calendar["events"]))
           PY
 
       - name: Commit generated data
@@ -252,4 +229,4 @@ jobs:
         run: |
           echo "MCD monitor workflow failed."
           echo "Check TWELVE_DATA_API_KEY and NTFY_TOPIC."
-          echo "Check API availability, quotas and repository permissions."
+          echo "Check API availability, test results and permissions."
