@@ -218,10 +218,14 @@ def get_twelve_bars(interval="5min", outputsize=1000):
 
 
 def fetch_candles(interval_biquote, interval_twelve, limit):
-    """Use Twelve Data when a key exists; otherwise keep Biquote working."""
-    if TWELVE_API_KEY:
-        return get_twelve_bars(interval_twelve, limit), "Twelve Data"
-    return get_bars(interval_biquote, limit), "Biquote API (Twelve Data key not configured)"
+    """Fetch OHLC from Twelve Data; fail clearly if its API key is absent.
+
+    The quote feed remains Biquote, while OHLC candles use Twelve Data.
+    These are separate sources and must not be described as one broker feed.
+    """
+    if not TWELVE_DATA_API_KEY:
+        raise RuntimeError("TWELVE_DATA_API_KEY belum ditetapkan dalam GitHub Secrets")
+    return get_bars(interval_biquote, limit), "Twelve Data"
 
 
 def ema(values, period):
@@ -404,19 +408,25 @@ def monitor_active(state, public, quote_data):
         event = "TP1_HIT"
     elif active["status"] == "TP1_HIT" and tp2_hit:
         event = "TP2_HIT"
-    if event and active.get("last_event_notified") != event:
-        msg = (f"MCD UPDATE - {event}\nSymbol: XAUUSD | M5\nSide: {side}\n"
-               f"Price: {fmt(price)} ({'BID' if side == 'BUY' else 'ASK'})\n"
-               f"Entry: {fmt(active.get('entry'))}\nSL: {fmt(sl)}\nTP1: {fmt(tp1)}\nTP2: {fmt(tp2)}\n"
-               f"Quote UTC: {stamp}\nSource: Biquote; bukan feed rasmi HFM XAUUSDc.")
-        try:
-            if notify(f"MCD UPDATE - {event}", msg):
-                active["status"] = event
-                active["last_event_notified"] = event
-                if event in ("SL_HIT", "TP2_HIT"):
-                    active["closed_utc"] = now().isoformat()
-        except Exception as exc:
-            active["notification_error"] = str(exc)
+    if event:
+        # Record the sampled price event independently from notification delivery.
+        # This is monitoring, not broker execution or guaranteed fill verification.
+        active["status"] = event
+        active["last_event_utc"] = now().isoformat()
+        active["last_event_price"] = price
+        active["last_event_price_type"] = "BID" if side == "BUY" else "ASK"
+        if event in ("SL_HIT", "TP2_HIT"):
+            active["closed_utc"] = now().isoformat()
+        if active.get("last_event_notified") != event:
+            msg = (f"MCD UPDATE - {event}\nSymbol: XAUUSD | M5\nSide: {side}\n"
+                   f"Sampled price: {fmt(price)} ({'BID' if side == 'BUY' else 'ASK'})\n"
+                   f"Entry: {fmt(active.get('entry'))}\nSL: {fmt(sl)}\nTP1: {fmt(tp1)}\nTP2: {fmt(tp2)}\n"
+                   f"Quote UTC: {stamp}\nSource: Biquote; bukan feed rasmi HFM XAUUSDc. Event berdasarkan semakan berkala, bukan pengesahan fill broker.")
+            try:
+                if notify(f"MCD UPDATE - {event}", msg):
+                    active["last_event_notified"] = event
+            except Exception as exc:
+                active["notification_error"] = str(exc)
     public["active_setup"] = active
     public["sampled_exit_price"] = price
     public["sampled_exit_price_type"] = "BID" if side == "BUY" else "ASK"
@@ -469,6 +479,7 @@ def main():
         "data_source": "OHLC + Biquote quote; bukan feed rasmi HFM XAUUSDc",
         "updated_utc": run_time.isoformat(), "data_status": "DATA_ERROR",
         "signal": "WAIT", "score": 0, "quality": "WAIT", "reason": "Menunggu data sah.",
+        "trend_45m": "UNKNOWN",
         "trend": {"d1": "UNKNOWN", "h4": "UNKNOWN", "h1": "UNKNOWN", "m30": "UNKNOWN", "m15": "UNKNOWN"},
         "support": None, "resistance": None, "techniques": {"snr": False, "smc": False, "pa": False, "breakout": False},
         "price": None, "quote_bid": None, "quote_ask": None, "quote_mid": None,
@@ -513,6 +524,7 @@ def main():
         public.update({
             "data_status": "FRESH", "updated_utc": run_time.isoformat(),
             "last_candle_utc": iso(last["t"] + 300), "candle_age_seconds": candle_age,
+            "trend_45m": ("BULLISH" if candles[-1]["c"] > candles[-10]["c"] else "BEARISH" if candles[-1]["c"] < candles[-10]["c"] else "FLAT"),
             "price": q["mid"], "quote_mid": q["mid"], "quote_bid": q["bid"],
             "quote_ask": q["ask"], "quote_spread": q["spread"],
             "quote_timestamp_utc": q["timestamp"], "quote_age_seconds": q["age"],
@@ -524,13 +536,23 @@ def main():
 
         if result["signal"] in ("BUY", "SELL"):
             key = f'{result["signal"]}-{last["t"]}'
+            if state.get("last_setup_key") != key:
+                state["active_setup"] = {
+                    "id": key, "side": result["signal"], "status": "ACTIVE",
+                    "entry": result["entry"], "sl": result["sl"], "tp1": result["tp1"],
+                    "tp2": result["tp2"], "tp3": result["tp3"], "risk_distance": result["risk_distance"],
+                    "strategy": result["strategy"], "score": result["score"],
+                    "created_candle_t": last["t"], "created_utc": iso(last["t"] + 300),
+                }
+                state["last_setup_key"] = key
+            public["active_setup"] = state.get("active_setup")
             if state.get("last_signal_key") != key:
                 msg = (
                     f'MCD SIGNAL - {result["signal"]}\nSymbol: XAUUSD | M5\n'
                     f'Entry: {fmt(result["entry"])}\nSL: {fmt(result["sl"])}\n'
                     f'TP1: {fmt(result["tp1"])} ({TP1_R:g}R)\nTP2: {fmt(result["tp2"])} ({TP2_R:g}R)\n'
                     f'Quality: {result["score"]}/8 - {result["quality"]}\nSetup: {result["strategy"]}\n'
-                    f'Current price: {fmt(q["mid"])} | Bid/Ask: {fmt(q["bid"])}/{fmt(q["ask"])}\n'
+                    f'Current price: {fmt(q["mid"])} | Bid/Ask: {fmt(q["bid"])} / {fmt(q["ask"])}\n'
                     f'Spread: {fmt(q["spread"])}\nQuote UTC: {q["timestamp"]}\n'
                     f'Source: {candle_source} OHLC + Biquote quote; bukan feed rasmi HFM XAUUSDc. Notification only.'
                 )
@@ -538,14 +560,6 @@ def main():
                     sent = notify(f'MCD SIGNAL - {result["signal"]}', msg)
                     if sent:
                         state["last_signal_key"] = key
-                        state["active_setup"] = {
-                            "id": key, "side": result["signal"], "status": "ACTIVE",
-                            "entry": result["entry"], "sl": result["sl"], "tp1": result["tp1"],
-                            "tp2": result["tp2"], "tp3": result["tp3"], "risk_distance": result["risk_distance"],
-                            "strategy": result["strategy"], "score": result["score"],
-                            "created_candle_t": last["t"], "created_utc": iso(last["t"] + 300),
-                        }
-                        public["active_setup"] = state["active_setup"]
                     else:
                         public["notification_error"] = "NTFY_TOPIC tiada; signal tidak dihantar."
                 except Exception as exc:
