@@ -24,8 +24,8 @@
   "last_event_time": null,
   "last_status": "DATA_VALID",
   "last_error": null,
-  "last_candle_t": 1792548600,
-  "last_run_utc": "2026-10-21T02:18:17.606629+00:00",
+  "last_candle_t": 1792550700,
+  "last_run_utc": "2026-10-21T02:53:21.015262+00:00",
   "active_setups": [
     {
       "id": "SELL-1792441500",
@@ -148,7 +148,7 @@
       "score": 5,
       "created_candle_t": 1792513200,
       "created_utc": "2026-10-20T16:25:00+00:00",
-      "last_checked_quote_timestamp": "2026-10-21T02:18:17+00:00",
+      "last_checked_quote_timestamp": "2026-10-21T02:53:20+00:00",
       "last_event_notified": "TP1_HIT",
       "last_event_utc": "2026-10-21T01:18:09.666359+00:00"
     },
