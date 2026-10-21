@@ -11,6 +11,10 @@ BASE = "https://biquote.io/api"
 TWELVE_DATA_BASE = "https://api.twelvedata.com"
 TWELVE_DATA_API_KEY = os.getenv("TWELVE_DATA_API_KEY", "").strip()
 TWELVE_DATA_SYMBOL = os.getenv("TWELVE_DATA_SYMBOL", "XAU/USD").strip()
+# Backward-compatible aliases used by the existing Twelve Data adapter.
+TWELVE_API_KEY = TWELVE_DATA_API_KEY
+TWELVE_SYMBOL = TWELVE_DATA_SYMBOL
+TWELVE_BASE = TWELVE_DATA_BASE
 SYMBOL = "XAUUSD"
 STATE = ".mcd_signal_state.json"
 STATUS = "signal_status.json"
@@ -462,7 +466,7 @@ def main():
     state = read_json(STATE)
     public = {
         "version": "V1.5", "symbol": SYMBOL, "timeframe": "M5",
-        "data_source": "Twelve Data OHLC + Biquote quote; bukan feed rasmi HFM XAUUSDc",
+        "data_source": "OHLC + Biquote quote; bukan feed rasmi HFM XAUUSDc",
         "updated_utc": run_time.isoformat(), "data_status": "DATA_ERROR",
         "signal": "WAIT", "score": 0, "quality": "WAIT", "reason": "Menunggu data sah.",
         "trend": {"d1": "UNKNOWN", "h4": "UNKNOWN", "h1": "UNKNOWN", "m30": "UNKNOWN", "m15": "UNKNOWN"},
@@ -512,9 +516,9 @@ def main():
             "price": q["mid"], "quote_mid": q["mid"], "quote_bid": q["bid"],
             "quote_ask": q["ask"], "quote_spread": q["spread"],
             "quote_timestamp_utc": q["timestamp"], "quote_age_seconds": q["age"],
-            "quote_source": "Biquote API", "ohlc_source": "Twelve Data", "market_state": "open", "candle_close": last["c"],
+            "quote_source": "Biquote API", "ohlc_source": candle_source, "market_state": "open", "candle_close": last["c"],
             "chart_candles": [{k: c[k] for k in ("t", "o", "h", "l", "c")} for c in candles[-40:]],
-            "reason": "Candle Twelve Data dan quote Biquote lulus semakan. Bandingkan harga dengan broker.",
+            "reason": f"Candle {candle_source} dan quote Biquote lulus semakan. Bandingkan harga dengan broker.",
         })
         monitor_active(state, public, q)
 
@@ -528,7 +532,7 @@ def main():
                     f'Quality: {result["score"]}/8 - {result["quality"]}\nSetup: {result["strategy"]}\n'
                     f'Current price: {fmt(q["mid"])} | Bid/Ask: {fmt(q["bid"])}/{fmt(q["ask"])}\n'
                     f'Spread: {fmt(q["spread"])}\nQuote UTC: {q["timestamp"]}\n'
-                    'Source: Twelve Data OHLC + Biquote quote; bukan feed rasmi HFM XAUUSDc. Notification only.'
+                    f'Source: {candle_source} OHLC + Biquote quote; bukan feed rasmi HFM XAUUSDc. Notification only.'
                 )
                 try:
                     sent = notify(f'MCD SIGNAL - {result["signal"]}', msg)
@@ -559,7 +563,7 @@ def main():
             "data_status": "DATA_ERROR", "reason": f"DATA_ERROR - {exc}. Signal disekat.",
             "price": None, "quote_bid": None, "quote_ask": None, "quote_mid": None,
             "quote_spread": None, "quote_timestamp_utc": None, "quote_age_seconds": None,
-            "quote_source": None, "ohlc_source": "Twelve Data", "market_state": None, "candle_close": None, "chart_candles": [],
+            "quote_source": None, "ohlc_source": None, "market_state": None, "candle_close": None, "chart_candles": [],
         })
         state["last_status"], state["last_error"] = "DATA_ERROR", str(exc)
         print("WAIT / DATA_ERROR:", exc)
