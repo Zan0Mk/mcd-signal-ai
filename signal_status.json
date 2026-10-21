@@ -5,17 +5,17 @@
   "data_source": "OHLC + Biquote quote; bukan feed rasmi HFM XAUUSDc",
   "data_note": "Harga rujukan mungkin berbeza daripada broker HFM XAUUSDc. Signal hanya dinilai daripada candle M5 yang telah tutup.",
   "refresh_model": "GitHub Actions cron 5 minit; browser hanya refresh snapshot JSON.",
-  "updated_utc": "2026-10-21T23:33:09.058514+00:00",
+  "updated_utc": "2026-10-21T23:58:13.350426+00:00",
   "data_status": "FRESH",
   "signal": "WAIT",
   "score": 4,
   "quality": "RISIKO",
-  "reason": "WAIT - BUY 4/8, SELL 3/8; tiada setup sah.",
-  "trend_45m": "BEARISH",
+  "reason": "WAIT - BUY 3/8, SELL 4/8; tiada setup sah.",
+  "trend_45m": "BULLISH",
   "economic_calendar": {
     "status": "FRESH",
     "source": "Finance Calendar API",
-    "updated_utc": "2026-10-21T23:33:09.473549+00:00",
+    "updated_utc": "2026-10-21T23:58:13.669526+00:00",
     "timezone_note": "Masa dipaparkan dalam MYT (Asia/Kuala_Lumpur). Timestamp dengan zon waktu ditukar kepada MYT; masa tanpa zon dianggap MYT kerana parameter API meminta Asia/Kuala_Lumpur. Sahkan pengumuman rasmi untuk keputusan kritikal.",
     "events": [
       {
@@ -316,54 +316,19 @@
   "support": 4124.7036,
   "resistance": 4133.39704,
   "techniques": {
-    "snr": true,
-    "smc": true,
+    "snr": false,
+    "smc": false,
     "pa": false,
     "breakout": false
   },
-  "price": 4125.579,
-  "quote_bid": 4125.495,
-  "quote_ask": 4125.663,
-  "quote_mid": 4125.579,
+  "price": 4126.297,
+  "quote_bid": 4126.213,
+  "quote_ask": 4126.381,
+  "quote_mid": 4126.297,
   "quote_spread": 0.168,
-  "quote_timestamp_utc": "2026-10-21T23:33:09+00:00",
-  "quote_age_seconds": 0,
+  "quote_timestamp_utc": "2026-10-21T23:58:13+00:00",
+  "quote_age_seconds": 1,
   "chart_candles": [
-    {
-      "t": 1792613400,
-      "o": 4135.23167,
-      "h": 4135.30725,
-      "l": 4133.49343,
-      "c": 4135.2016
-    },
-    {
-      "t": 1792613700,
-      "o": 4134.9704,
-      "h": 4135.60106,
-      "l": 4134.62189,
-      "c": 4134.78106
-    },
-    {
-      "t": 1792614000,
-      "o": 4134.98336,
-      "h": 4135.1813,
-      "l": 4133.42702,
-      "c": 4134.41858
-    },
-    {
-      "t": 1792614300,
-      "o": 4134.34677,
-      "h": 4134.51106,
-      "l": 4132.91453,
-      "c": 4133.48872
-    },
-    {
-      "t": 1792614600,
-      "o": 4133.24389,
-      "h": 4133.90932,
-      "l": 4132.74373,
-      "c": 4133.46145
-    },
     {
       "t": 1792614900,
       "o": 4133.26848,
@@ -608,6 +573,41 @@
       "h": 4127.10243,
       "l": 4124.90203,
       "c": 4126.86648
+    },
+    {
+      "t": 1792625400,
+      "o": 4126.52809,
+      "h": 4127.45584,
+      "l": 4124.43763,
+      "c": 4124.74669
+    },
+    {
+      "t": 1792625700,
+      "o": 4125.36966,
+      "h": 4125.36966,
+      "l": 4122.47024,
+      "c": 4124.56333
+    },
+    {
+      "t": 1792626000,
+      "o": 4124.46939,
+      "h": 4125.11434,
+      "l": 4123.5413,
+      "c": 4124.96858
+    },
+    {
+      "t": 1792626300,
+      "o": 4124.77047,
+      "h": 4125.57021,
+      "l": 4123.37127,
+      "c": 4125.35631
+    },
+    {
+      "t": 1792626600,
+      "o": 4125.0373,
+      "h": 4127.45584,
+      "l": 4125.0373,
+      "c": 4126.77491
     }
   ],
   "entry": null,
@@ -637,18 +637,18 @@
     "last_event_notified": "SL_HIT"
   },
   "strategy": "None",
-  "buy_score": 4,
-  "sell_score": 3,
-  "atr14": 1.9854789493176743,
-  "ema20": 4131.967281070714,
-  "ema50": 4133.838571360476,
+  "buy_score": 3,
+  "sell_score": 4,
+  "atr14": 2.112279275337301,
+  "ema20": 4129.374431411416,
+  "ema50": 4132.294456613228,
   "risk_distance": null,
-  "last_candle_utc": "2026-10-21T23:30:00+00:00",
-  "candle_age_seconds": 189,
+  "last_candle_utc": "2026-10-21T23:55:00+00:00",
+  "candle_age_seconds": 193,
   "quote_source": "Biquote API",
   "ohlc_source": "Twelve Data",
   "market_state": "open",
-  "candle_close": 4126.86648,
+  "candle_close": 4126.77491,
   "quote_live_endpoint": "https://biquote.io/api/XAUUSD?allowStale=false",
   "signal_history": [
     {
