@@ -5,7 +5,7 @@
   "data_source": "OHLC + Biquote quote; bukan feed rasmi HFM XAUUSDc",
   "data_note": "Harga rujukan mungkin berbeza daripada broker HFM XAUUSDc. Signal hanya dinilai daripada candle M5 yang telah tutup.",
   "refresh_model": "GitHub Actions cron 5 minit; browser hanya refresh snapshot JSON.",
-  "updated_utc": "2026-10-21T21:05:29.700613+00:00",
+  "updated_utc": "2026-10-21T21:36:22.463931+00:00",
   "data_status": "DATA_ERROR",
   "signal": "WAIT",
   "score": 0,
@@ -15,7 +15,7 @@
   "economic_calendar": {
     "status": "FRESH",
     "source": "Finance Calendar API",
-    "updated_utc": "2026-10-21T21:05:30.370113+00:00",
+    "updated_utc": "2026-10-21T21:36:22.778955+00:00",
     "timezone_note": "Masa dipaparkan dalam MYT (Asia/Kuala_Lumpur). Timestamp dengan zon waktu ditukar kepada MYT; masa tanpa zon dianggap MYT kerana parameter API meminta Asia/Kuala_Lumpur. Sahkan pengumuman rasmi untuk keputusan kritikal.",
     "events": [
       {
@@ -28,6 +28,17 @@
         "previous": "199,000 (week ending October 10, 2026)",
         "currency": "USD",
         "source_url": "https://www.financecalendar.com/event/us-initial-jobless-claims-october-22-2026/"
+      },
+      {
+        "date": "2026-10-27T12:30:00+00:00",
+        "country": "US",
+        "event": "US Durable Goods Orders October 2026",
+        "importance": 2,
+        "actual": "",
+        "forecast": "",
+        "previous": "",
+        "currency": "USD",
+        "source_url": "https://www.census.gov/manufacturing/m3/"
       },
       {
         "date": "2026-10-27T14:00:00+00:00",
