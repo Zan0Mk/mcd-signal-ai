@@ -5,7 +5,7 @@
   "data_source": "OHLC + Biquote quote; bukan feed rasmi HFM XAUUSDc",
   "data_note": "Harga rujukan mungkin berbeza daripada broker HFM XAUUSDc. Signal hanya dinilai daripada candle M5 yang telah tutup.",
   "refresh_model": "GitHub Actions cron 5 minit; browser hanya refresh snapshot JSON.",
-  "updated_utc": "2026-10-22T09:58:27.229997+00:00",
+  "updated_utc": "2026-10-22T10:30:19.809366+00:00",
   "data_status": "FRESH",
   "signal": "WAIT",
   "score": 5,
@@ -15,7 +15,7 @@
   "economic_calendar": {
     "status": "FRESH",
     "source": "Finance Calendar API",
-    "updated_utc": "2026-10-22T09:58:27.532864+00:00",
+    "updated_utc": "2026-10-22T10:30:20.190912+00:00",
     "timezone_note": "Masa dipaparkan dalam MYT (Asia/Kuala_Lumpur). Timestamp dengan zon waktu ditukar kepada MYT; masa tanpa zon dianggap MYT kerana parameter API meminta Asia/Kuala_Lumpur. Sahkan pengumuman rasmi untuk keputusan kritikal.",
     "events": [
       {
@@ -25,7 +25,7 @@
         "importance": 2,
         "actual": "",
         "forecast": "",
-        "previous": "199,000 (week ending October 10, 2026)",
+        "previous": "",
         "currency": "USD",
         "source_url": "https://www.financecalendar.com/event/us-initial-jobless-claims-october-22-2026/"
       },
@@ -157,7 +157,7 @@
         "importance": 2,
         "actual": "",
         "forecast": "",
-        "previous": "89.4 (August 2026)",
+        "previous": "",
         "currency": "USD",
         "source_url": "https://www.financecalendar.com/event/us-consumer-confidence-october-2026/"
       },
@@ -234,7 +234,7 @@
         "importance": 3,
         "actual": "",
         "forecast": "",
-        "previous": "55.6% (July 2026)",
+        "previous": "",
         "currency": "USD",
         "source_url": "https://www.financecalendar.com/event/us-ism-manufacturing-pmi-november-2026/"
       },
@@ -256,7 +256,7 @@
         "importance": 2,
         "actual": "",
         "forecast": "",
-        "previous": "44,000 jobs added (July 2026)",
+        "previous": "",
         "currency": "USD",
         "source_url": "https://www.financecalendar.com/event/us-adp-employment-report-november-2026/"
       },
@@ -267,7 +267,7 @@
         "importance": 2,
         "actual": "",
         "forecast": "",
-        "previous": "54.1% (July 2026)",
+        "previous": "",
         "currency": "USD",
         "source_url": "https://www.financecalendar.com/event/us-ism-services-pmi-november-2026/"
       },
@@ -278,7 +278,7 @@
         "importance": 2,
         "actual": "",
         "forecast": "",
-        "previous": "203,000 (week ended August 15, 2026, most recent confirmed figure found in research)",
+        "previous": "",
         "currency": "USD",
         "source_url": "https://www.financecalendar.com/event/us-initial-jobless-claims-november-5-2026/"
       }
@@ -302,71 +302,22 @@
     "m30": "BEARISH",
     "m15": "BEARISH"
   },
-  "support": 4083.23947,
-  "resistance": 4090.13602,
+  "support": 4088.1403,
+  "resistance": 4092.15534,
   "techniques": {
     "snr": false,
-    "smc": false,
+    "smc": true,
     "pa": false,
     "breakout": false
   },
-  "price": 4084.767,
-  "quote_bid": 4084.683,
-  "quote_ask": 4084.851,
-  "quote_mid": 4084.767,
+  "price": 4091.322,
+  "quote_bid": 4091.238,
+  "quote_ask": 4091.406,
+  "quote_mid": 4091.322,
   "quote_spread": 0.168,
-  "quote_timestamp_utc": "2026-10-22T09:58:26+00:00",
+  "quote_timestamp_utc": "2026-10-22T10:30:19+00:00",
   "quote_age_seconds": 1,
   "chart_candles": [
-    {
-      "t": 1792650900,
-      "o": 4092.50075,
-      "h": 4095.50297,
-      "l": 4091.31914,
-      "c": 4092.17682
-    },
-    {
-      "t": 1792651200,
-      "o": 4094.1097,
-      "h": 4094.1097,
-      "l": 4088.1403,
-      "c": 4090.51417
-    },
-    {
-      "t": 1792651500,
-      "o": 4090.54112,
-      "h": 4093.85044,
-      "l": 4089.19335,
-      "c": 4093.65802
-    },
-    {
-      "t": 1792651800,
-      "o": 4093.2991,
-      "h": 4094.66874,
-      "l": 4091.9564,
-      "c": 4092.87579
-    },
-    {
-      "t": 1792652100,
-      "o": 4093.64493,
-      "h": 4095.67497,
-      "l": 4091.31822,
-      "c": 4094.07513
-    },
-    {
-      "t": 1792652400,
-      "o": 4094.3083,
-      "h": 4096.7083,
-      "l": 4089.64502,
-      "c": 4092.11834
-    },
-    {
-      "t": 1792652700,
-      "o": 4092.01921,
-      "h": 4099.29871,
-      "l": 4090.98347,
-      "c": 4097.79348
-    },
     {
       "t": 1792653000,
       "o": 4094.29716,
@@ -597,6 +548,55 @@
       "h": 4088.47459,
       "l": 4083.96635,
       "c": 4084.30744
+    },
+    {
+      "t": 1792662900,
+      "o": 4084.29404,
+      "h": 4087.26532,
+      "l": 4084.29404,
+      "c": 4086.11337
+    },
+    {
+      "t": 1792663200,
+      "o": 4084.92272,
+      "h": 4087.99235,
+      "l": 4084.92272,
+      "c": 4086.07652
+    },
+    {
+      "t": 1792663500,
+      "o": 4086.22416,
+      "h": 4089.81228,
+      "l": 4085.8127,
+      "c": 4089.63379
+    },
+    {
+      "t": 1792663800,
+      "o": 4089.4197,
+      "h": 4089.97955,
+      "l": 4087.4719,
+      "c": 4087.62108
+    },
+    {
+      "t": 1792664100,
+      "o": 4087.8662,
+      "h": 4088.06447,
+      "l": 4085.46799,
+      "c": 4085.63376
+    },
+    {
+      "t": 1792664400,
+      "o": 4085.83933,
+      "h": 4092.13168,
+      "l": 4084.08493,
+      "c": 4091.88864
+    },
+    {
+      "t": 1792664700,
+      "o": 4091.32021,
+      "h": 4092.3228,
+      "l": 4090.98347,
+      "c": 4091.0385
     }
   ],
   "entry": null,
@@ -626,16 +626,16 @@
   "strategy": "None",
   "buy_score": 1,
   "sell_score": 5,
-  "atr14": 4.137146781758011,
-  "ema20": 4086.270526311143,
-  "ema50": 4089.1673958950128,
+  "atr14": 3.895204137554271,
+  "ema20": 4087.449566592415,
+  "ema50": 4088.9837436214366,
   "risk_distance": null,
-  "last_candle_utc": "2026-10-22T09:55:00+00:00",
-  "candle_age_seconds": 207,
+  "last_candle_utc": "2026-10-22T10:30:00+00:00",
+  "candle_age_seconds": 19,
   "quote_source": "Biquote API",
   "ohlc_source": "Twelve Data",
   "market_state": "open",
-  "candle_close": 4084.30744,
+  "candle_close": 4091.0385,
   "quote_live_endpoint": "https://biquote.io/api/XAUUSD?allowStale=false",
   "signal_history": [
     {
