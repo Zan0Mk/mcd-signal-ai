@@ -5,285 +5,20 @@
   "data_source": "OHLC + Biquote quote; bukan feed rasmi HFM XAUUSDc",
   "data_note": "Harga rujukan mungkin berbeza daripada broker HFM XAUUSDc. Signal hanya dinilai daripada candle M5 yang telah tutup.",
   "refresh_model": "GitHub Actions cron 5 minit; browser hanya refresh snapshot JSON.",
-  "updated_utc": "2026-10-22T08:48:54.510036+00:00",
+  "updated_utc": "2026-10-22T09:21:07.736709+00:00",
   "data_status": "FRESH",
   "signal": "WAIT",
-  "score": 3,
-  "quality": "WAIT",
-  "reason": "WAIT - BUY 3/8, SELL 3/8; tiada setup sah.",
-  "trend_45m": "BULLISH",
+  "score": 4,
+  "quality": "RISIKO",
+  "reason": "WAIT - BUY 1/8, SELL 4/8; tiada setup sah.",
+  "trend_45m": "BEARISH",
   "economic_calendar": {
-    "status": "FRESH",
+    "status": "ERROR",
     "source": "Finance Calendar API",
-    "updated_utc": "2026-10-22T08:48:54.795089+00:00",
-    "timezone_note": "Masa dipaparkan dalam MYT (Asia/Kuala_Lumpur). Timestamp dengan zon waktu ditukar kepada MYT; masa tanpa zon dianggap MYT kerana parameter API meminta Asia/Kuala_Lumpur. Sahkan pengumuman rasmi untuk keputusan kritikal.",
-    "events": [
-      {
-        "date": "2026-10-22T12:30:00+00:00",
-        "country": "US",
-        "event": "US Initial Jobless Claims: October 22, 2026",
-        "importance": 2,
-        "actual": "",
-        "forecast": "",
-        "previous": "199,000 (week ending October 10, 2026)",
-        "currency": "USD",
-        "source_url": "https://www.financecalendar.com/event/us-initial-jobless-claims-october-22-2026/"
-      },
-      {
-        "date": "2026-10-22T15:30:00+00:00",
-        "country": "US",
-        "event": "US Treasury 4-Week Bill Auction 2026-10-22 (912797VY0)",
-        "importance": 2,
-        "actual": "",
-        "forecast": "",
-        "previous": "",
-        "currency": "USD",
-        "source_url": "https://www.treasurydirect.gov/TA_WS/securities/announced?format=json"
-      },
-      {
-        "date": "2026-10-22T15:30:00+00:00",
-        "country": "US",
-        "event": "US Treasury 8-Week Bill Auction 2026-10-22 (912797WG8)",
-        "importance": 2,
-        "actual": "",
-        "forecast": "",
-        "previous": "",
-        "currency": "USD",
-        "source_url": "https://www.treasurydirect.gov/TA_WS/securities/announced?format=json"
-      },
-      {
-        "date": "2026-10-22T17:00:00+00:00",
-        "country": "US",
-        "event": "US Treasury 10-Day CMB Auction 2026-10-22 (912797UM7)",
-        "importance": 2,
-        "actual": "",
-        "forecast": "",
-        "previous": "",
-        "currency": "USD",
-        "source_url": "https://www.treasurydirect.gov/TA_WS/securities/announced?format=json"
-      },
-      {
-        "date": "2026-10-22T17:00:00+00:00",
-        "country": "US",
-        "event": "US Treasury 5-Year TIPS Auction 2026-10-22 (91282CRR4)",
-        "importance": 2,
-        "actual": "",
-        "forecast": "",
-        "previous": "",
-        "currency": "USD",
-        "source_url": "https://www.treasurydirect.gov/TA_WS/securities/announced?format=json"
-      },
-      {
-        "date": "2026-10-26",
-        "country": "US",
-        "event": "US Treasury 13-Week Bill Auction 2026-10-26 (912797VU8)",
-        "importance": 2,
-        "actual": "",
-        "forecast": "",
-        "previous": "",
-        "currency": "USD",
-        "source_url": "https://www.treasurydirect.gov/xml/PendingAuctions.xml"
-      },
-      {
-        "date": "2026-10-26",
-        "country": "US",
-        "event": "US Treasury 26-Week Bill Auction 2026-10-26 (912797WW3)",
-        "importance": 2,
-        "actual": "",
-        "forecast": "",
-        "previous": "",
-        "currency": "USD",
-        "source_url": "https://www.treasurydirect.gov/xml/PendingAuctions.xml"
-      },
-      {
-        "date": "2026-10-26",
-        "country": "US",
-        "event": "US Treasury 2-Year Note Auction 2026-10-26 (91282CRU7)",
-        "importance": 2,
-        "actual": "",
-        "forecast": "",
-        "previous": "",
-        "currency": "USD",
-        "source_url": "https://www.treasurydirect.gov/xml/PendingAuctions.xml"
-      },
-      {
-        "date": "2026-10-27",
-        "country": "US",
-        "event": "US Treasury 6-Week Bill Auction 2026-10-27 (912797VG9)",
-        "importance": 2,
-        "actual": "",
-        "forecast": "",
-        "previous": "",
-        "currency": "USD",
-        "source_url": "https://www.treasurydirect.gov/xml/PendingAuctions.xml"
-      },
-      {
-        "date": "2026-10-27",
-        "country": "US",
-        "event": "US Treasury 52-Week Bill Auction 2026-10-27 (912797WT0)",
-        "importance": 2,
-        "actual": "",
-        "forecast": "",
-        "previous": "",
-        "currency": "USD",
-        "source_url": "https://www.treasurydirect.gov/xml/PendingAuctions.xml"
-      },
-      {
-        "date": "2026-10-27",
-        "country": "US",
-        "event": "US Treasury 5-Year Note Auction 2026-10-27 (91282CRT0)",
-        "importance": 2,
-        "actual": "",
-        "forecast": "",
-        "previous": "",
-        "currency": "USD",
-        "source_url": "https://www.treasurydirect.gov/xml/PendingAuctions.xml"
-      },
-      {
-        "date": "2026-10-27T12:30:00+00:00",
-        "country": "US",
-        "event": "US Durable Goods Orders October 2026",
-        "importance": 2,
-        "actual": "",
-        "forecast": "",
-        "previous": "",
-        "currency": "USD",
-        "source_url": "https://www.census.gov/manufacturing/m3/"
-      },
-      {
-        "date": "2026-10-27T14:00:00+00:00",
-        "country": "US",
-        "event": "US Consumer Confidence October 2026",
-        "importance": 2,
-        "actual": "",
-        "forecast": "",
-        "previous": "89.4 (August 2026)",
-        "currency": "USD",
-        "source_url": "https://www.financecalendar.com/event/us-consumer-confidence-october-2026/"
-      },
-      {
-        "date": "2026-10-28",
-        "country": "US",
-        "event": "US Treasury 2-Year FRN Auction 2026-10-28 (91282CRS2)",
-        "importance": 2,
-        "actual": "",
-        "forecast": "",
-        "previous": "",
-        "currency": "USD",
-        "source_url": "https://www.treasurydirect.gov/xml/PendingAuctions.xml"
-      },
-      {
-        "date": "2026-10-29",
-        "country": "US",
-        "event": "US Treasury 7-Year Note Auction 2026-10-29 (91282CRV5)",
-        "importance": 2,
-        "actual": "",
-        "forecast": "",
-        "previous": "",
-        "currency": "USD",
-        "source_url": "https://www.treasurydirect.gov/xml/PendingAuctions.xml"
-      },
-      {
-        "date": "2026-10-28T18:00:00+00:00",
-        "country": "US",
-        "event": "FOMC Rate Decision October 2026",
-        "importance": 3,
-        "actual": "",
-        "forecast": "",
-        "previous": "",
-        "currency": "USD",
-        "source_url": "https://www.financecalendar.com/event/fomc-rate-decision-october-2026/"
-      },
-      {
-        "date": "2026-10-29T12:30:00+00:00",
-        "country": "US",
-        "event": "US Initial Jobless Claims: October 29, 2026",
-        "importance": 2,
-        "actual": "",
-        "forecast": "",
-        "previous": "",
-        "currency": "USD",
-        "source_url": "https://www.financecalendar.com/event/us-initial-jobless-claims-october-29-2026/"
-      },
-      {
-        "date": "2026-10-29T12:30:00+00:00",
-        "country": "US",
-        "event": "US Personal Income and Outlays (PCE) October 2026",
-        "importance": 3,
-        "actual": "",
-        "forecast": "",
-        "previous": "",
-        "currency": "USD",
-        "source_url": "https://www.financecalendar.com/event/us-personal-income-and-outlays-pce-october-2026/"
-      },
-      {
-        "date": "2026-10-30T12:30:00+00:00",
-        "country": "US",
-        "event": "US Employment Cost Index October 2026",
-        "importance": 2,
-        "actual": "",
-        "forecast": "",
-        "previous": "",
-        "currency": "USD",
-        "source_url": "https://www.bls.gov/schedule/news_release/bls.ics"
-      },
-      {
-        "date": "2026-11-02T15:00:00+00:00",
-        "country": "US",
-        "event": "US ISM Manufacturing PMI November 2026",
-        "importance": 3,
-        "actual": "",
-        "forecast": "",
-        "previous": "55.6% (July 2026)",
-        "currency": "USD",
-        "source_url": "https://www.financecalendar.com/event/us-ism-manufacturing-pmi-november-2026/"
-      },
-      {
-        "date": "2026-11-03T15:00:00+00:00",
-        "country": "US",
-        "event": "US JOLTS Job Openings November 2026",
-        "importance": 2,
-        "actual": "",
-        "forecast": "",
-        "previous": "Not independently verified at time of writing, see BLS release",
-        "currency": "USD",
-        "source_url": "https://www.financecalendar.com/event/us-jolts-job-openings-november-2026/"
-      },
-      {
-        "date": "2026-11-04T13:15:00+00:00",
-        "country": "US",
-        "event": "US ADP Employment Report November 2026",
-        "importance": 2,
-        "actual": "",
-        "forecast": "",
-        "previous": "44,000 jobs added (July 2026)",
-        "currency": "USD",
-        "source_url": "https://www.financecalendar.com/event/us-adp-employment-report-november-2026/"
-      },
-      {
-        "date": "2026-11-04T15:00:00+00:00",
-        "country": "US",
-        "event": "US ISM Services PMI November 2026",
-        "importance": 2,
-        "actual": "",
-        "forecast": "",
-        "previous": "54.1% (July 2026)",
-        "currency": "USD",
-        "source_url": "https://www.financecalendar.com/event/us-ism-services-pmi-november-2026/"
-      },
-      {
-        "date": "2026-11-05T13:30:00+00:00",
-        "country": "US",
-        "event": "US Initial Jobless Claims: November 5, 2026",
-        "importance": 2,
-        "actual": "",
-        "forecast": "",
-        "previous": "203,000 (week ended August 15, 2026, most recent confirmed figure found in research)",
-        "currency": "USD",
-        "source_url": "https://www.financecalendar.com/event/us-initial-jobless-claims-november-5-2026/"
-      }
-    ],
-    "message": "Kalendar ekonomi USD berjaya dikemas kini.",
+    "updated_utc": "2026-10-22T09:21:07.961284+00:00",
+    "timezone_note": "Masa acara belum disahkan kerana sumber kalendar tidak tersedia.",
+    "events": [],
+    "message": "Kalendar tidak tersedia buat sementara waktu: HTTP Error 520: <none>",
     "url": "https://www.financecalendar.com/api/economic-calendar/",
     "attribution_url": "https://www.financecalendar.com/"
   },
@@ -302,71 +37,22 @@
     "m30": "BEARISH",
     "m15": "BEARISH"
   },
-  "support": 4088.1403,
-  "resistance": 4101.38627,
+  "support": 4078.83259,
+  "resistance": 4092.15534,
   "techniques": {
     "snr": false,
     "smc": false,
-    "pa": true,
+    "pa": false,
     "breakout": false
   },
-  "price": 4091.013,
-  "quote_bid": 4090.929,
-  "quote_ask": 4091.097,
-  "quote_mid": 4091.013,
+  "price": 4085.46,
+  "quote_bid": 4085.376,
+  "quote_ask": 4085.544,
+  "quote_mid": 4085.46,
   "quote_spread": 0.168,
-  "quote_timestamp_utc": "2026-10-22T08:48:54+00:00",
+  "quote_timestamp_utc": "2026-10-22T09:21:07+00:00",
   "quote_age_seconds": 1,
   "chart_candles": [
-    {
-      "t": 1792646700,
-      "o": 4086.66943,
-      "h": 4088.61584,
-      "l": 4085.72644,
-      "c": 4088.35834
-    },
-    {
-      "t": 1792647000,
-      "o": 4087.84965,
-      "h": 4088.97612,
-      "l": 4084.39146,
-      "c": 4084.66149
-    },
-    {
-      "t": 1792647300,
-      "o": 4085.3402,
-      "h": 4089.15589,
-      "l": 4082.48338,
-      "c": 4083.76183
-    },
-    {
-      "t": 1792647600,
-      "o": 4086.08417,
-      "h": 4086.08417,
-      "l": 4077.60658,
-      "c": 4081.84676
-    },
-    {
-      "t": 1792647900,
-      "o": 4081.14578,
-      "h": 4081.14578,
-      "l": 4068.01725,
-      "c": 4068.62087
-    },
-    {
-      "t": 1792648200,
-      "o": 4069.23055,
-      "h": 4073.92032,
-      "l": 4069.15678,
-      "c": 4073.41148
-    },
-    {
-      "t": 1792648500,
-      "o": 4072.67832,
-      "h": 4087.92822,
-      "l": 4071.26485,
-      "c": 4086.90432
-    },
     {
       "t": 1792648800,
       "o": 4085.45281,
@@ -597,6 +283,55 @@
       "h": 4093.32788,
       "l": 4087.33817,
       "c": 4093.00255
+    },
+    {
+      "t": 1792658700,
+      "o": 4092.18062,
+      "h": 4093.32788,
+      "l": 4090.31414,
+      "c": 4090.44864
+    },
+    {
+      "t": 1792659000,
+      "o": 4090.80137,
+      "h": 4092.19083,
+      "l": 4086.13574,
+      "c": 4086.30115
+    },
+    {
+      "t": 1792659300,
+      "o": 4086.56861,
+      "h": 4087.0531,
+      "l": 4083.06302,
+      "c": 4083.24966
+    },
+    {
+      "t": 1792659600,
+      "o": 4083.54843,
+      "h": 4083.54843,
+      "l": 4081.63265,
+      "c": 4081.8979
+    },
+    {
+      "t": 1792659900,
+      "o": 4082.17588,
+      "h": 4083.29931,
+      "l": 4080.46681,
+      "c": 4081.20528
+    },
+    {
+      "t": 1792660200,
+      "o": 4081.01196,
+      "h": 4088.29404,
+      "l": 4080.59254,
+      "c": 4087.35183
+    },
+    {
+      "t": 1792660500,
+      "o": 4085.50837,
+      "h": 4090.13602,
+      "l": 4085.11527,
+      "c": 4086.46694
     }
   ],
   "entry": null,
@@ -624,21 +359,19 @@
     "last_event_notified": "SL_HIT"
   },
   "strategy": "None",
-  "buy_score": 3,
-  "sell_score": 3,
-  "atr14": 4.931445022023693,
-  "ema20": 4089.2346481815157,
-  "ema50": 4092.061200396849,
+  "buy_score": 1,
+  "sell_score": 4,
+  "atr14": 4.7374226910565325,
+  "ema20": 4087.177414531674,
+  "ema50": 4090.388776750947,
   "risk_distance": null,
-  "last_candle_utc": "2026-10-22T08:45:00+00:00",
-  "candle_age_seconds": 234,
+  "last_candle_utc": "2026-10-22T09:20:00+00:00",
+  "candle_age_seconds": 67,
   "quote_source": "Biquote API",
   "ohlc_source": "Twelve Data",
   "market_state": "open",
-  "candle_close": 4093.00255,
+  "candle_close": 4086.46694,
   "quote_live_endpoint": "https://biquote.io/api/XAUUSD?allowStale=false",
-  "sampled_exit_price": 4091.097,
-  "sampled_exit_price_type": "ASK",
   "signal_history": [
     {
       "id": "SELL-1792577700",
