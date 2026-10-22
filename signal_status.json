@@ -5,17 +5,17 @@
   "data_source": "OHLC + Biquote quote; bukan feed rasmi HFM XAUUSDc",
   "data_note": "Harga rujukan mungkin berbeza daripada broker HFM XAUUSDc. Signal hanya dinilai daripada candle M5 yang telah tutup.",
   "refresh_model": "GitHub Actions cron 5 minit; browser hanya refresh snapshot JSON.",
-  "updated_utc": "2026-10-22T14:46:59.842494+00:00",
+  "updated_utc": "2026-10-22T15:20:09.029102+00:00",
   "data_status": "FRESH",
   "signal": "WAIT",
   "score": 4,
   "quality": "RISIKO",
-  "reason": "WAIT - BUY 2/8, SELL 4/8; tiada setup sah.",
+  "reason": "WAIT - BUY 1/8, SELL 4/8; tiada setup sah.",
   "trend_45m": "BULLISH",
   "economic_calendar": {
     "status": "FRESH",
     "source": "Finance Calendar API",
-    "updated_utc": "2026-10-22T14:47:00.312203+00:00",
+    "updated_utc": "2026-10-22T15:20:09.502496+00:00",
     "timezone_note": "Masa dipaparkan dalam MYT (Asia/Kuala_Lumpur). Timestamp dengan zon waktu ditukar kepada MYT; masa tanpa zon dianggap MYT kerana parameter API meminta Asia/Kuala_Lumpur. Sahkan pengumuman rasmi untuk keputusan kritikal.",
     "events": [
       {
@@ -302,71 +302,22 @@
     "m30": "BEARISH",
     "m15": "BEARISH"
   },
-  "support": 4046.78079,
-  "resistance": 4068.84485,
+  "support": 4057.20385,
+  "resistance": 4064.98277,
   "techniques": {
     "snr": false,
     "smc": false,
-    "pa": true,
+    "pa": false,
     "breakout": false
   },
-  "price": 4058.576,
-  "quote_bid": 4058.492,
-  "quote_ask": 4058.66,
-  "quote_mid": 4058.576,
+  "price": 4058.861,
+  "quote_bid": 4058.777,
+  "quote_ask": 4058.945,
+  "quote_mid": 4058.861,
   "quote_spread": 0.168,
-  "quote_timestamp_utc": "2026-10-22T14:46:59+00:00",
+  "quote_timestamp_utc": "2026-10-22T15:20:09+00:00",
   "quote_age_seconds": 1,
   "chart_candles": [
-    {
-      "t": 1792668300,
-      "o": 4067.96161,
-      "h": 4067.96161,
-      "l": 4058.27686,
-      "c": 4062.86067
-    },
-    {
-      "t": 1792668600,
-      "o": 4064.387,
-      "h": 4064.387,
-      "l": 4059.9583,
-      "c": 4060.87239
-    },
-    {
-      "t": 1792668900,
-      "o": 4062.83419,
-      "h": 4065.12534,
-      "l": 4058.44156,
-      "c": 4064.37546
-    },
-    {
-      "t": 1792669200,
-      "o": 4063.03327,
-      "h": 4066.03237,
-      "l": 4062.45442,
-      "c": 4065.04104
-    },
-    {
-      "t": 1792669500,
-      "o": 4064.18258,
-      "h": 4068.84485,
-      "l": 4064.18258,
-      "c": 4066.55652
-    },
-    {
-      "t": 1792669800,
-      "o": 4067.52721,
-      "h": 4067.52721,
-      "l": 4060.41904,
-      "c": 4064.1948
-    },
-    {
-      "t": 1792670100,
-      "o": 4063.22271,
-      "h": 4063.22271,
-      "l": 4057.20385,
-      "c": 4057.54707
-    },
     {
       "t": 1792670400,
       "o": 4058.12408,
@@ -597,6 +548,55 @@
       "h": 4060.67519,
       "l": 4051.18137,
       "c": 4058.51897
+    },
+    {
+      "t": 1792680300,
+      "o": 4059.35625,
+      "h": 4063.22376,
+      "l": 4057.12431,
+      "c": 4062.82925
+    },
+    {
+      "t": 1792680600,
+      "o": 4062.11119,
+      "h": 4063.65203,
+      "l": 4061.57345,
+      "c": 4063.41816
+    },
+    {
+      "t": 1792680900,
+      "o": 4063.08214,
+      "h": 4064.98277,
+      "l": 4060.50835,
+      "c": 4062.69249
+    },
+    {
+      "t": 1792681200,
+      "o": 4061.99595,
+      "h": 4061.99595,
+      "l": 4059.75966,
+      "c": 4061.62196
+    },
+    {
+      "t": 1792681500,
+      "o": 4060.89053,
+      "h": 4063.61011,
+      "l": 4055.47895,
+      "c": 4055.74708
+    },
+    {
+      "t": 1792681800,
+      "o": 4056.12401,
+      "h": 4057.67959,
+      "l": 4054.89494,
+      "c": 4056.98316
+    },
+    {
+      "t": 1792682100,
+      "o": 4056.81927,
+      "h": 4059.33984,
+      "l": 4053.83493,
+      "c": 4058.70602
     }
   ],
   "entry": null,
@@ -624,18 +624,18 @@
     "last_event_notified": "SL_HIT"
   },
   "strategy": "None",
-  "buy_score": 2,
+  "buy_score": 1,
   "sell_score": 4,
-  "atr14": 6.580290240080165,
-  "ema20": 4060.2991044586793,
-  "ema50": 4068.678295561696,
+  "atr14": 5.782809646598729,
+  "ema20": 4060.065100230164,
+  "ema50": 4066.5837062077367,
   "risk_distance": null,
-  "last_candle_utc": "2026-10-22T14:45:00+00:00",
-  "candle_age_seconds": 119,
+  "last_candle_utc": "2026-10-22T15:20:00+00:00",
+  "candle_age_seconds": 9,
   "quote_source": "Biquote API",
   "ohlc_source": "Twelve Data",
   "market_state": "open",
-  "candle_close": 4058.51897,
+  "candle_close": 4058.70602,
   "quote_live_endpoint": "https://biquote.io/api/XAUUSD?allowStale=false",
   "signal_history": [
     {
