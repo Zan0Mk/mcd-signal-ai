@@ -5,41 +5,19 @@
   "data_source": "OHLC + Biquote quote; bukan feed rasmi HFM XAUUSDc",
   "data_note": "Harga rujukan mungkin berbeza daripada broker HFM XAUUSDc. Signal hanya dinilai daripada candle M5 yang telah tutup.",
   "refresh_model": "GitHub Actions cron 5 minit; browser hanya refresh snapshot JSON.",
-  "updated_utc": "2026-10-22T03:55:20.196611+00:00",
+  "updated_utc": "2026-10-22T04:23:45.250566+00:00",
   "data_status": "FRESH",
   "signal": "WAIT",
-  "score": 4,
-  "quality": "RISIKO",
-  "reason": "WAIT - BUY 1/8, SELL 4/8; tiada setup sah.",
+  "score": 5,
+  "quality": "RENDAH (C)",
+  "reason": "WAIT - BUY 1/8, SELL 5/8; tiada setup sah.",
   "trend_45m": "BEARISH",
   "economic_calendar": {
     "status": "FRESH",
     "source": "Finance Calendar API",
-    "updated_utc": "2026-10-22T03:55:20.536045+00:00",
+    "updated_utc": "2026-10-22T04:23:45.546698+00:00",
     "timezone_note": "Masa dipaparkan dalam MYT (Asia/Kuala_Lumpur). Timestamp dengan zon waktu ditukar kepada MYT; masa tanpa zon dianggap MYT kerana parameter API meminta Asia/Kuala_Lumpur. Sahkan pengumuman rasmi untuk keputusan kritikal.",
     "events": [
-      {
-        "date": "2026-10-21T15:30:00+00:00",
-        "country": "US",
-        "event": "US Treasury 17-Week Bill Auction 2026-10-21 (912797XA0)",
-        "importance": 2,
-        "actual": "high rate 4.155%; bid-to-cover 2.76",
-        "forecast": "",
-        "previous": "",
-        "currency": "USD",
-        "source_url": "https://www.treasurydirect.gov/TA_WS/securities/auctioned?format=json"
-      },
-      {
-        "date": "2026-10-21T17:00:00+00:00",
-        "country": "US",
-        "event": "US Treasury 19-Year 10-Month Bond Auction 2026-10-21 (912810UX4)",
-        "importance": 2,
-        "actual": "high yield 5.469%; bid-to-cover 2.73",
-        "forecast": "",
-        "previous": "",
-        "currency": "USD",
-        "source_url": "https://www.treasurydirect.gov/TA_WS/securities/auctioned?format=json"
-      },
       {
         "date": "2026-10-22T12:30:00+00:00",
         "country": "US",
@@ -292,6 +270,17 @@
         "previous": "54.1% (July 2026)",
         "currency": "USD",
         "source_url": "https://www.financecalendar.com/event/us-ism-services-pmi-november-2026/"
+      },
+      {
+        "date": "2026-11-05T13:30:00+00:00",
+        "country": "US",
+        "event": "US Initial Jobless Claims: November 5, 2026",
+        "importance": 2,
+        "actual": "",
+        "forecast": "",
+        "previous": "203,000 (week ended August 15, 2026, most recent confirmed figure found in research)",
+        "currency": "USD",
+        "source_url": "https://www.financecalendar.com/event/us-initial-jobless-claims-november-5-2026/"
       }
     ],
     "message": "Kalendar ekonomi USD berjaya dikemas kini.",
@@ -319,51 +308,16 @@
     "snr": false,
     "smc": false,
     "pa": false,
-    "breakout": false
+    "breakout": true
   },
-  "price": 4090.129,
-  "quote_bid": 4090.045,
-  "quote_ask": 4090.213,
-  "quote_mid": 4090.129,
+  "price": 4089.283,
+  "quote_bid": 4089.199,
+  "quote_ask": 4089.367,
+  "quote_mid": 4089.283,
   "quote_spread": 0.168,
-  "quote_timestamp_utc": "2026-10-22T03:55:19+00:00",
-  "quote_age_seconds": 2,
+  "quote_timestamp_utc": "2026-10-22T04:23:45+00:00",
+  "quote_age_seconds": 1,
   "chart_candles": [
-    {
-      "t": 1792629300,
-      "o": 4115.79958,
-      "h": 4116.24269,
-      "l": 4115.05699,
-      "c": 4115.15308
-    },
-    {
-      "t": 1792629600,
-      "o": 4115.3589,
-      "h": 4117.48172,
-      "l": 4114.70198,
-      "c": 4117.12404
-    },
-    {
-      "t": 1792629900,
-      "o": 4116.50617,
-      "h": 4118.3209,
-      "l": 4114.97368,
-      "c": 4115.25756
-    },
-    {
-      "t": 1792630200,
-      "o": 4115.66594,
-      "h": 4116.33272,
-      "l": 4114.37976,
-      "c": 4115.93872
-    },
-    {
-      "t": 1792630500,
-      "o": 4115.40217,
-      "h": 4116.8407,
-      "l": 4114.04122,
-      "c": 4114.29909
-    },
     {
       "t": 1792630800,
       "o": 4114.18631,
@@ -608,6 +562,41 @@
       "h": 4094.66874,
       "l": 4090.98347,
       "c": 4091.81243
+    },
+    {
+      "t": 1792641300,
+      "o": 4091.56839,
+      "h": 4092.77482,
+      "l": 4089.963,
+      "c": 4090.31582
+    },
+    {
+      "t": 1792641600,
+      "o": 4090.82994,
+      "h": 4093.124,
+      "l": 4090.82994,
+      "c": 4091.34032
+    },
+    {
+      "t": 1792641900,
+      "o": 4092.21253,
+      "h": 4092.21253,
+      "l": 4089.81228,
+      "c": 4091.5344
+    },
+    {
+      "t": 1792642200,
+      "o": 4091.07194,
+      "h": 4091.82045,
+      "l": 4089.64502,
+      "c": 4091.47068
+    },
+    {
+      "t": 1792642500,
+      "o": 4091.20569,
+      "h": 4091.65303,
+      "l": 4088.81487,
+      "c": 4089.01474
     }
   ],
   "entry": null,
@@ -636,20 +625,18 @@
   },
   "strategy": "None",
   "buy_score": 1,
-  "sell_score": 4,
-  "atr14": 5.029382904101922,
-  "ema20": 4104.083959832605,
-  "ema50": 4112.351944500486,
+  "sell_score": 5,
+  "atr14": 4.276855686233232,
+  "ema20": 4098.806001029816,
+  "ema50": 4108.4292271142,
   "risk_distance": null,
-  "last_candle_utc": "2026-10-22T03:55:00+00:00",
-  "candle_age_seconds": 20,
+  "last_candle_utc": "2026-10-22T04:20:00+00:00",
+  "candle_age_seconds": 225,
   "quote_source": "Biquote API",
   "ohlc_source": "Twelve Data",
   "market_state": "open",
-  "candle_close": 4091.81243,
+  "candle_close": 4089.01474,
   "quote_live_endpoint": "https://biquote.io/api/XAUUSD?allowStale=false",
-  "sampled_exit_price": 4090.213,
-  "sampled_exit_price_type": "ASK",
   "signal_history": [
     {
       "id": "SELL-1792577700",
