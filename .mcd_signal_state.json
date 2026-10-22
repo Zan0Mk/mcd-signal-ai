@@ -5,7 +5,7 @@
   "active_setup": {
     "id": "SELL-1792656300",
     "side": "SELL",
-    "status": "ACTIVE",
+    "status": "SL_HIT",
     "entry": 4083.25156,
     "sl": 4090.353834684759,
     "tp1": 4072.5981479728616,
@@ -13,14 +13,20 @@
     "strategy": "Engulfing",
     "score": 7,
     "created_candle_t": 1792656300,
-    "created_utc": "2026-10-22T08:10:00+00:00"
+    "created_utc": "2026-10-22T08:10:00+00:00",
+    "last_checked_quote_timestamp": "2026-10-22T08:48:54+00:00",
+    "last_event_utc": "2026-10-22T08:48:55.458063+00:00",
+    "last_event_price": 4091.097,
+    "last_event_price_type": "ASK",
+    "closed_utc": "2026-10-22T08:48:55.458071+00:00",
+    "last_event_notified": "SL_HIT"
   },
   "last_event": null,
   "last_event_time": null,
   "last_status": "DATA_VALID",
   "last_error": null,
-  "last_candle_t": 1792656300,
-  "last_run_utc": "2026-10-22T08:11:05.091113+00:00",
+  "last_candle_t": 1792658400,
+  "last_run_utc": "2026-10-22T08:48:54.510036+00:00",
   "active_setups": [
     {
       "id": "SELL-1792441500",
@@ -245,13 +251,15 @@
     {
       "id": "SELL-1792656300",
       "side": "SELL",
-      "status": "ACTIVE",
+      "status": "SL_HIT",
       "entry": 4083.25156,
       "sl": 4090.353834684759,
       "tp1": 4072.5981479728616,
       "created_utc": "2026-10-22T08:10:00+00:00",
       "strategy": "Engulfing",
-      "score": 7
+      "score": 7,
+      "closed_utc": "2026-10-22T08:48:55.458071+00:00",
+      "last_event_notified": "SL_HIT"
     }
   ],
   "last_setup_key": "SELL-1792656300"
