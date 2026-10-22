@@ -5,17 +5,17 @@
   "data_source": "OHLC + Biquote quote; bukan feed rasmi HFM XAUUSDc",
   "data_note": "Harga rujukan mungkin berbeza daripada broker HFM XAUUSDc. Signal hanya dinilai daripada candle M5 yang telah tutup.",
   "refresh_model": "GitHub Actions cron 5 minit; browser hanya refresh snapshot JSON.",
-  "updated_utc": "2026-10-22T15:20:09.029102+00:00",
+  "updated_utc": "2026-10-22T15:55:34.954351+00:00",
   "data_status": "FRESH",
   "signal": "WAIT",
   "score": 4,
   "quality": "RISIKO",
   "reason": "WAIT - BUY 1/8, SELL 4/8; tiada setup sah.",
-  "trend_45m": "BULLISH",
+  "trend_45m": "BEARISH",
   "economic_calendar": {
     "status": "FRESH",
     "source": "Finance Calendar API",
-    "updated_utc": "2026-10-22T15:20:09.502496+00:00",
+    "updated_utc": "2026-10-22T15:55:35.378305+00:00",
     "timezone_note": "Masa dipaparkan dalam MYT (Asia/Kuala_Lumpur). Timestamp dengan zon waktu ditukar kepada MYT; masa tanpa zon dianggap MYT kerana parameter API meminta Asia/Kuala_Lumpur. Sahkan pengumuman rasmi untuk keputusan kritikal.",
     "events": [
       {
@@ -34,22 +34,22 @@
         "country": "US",
         "event": "US Treasury 4-Week Bill Auction 2026-10-22 (912797VY0)",
         "importance": 2,
-        "actual": "",
+        "actual": "high rate 3.945%; bid-to-cover 2.82",
         "forecast": "",
         "previous": "",
         "currency": "USD",
-        "source_url": "https://www.treasurydirect.gov/TA_WS/securities/announced?format=json"
+        "source_url": "https://www.treasurydirect.gov/TA_WS/securities/auctioned?format=json"
       },
       {
         "date": "2026-10-22T15:30:00+00:00",
         "country": "US",
         "event": "US Treasury 8-Week Bill Auction 2026-10-22 (912797WG8)",
         "importance": 2,
-        "actual": "",
+        "actual": "high rate 4.015%; bid-to-cover 2.57",
         "forecast": "",
         "previous": "",
         "currency": "USD",
-        "source_url": "https://www.treasurydirect.gov/TA_WS/securities/announced?format=json"
+        "source_url": "https://www.treasurydirect.gov/TA_WS/securities/auctioned?format=json"
       },
       {
         "date": "2026-10-22T17:00:00+00:00",
@@ -74,7 +74,7 @@
         "source_url": "https://www.treasurydirect.gov/TA_WS/securities/announced?format=json"
       },
       {
-        "date": "2026-10-26",
+        "date": "2026-10-26T15:30:00+00:00",
         "country": "US",
         "event": "US Treasury 13-Week Bill Auction 2026-10-26 (912797VU8)",
         "importance": 2,
@@ -82,10 +82,10 @@
         "forecast": "",
         "previous": "",
         "currency": "USD",
-        "source_url": "https://www.treasurydirect.gov/xml/PendingAuctions.xml"
+        "source_url": "https://www.treasurydirect.gov/TA_WS/securities/announced?format=json"
       },
       {
-        "date": "2026-10-26",
+        "date": "2026-10-26T15:30:00+00:00",
         "country": "US",
         "event": "US Treasury 26-Week Bill Auction 2026-10-26 (912797WW3)",
         "importance": 2,
@@ -93,10 +93,10 @@
         "forecast": "",
         "previous": "",
         "currency": "USD",
-        "source_url": "https://www.treasurydirect.gov/xml/PendingAuctions.xml"
+        "source_url": "https://www.treasurydirect.gov/TA_WS/securities/announced?format=json"
       },
       {
-        "date": "2026-10-26",
+        "date": "2026-10-26T17:00:00+00:00",
         "country": "US",
         "event": "US Treasury 2-Year Note Auction 2026-10-26 (91282CRU7)",
         "importance": 2,
@@ -104,40 +104,7 @@
         "forecast": "",
         "previous": "",
         "currency": "USD",
-        "source_url": "https://www.treasurydirect.gov/xml/PendingAuctions.xml"
-      },
-      {
-        "date": "2026-10-27",
-        "country": "US",
-        "event": "US Treasury 6-Week Bill Auction 2026-10-27 (912797VG9)",
-        "importance": 2,
-        "actual": "",
-        "forecast": "",
-        "previous": "",
-        "currency": "USD",
-        "source_url": "https://www.treasurydirect.gov/xml/PendingAuctions.xml"
-      },
-      {
-        "date": "2026-10-27",
-        "country": "US",
-        "event": "US Treasury 52-Week Bill Auction 2026-10-27 (912797WT0)",
-        "importance": 2,
-        "actual": "",
-        "forecast": "",
-        "previous": "",
-        "currency": "USD",
-        "source_url": "https://www.treasurydirect.gov/xml/PendingAuctions.xml"
-      },
-      {
-        "date": "2026-10-27",
-        "country": "US",
-        "event": "US Treasury 5-Year Note Auction 2026-10-27 (91282CRT0)",
-        "importance": 2,
-        "actual": "",
-        "forecast": "",
-        "previous": "",
-        "currency": "USD",
-        "source_url": "https://www.treasurydirect.gov/xml/PendingAuctions.xml"
+        "source_url": "https://www.treasurydirect.gov/TA_WS/securities/announced?format=json"
       },
       {
         "date": "2026-10-27T12:30:00+00:00",
@@ -162,7 +129,40 @@
         "source_url": "https://www.financecalendar.com/event/us-consumer-confidence-october-2026/"
       },
       {
-        "date": "2026-10-28",
+        "date": "2026-10-27T15:30:00+00:00",
+        "country": "US",
+        "event": "US Treasury 6-Week Bill Auction 2026-10-27 (912797VG9)",
+        "importance": 2,
+        "actual": "",
+        "forecast": "",
+        "previous": "",
+        "currency": "USD",
+        "source_url": "https://www.treasurydirect.gov/TA_WS/securities/announced?format=json"
+      },
+      {
+        "date": "2026-10-27T15:30:00+00:00",
+        "country": "US",
+        "event": "US Treasury 52-Week Bill Auction 2026-10-27 (912797WT0)",
+        "importance": 2,
+        "actual": "",
+        "forecast": "",
+        "previous": "",
+        "currency": "USD",
+        "source_url": "https://www.treasurydirect.gov/TA_WS/securities/announced?format=json"
+      },
+      {
+        "date": "2026-10-27T17:00:00+00:00",
+        "country": "US",
+        "event": "US Treasury 5-Year Note Auction 2026-10-27 (91282CRT0)",
+        "importance": 2,
+        "actual": "",
+        "forecast": "",
+        "previous": "",
+        "currency": "USD",
+        "source_url": "https://www.treasurydirect.gov/TA_WS/securities/announced?format=json"
+      },
+      {
+        "date": "2026-10-28T15:30:00+00:00",
         "country": "US",
         "event": "US Treasury 2-Year FRN Auction 2026-10-28 (91282CRS2)",
         "importance": 2,
@@ -170,18 +170,7 @@
         "forecast": "",
         "previous": "",
         "currency": "USD",
-        "source_url": "https://www.treasurydirect.gov/xml/PendingAuctions.xml"
-      },
-      {
-        "date": "2026-10-29",
-        "country": "US",
-        "event": "US Treasury 7-Year Note Auction 2026-10-29 (91282CRV5)",
-        "importance": 2,
-        "actual": "",
-        "forecast": "",
-        "previous": "",
-        "currency": "USD",
-        "source_url": "https://www.treasurydirect.gov/xml/PendingAuctions.xml"
+        "source_url": "https://www.treasurydirect.gov/TA_WS/securities/announced?format=json"
       },
       {
         "date": "2026-10-28T18:00:00+00:00",
@@ -215,6 +204,17 @@
         "previous": "",
         "currency": "USD",
         "source_url": "https://www.financecalendar.com/event/us-personal-income-and-outlays-pce-october-2026/"
+      },
+      {
+        "date": "2026-10-29T17:00:00+00:00",
+        "country": "US",
+        "event": "US Treasury 7-Year Note Auction 2026-10-29 (91282CRV5)",
+        "importance": 2,
+        "actual": "",
+        "forecast": "",
+        "previous": "",
+        "currency": "USD",
+        "source_url": "https://www.treasurydirect.gov/TA_WS/securities/announced?format=json"
       },
       {
         "date": "2026-10-30T12:30:00+00:00",
@@ -302,7 +302,7 @@
     "m30": "BEARISH",
     "m15": "BEARISH"
   },
-  "support": 4057.20385,
+  "support": 4046.78079,
   "resistance": 4064.98277,
   "techniques": {
     "snr": false,
@@ -310,63 +310,14 @@
     "pa": false,
     "breakout": false
   },
-  "price": 4058.861,
-  "quote_bid": 4058.777,
-  "quote_ask": 4058.945,
-  "quote_mid": 4058.861,
+  "price": 4053.234,
+  "quote_bid": 4053.15,
+  "quote_ask": 4053.318,
+  "quote_mid": 4053.234,
   "quote_spread": 0.168,
-  "quote_timestamp_utc": "2026-10-22T15:20:09+00:00",
-  "quote_age_seconds": 1,
+  "quote_timestamp_utc": "2026-10-22T15:55:35+00:00",
+  "quote_age_seconds": 0,
   "chart_candles": [
-    {
-      "t": 1792670400,
-      "o": 4058.12408,
-      "h": 4063.75273,
-      "l": 4058.12408,
-      "c": 4063.27384
-    },
-    {
-      "t": 1792670700,
-      "o": 4062.39141,
-      "h": 4067.45119,
-      "l": 4062.39141,
-      "c": 4066.67819
-    },
-    {
-      "t": 1792671000,
-      "o": 4065.63079,
-      "h": 4076.3085,
-      "l": 4065.63079,
-      "c": 4076.12693
-    },
-    {
-      "t": 1792671300,
-      "o": 4075.73921,
-      "h": 4075.73921,
-      "l": 4070.0999,
-      "c": 4070.33304
-    },
-    {
-      "t": 1792671600,
-      "o": 4070.62382,
-      "h": 4070.62382,
-      "l": 4064.54497,
-      "c": 4068.16323
-    },
-    {
-      "t": 1792671900,
-      "o": 4066.67933,
-      "h": 4073.66372,
-      "l": 4066.3298,
-      "c": 4073.05338
-    },
-    {
-      "t": 1792672200,
-      "o": 4072.25662,
-      "h": 4077.63823,
-      "l": 4071.16395,
-      "c": 4074.905
-    },
     {
       "t": 1792672500,
       "o": 4075.71634,
@@ -594,9 +545,58 @@
     {
       "t": 1792682100,
       "o": 4056.81927,
-      "h": 4059.33984,
+      "h": 4060.25417,
       "l": 4053.83493,
-      "c": 4058.70602
+      "c": 4059.9092
+    },
+    {
+      "t": 1792682400,
+      "o": 4059.18966,
+      "h": 4059.31558,
+      "l": 4053.39677,
+      "c": 4053.82532
+    },
+    {
+      "t": 1792682700,
+      "o": 4054.38178,
+      "h": 4057.02334,
+      "l": 4052.6959,
+      "c": 4053.20593
+    },
+    {
+      "t": 1792683000,
+      "o": 4054.31621,
+      "h": 4054.54577,
+      "l": 4050.87904,
+      "c": 4053.786
+    },
+    {
+      "t": 1792683300,
+      "o": 4052.01291,
+      "h": 4055.47895,
+      "l": 4051.36044,
+      "c": 4051.81752
+    },
+    {
+      "t": 1792683600,
+      "o": 4052.4899,
+      "h": 4053.83493,
+      "l": 4050.38681,
+      "c": 4050.69026
+    },
+    {
+      "t": 1792683900,
+      "o": 4051.15289,
+      "h": 4053.25995,
+      "l": 4049.91066,
+      "c": 4053.13614
+    },
+    {
+      "t": 1792684200,
+      "o": 4052.81719,
+      "h": 4055.31449,
+      "l": 4051.20726,
+      "c": 4054.94992
     }
   ],
   "entry": null,
@@ -626,16 +626,16 @@
   "strategy": "None",
   "buy_score": 1,
   "sell_score": 4,
-  "atr14": 5.782809646598729,
-  "ema20": 4060.065100230164,
-  "ema50": 4066.5837062077367,
+  "atr14": 5.150891121054295,
+  "ema20": 4056.602372912301,
+  "ema50": 4063.316812412787,
   "risk_distance": null,
-  "last_candle_utc": "2026-10-22T15:20:00+00:00",
-  "candle_age_seconds": 9,
+  "last_candle_utc": "2026-10-22T15:55:00+00:00",
+  "candle_age_seconds": 34,
   "quote_source": "Biquote API",
   "ohlc_source": "Twelve Data",
   "market_state": "open",
-  "candle_close": 4058.70602,
+  "candle_close": 4054.94992,
   "quote_live_endpoint": "https://biquote.io/api/XAUUSD?allowStale=false",
   "signal_history": [
     {
