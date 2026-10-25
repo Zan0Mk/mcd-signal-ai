@@ -23,10 +23,10 @@
   },
   "last_event": null,
   "last_event_time": null,
-  "last_status": "DATA_ERROR",
-  "last_error": "HTTP Error 404: Not Found",
-  "last_candle_t": 1792787400,
-  "last_run_utc": "2026-10-25T21:55:26.463859+00:00",
+  "last_status": "DATA_VALID",
+  "last_error": null,
+  "last_candle_t": 1792965900,
+  "last_run_utc": "2026-10-25T22:13:58.272135+00:00",
   "active_setups": [
     {
       "id": "SELL-1792441500",
