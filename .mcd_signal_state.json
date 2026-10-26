@@ -13,14 +13,15 @@
     "strategy": "Breakout",
     "score": 5,
     "created_candle_t": 1793047500,
-    "created_utc": "2026-10-26T20:50:00+00:00"
+    "created_utc": "2026-10-26T20:50:00+00:00",
+    "last_checked_quote_timestamp": "2026-10-26T22:20:36+00:00"
   },
   "last_event": null,
   "last_event_time": null,
-  "last_status": "DATA_ERROR",
-  "last_error": "HTTP Error 404: Not Found",
-  "last_candle_t": 1793047500,
-  "last_run_utc": "2026-10-26T21:53:18.212159+00:00",
+  "last_status": "DATA_VALID",
+  "last_error": null,
+  "last_candle_t": 1793052900,
+  "last_run_utc": "2026-10-26T22:20:36.976856+00:00",
   "active_setups": [
     {
       "id": "SELL-1792441500",
