@@ -5,7 +5,7 @@
   "data_source": "OHLC + Biquote quote; bukan feed rasmi HFM XAUUSDc",
   "data_note": "Harga rujukan mungkin berbeza daripada broker HFM XAUUSDc. Signal hanya dinilai daripada candle M5 yang telah tutup.",
   "refresh_model": "GitHub Actions cron 5 minit; browser hanya refresh snapshot JSON.",
-  "updated_utc": "2026-10-26T02:55:30.856855+00:00",
+  "updated_utc": "2026-10-26T03:24:37.158676+00:00",
   "data_status": "FRESH",
   "signal": "WAIT",
   "score": 4,
@@ -15,7 +15,7 @@
   "economic_calendar": {
     "status": "FRESH",
     "source": "Finance Calendar API",
-    "updated_utc": "2026-10-26T02:55:31.246833+00:00",
+    "updated_utc": "2026-10-26T03:24:37.804789+00:00",
     "timezone_note": "Masa dipaparkan dalam MYT (Asia/Kuala_Lumpur). Timestamp dengan zon waktu ditukar kepada MYT; masa tanpa zon dianggap MYT kerana parameter API meminta Asia/Kuala_Lumpur. Sahkan pengumuman rasmi untuk keputusan kritikal.",
     "events": [
       {
@@ -256,59 +256,24 @@
     "h4": "BEARISH",
     "h1": "BEARISH",
     "m30": "BEARISH",
-    "m15": "BEARISH"
+    "m15": "BULLISH"
   },
   "support": 3994.67834,
-  "resistance": 4000.16001,
+  "resistance": null,
   "techniques": {
-    "snr": false,
+    "snr": true,
     "smc": false,
     "pa": false,
     "breakout": false
   },
-  "price": 4000.588,
-  "quote_bid": 4000.504,
-  "quote_ask": 4000.672,
-  "quote_mid": 4000.588,
+  "price": 4014.952,
+  "quote_bid": 4014.868,
+  "quote_ask": 4015.036,
+  "quote_mid": 4014.952,
   "quote_spread": 0.168,
-  "quote_timestamp_utc": "2026-10-26T02:55:31+00:00",
-  "quote_age_seconds": 0,
+  "quote_timestamp_utc": "2026-10-26T03:24:37+00:00",
+  "quote_age_seconds": 1,
   "chart_candles": [
-    {
-      "t": 1792971300,
-      "o": 3999.2087,
-      "h": 4002.14281,
-      "l": 3999.2087,
-      "c": 4001.31846
-    },
-    {
-      "t": 1792971600,
-      "o": 4001.26465,
-      "h": 4002.56164,
-      "l": 3998.40064,
-      "c": 3998.55882
-    },
-    {
-      "t": 1792971900,
-      "o": 3998.80619,
-      "h": 4001.79636,
-      "l": 3988.83127,
-      "c": 3994.51373
-    },
-    {
-      "t": 1792972200,
-      "o": 3993.79064,
-      "h": 3995.84432,
-      "l": 3993.79064,
-      "c": 3995.50096
-    },
-    {
-      "t": 1792972500,
-      "o": 3995.46084,
-      "h": 3998.08092,
-      "l": 3993.45074,
-      "c": 3997.96572
-    },
     {
       "t": 1792972800,
       "o": 3997.72309,
@@ -550,9 +515,44 @@
     {
       "t": 1792983000,
       "o": 3997.43364,
-      "h": 3998.84119,
+      "h": 4000.55162,
       "l": 3993.92923,
-      "c": 3998.50929
+      "c": 4000.00525
+    },
+    {
+      "t": 1792983300,
+      "o": 3998.58993,
+      "h": 4001.44052,
+      "l": 3998.08092,
+      "c": 3998.32519
+    },
+    {
+      "t": 1792983600,
+      "o": 3998.89103,
+      "h": 4010.51924,
+      "l": 3998.89103,
+      "c": 4010.18527
+    },
+    {
+      "t": 1792983900,
+      "o": 4009.56535,
+      "h": 4009.75862,
+      "l": 4007.60208,
+      "c": 4007.93459
+    },
+    {
+      "t": 1792984200,
+      "o": 4008.40968,
+      "h": 4014.29088,
+      "l": 4005.41694,
+      "c": 4013.79179
+    },
+    {
+      "t": 1792984500,
+      "o": 4012.83545,
+      "h": 4013.96724,
+      "l": 4010.74881,
+      "c": 4011.01901
     }
   ],
   "entry": null,
@@ -582,16 +582,16 @@
   "strategy": "None",
   "buy_score": 3,
   "sell_score": 4,
-  "atr14": 4.87574467920585,
-  "ema20": 3993.204278820337,
-  "ema50": 3992.9480771627836,
+  "atr14": 5.303716767293399,
+  "ema20": 3999.4342618686023,
+  "ema50": 3995.8118378609124,
   "risk_distance": null,
-  "last_candle_utc": "2026-10-26T02:55:00+00:00",
-  "candle_age_seconds": 30,
+  "last_candle_utc": "2026-10-26T03:20:00+00:00",
+  "candle_age_seconds": 277,
   "quote_source": "Biquote API",
   "ohlc_source": "Twelve Data",
   "market_state": "open",
-  "candle_close": 3998.50929,
+  "candle_close": 4011.01901,
   "quote_live_endpoint": "https://biquote.io/api/XAUUSD?allowStale=false",
   "signal_history": [
     {
