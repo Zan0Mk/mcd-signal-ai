@@ -5,17 +5,17 @@
   "data_source": "OHLC + Biquote quote; bukan feed rasmi HFM XAUUSDc",
   "data_note": "Harga rujukan mungkin berbeza daripada broker HFM XAUUSDc. Signal hanya dinilai daripada candle M5 yang telah tutup.",
   "refresh_model": "GitHub Actions cron 5 minit; browser hanya refresh snapshot JSON.",
-  "updated_utc": "2026-10-26T08:49:59.826274+00:00",
+  "updated_utc": "2026-10-26T09:26:09.007079+00:00",
   "data_status": "FRESH",
-  "signal": "SELL",
-  "score": 5,
-  "quality": "RENDAH (C)",
-  "reason": "Candle Twelve Data dan quote Biquote lulus semakan. Bandingkan harga dengan broker.",
-  "trend_45m": "BULLISH",
+  "signal": "WAIT",
+  "score": 4,
+  "quality": "RISIKO",
+  "reason": "WAIT - BUY 4/8, SELL 3/8; tiada setup sah.",
+  "trend_45m": "BEARISH",
   "economic_calendar": {
     "status": "FRESH",
     "source": "Finance Calendar API",
-    "updated_utc": "2026-10-26T08:50:00.158798+00:00",
+    "updated_utc": "2026-10-26T09:26:09.488065+00:00",
     "timezone_note": "Masa dipaparkan dalam MYT (Asia/Kuala_Lumpur). Timestamp dengan zon waktu ditukar kepada MYT; masa tanpa zon dianggap MYT kerana parameter API meminta Asia/Kuala_Lumpur. Sahkan pengumuman rasmi untuk keputusan kritikal.",
     "events": [
       {
@@ -254,82 +254,26 @@
   "trend": {
     "d1": "BEARISH",
     "h4": "BEARISH",
-    "h1": "BEARISH",
+    "h1": "BULLISH",
     "m30": "BULLISH",
     "m15": "BULLISH"
   },
   "support": 4008.3285,
   "resistance": 4016.87086,
   "techniques": {
-    "snr": true,
+    "snr": false,
     "smc": false,
     "pa": false,
     "breakout": false
   },
-  "price": 4018.662,
-  "quote_bid": 4018.578,
-  "quote_ask": 4018.746,
-  "quote_mid": 4018.662,
+  "price": 4015.578,
+  "quote_bid": 4015.494,
+  "quote_ask": 4015.662,
+  "quote_mid": 4015.578,
   "quote_spread": 0.168,
-  "quote_timestamp_utc": "2026-10-26T08:50:00+00:00",
-  "quote_age_seconds": 0,
+  "quote_timestamp_utc": "2026-10-26T09:26:08+00:00",
+  "quote_age_seconds": 1,
   "chart_candles": [
-    {
-      "t": 1792992300,
-      "o": 4013.89999,
-      "h": 4015.58045,
-      "l": 4012.35806,
-      "c": 4015.43643
-    },
-    {
-      "t": 1792992600,
-      "o": 4015.136,
-      "h": 4017.18116,
-      "l": 4011.71421,
-      "c": 4014.99944
-    },
-    {
-      "t": 1792992900,
-      "o": 4014.51548,
-      "h": 4015.74171,
-      "l": 4011.84534,
-      "c": 4014.68892
-    },
-    {
-      "t": 1792993200,
-      "o": 4014.15997,
-      "h": 4015.09676,
-      "l": 4010.58795,
-      "c": 4010.81659
-    },
-    {
-      "t": 1792993500,
-      "o": 4011.15645,
-      "h": 4015.58045,
-      "l": 4008.3285,
-      "c": 4015.2479
-    },
-    {
-      "t": 1792993800,
-      "o": 4014.6214,
-      "h": 4014.94097,
-      "l": 4011.87515,
-      "c": 4013.05653
-    },
-    {
-      "t": 1792994100,
-      "o": 4013.34287,
-      "h": 4013.7249,
-      "l": 4010.89084,
-      "c": 4011.3802
-    },
-    {
-      "t": 1792994400,
-      "o": 4012.31445,
-      "h": 4014.12974,
-      "l": 4011.07055,
-      "c": 4011.24267
-    },
     {
       "t": 1792994700,
       "o": 4011.51065,
@@ -553,13 +497,69 @@
       "h": 4017.67778,
       "l": 4015.68831,
       "c": 4015.99958
+    },
+    {
+      "t": 1793004300,
+      "o": 4016.50361,
+      "h": 4018.48503,
+      "l": 4013.82031,
+      "c": 4018.38555
+    },
+    {
+      "t": 1793004600,
+      "o": 4018.17312,
+      "h": 4021.63116,
+      "l": 4017.65101,
+      "c": 4020.50632
+    },
+    {
+      "t": 1793004900,
+      "o": 4020.45644,
+      "h": 4022.20256,
+      "l": 4017.2219,
+      "c": 4017.82654
+    },
+    {
+      "t": 1793005200,
+      "o": 4019.08933,
+      "h": 4019.08933,
+      "l": 4015.74171,
+      "c": 4015.98748
+    },
+    {
+      "t": 1793005500,
+      "o": 4016.3927,
+      "h": 4017.85684,
+      "l": 4016.15465,
+      "c": 4016.89964
+    },
+    {
+      "t": 1793005800,
+      "o": 4017.27769,
+      "h": 4017.34534,
+      "l": 4015.25798,
+      "c": 4015.97926
+    },
+    {
+      "t": 1793006100,
+      "o": 4016.29149,
+      "h": 4016.29149,
+      "l": 4014.78214,
+      "c": 4015.07321
+    },
+    {
+      "t": 1793006400,
+      "o": 4015.60144,
+      "h": 4016.07344,
+      "l": 4013.61652,
+      "c": 4013.78536
     }
   ],
-  "entry": 4015.99958,
-  "zone_low": 4015.5639354663867,
-  "zone_high": 4016.4352245336136,
-  "sl": 4020.356025336132,
-  "tp1": 4009.464911995802,
+  "entry": null,
+  "zone_low": null,
+  "zone_high": null,
+  "sl": null,
+  "tp1": null,
   "active_setup": {
     "id": "SELL-1793004000",
     "side": "SELL",
@@ -571,24 +571,25 @@
     "strategy": "SnR Rejection",
     "score": 5,
     "created_candle_t": 1793004000,
-    "created_utc": "2026-10-26T08:45:00+00:00"
+    "created_utc": "2026-10-26T08:45:00+00:00",
+    "last_checked_quote_timestamp": "2026-10-26T09:26:08+00:00"
   },
-  "strategy": "SnR Rejection",
+  "strategy": "None",
   "buy_score": 4,
-  "sell_score": 5,
-  "atr14": 2.904296890754646,
-  "ema20": 4012.588061778852,
-  "ema50": 4010.2091219365698,
-  "risk_distance": 4.356445336131856,
-  "last_candle_utc": "2026-10-26T08:45:00+00:00",
-  "candle_age_seconds": 299,
+  "sell_score": 3,
+  "atr14": 2.9203619288829046,
+  "ema20": 4014.6918435901584,
+  "ema50": 4011.9718439350054,
+  "risk_distance": null,
+  "last_candle_utc": "2026-10-26T09:25:00+00:00",
+  "candle_age_seconds": 69,
   "quote_source": "Biquote API",
   "ohlc_source": "Twelve Data",
   "market_state": "open",
-  "candle_close": 4015.99958,
+  "candle_close": 4013.78536,
   "quote_live_endpoint": "https://biquote.io/api/XAUUSD?allowStale=false",
-  "sampled_exit_price": 4018.578,
-  "sampled_exit_price_type": "BID",
+  "sampled_exit_price": 4015.662,
+  "sampled_exit_price_type": "ASK",
   "signal_history": [
     {
       "id": "SELL-1792577700",
@@ -716,7 +717,9 @@
       "tp1": 4009.464911995802,
       "created_utc": "2026-10-26T08:45:00+00:00",
       "strategy": "SnR Rejection",
-      "score": 5
+      "score": 5,
+      "closed_utc": null,
+      "last_event_notified": null
     }
   ],
   "performance": {

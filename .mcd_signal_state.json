@@ -13,14 +13,15 @@
     "strategy": "SnR Rejection",
     "score": 5,
     "created_candle_t": 1793004000,
-    "created_utc": "2026-10-26T08:45:00+00:00"
+    "created_utc": "2026-10-26T08:45:00+00:00",
+    "last_checked_quote_timestamp": "2026-10-26T09:26:08+00:00"
   },
   "last_event": null,
   "last_event_time": null,
   "last_status": "DATA_VALID",
   "last_error": null,
-  "last_candle_t": 1793004000,
-  "last_run_utc": "2026-10-26T08:49:59.826274+00:00",
+  "last_candle_t": 1793006400,
+  "last_run_utc": "2026-10-26T09:26:09.007079+00:00",
   "active_setups": [
     {
       "id": "SELL-1792441500",
@@ -325,7 +326,9 @@
       "tp1": 4009.464911995802,
       "created_utc": "2026-10-26T08:45:00+00:00",
       "strategy": "SnR Rejection",
-      "score": 5
+      "score": 5,
+      "closed_utc": null,
+      "last_event_notified": null
     }
   ],
   "last_setup_key": "SELL-1793004000"
