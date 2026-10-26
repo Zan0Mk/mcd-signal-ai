@@ -14,14 +14,14 @@
     "score": 5,
     "created_candle_t": 1793004000,
     "created_utc": "2026-10-26T08:45:00+00:00",
-    "last_checked_quote_timestamp": "2026-10-26T09:26:08+00:00"
+    "last_checked_quote_timestamp": "2026-10-26T10:11:57+00:00"
   },
   "last_event": null,
   "last_event_time": null,
   "last_status": "DATA_VALID",
   "last_error": null,
-  "last_candle_t": 1793006400,
-  "last_run_utc": "2026-10-26T09:26:09.007079+00:00",
+  "last_candle_t": 1793009100,
+  "last_run_utc": "2026-10-26T10:11:56.839502+00:00",
   "active_setups": [
     {
       "id": "SELL-1792441500",
