@@ -13,14 +13,15 @@
     "strategy": "Engulfing",
     "score": 6,
     "created_candle_t": 1793093400,
-    "created_utc": "2026-10-27T09:35:00+00:00"
+    "created_utc": "2026-10-27T09:35:00+00:00",
+    "last_checked_quote_timestamp": "2026-10-27T10:19:54+00:00"
   },
   "last_event": null,
   "last_event_time": null,
   "last_status": "DATA_VALID",
   "last_error": null,
-  "last_candle_t": 1793093400,
-  "last_run_utc": "2026-10-27T09:39:49.737521+00:00",
+  "last_candle_t": 1793095800,
+  "last_run_utc": "2026-10-27T10:19:55.534847+00:00",
   "active_setups": [
     {
       "id": "SELL-1792441500",
@@ -451,7 +452,9 @@
       "tp1": 3987.3827722353735,
       "created_utc": "2026-10-27T09:35:00+00:00",
       "strategy": "Engulfing",
-      "score": 6
+      "score": 6,
+      "closed_utc": null,
+      "last_event_notified": null
     }
   ],
   "last_setup_key": "SELL-1793093400"
