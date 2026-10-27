@@ -1,27 +1,26 @@
 {
-  "last_signal_key": "BUY-1793079000",
+  "last_signal_key": "BUY-1793088600",
   "last_signal_time": null,
   "last_checked_candle_t": null,
   "active_setup": {
-    "id": "BUY-1793079000",
+    "id": "BUY-1793088600",
     "side": "BUY",
     "status": "ACTIVE",
-    "entry": 4007.8427,
-    "sl": 3997.645904,
-    "tp1": 4023.1378940000004,
-    "risk_distance": 10.196796000000177,
+    "entry": 3998.61788,
+    "sl": 3993.439405594909,
+    "tp1": 4006.3855916076354,
+    "risk_distance": 5.178474405090583,
     "strategy": "SnR Rejection",
     "score": 5,
-    "created_candle_t": 1793079000,
-    "created_utc": "2026-10-27T05:35:00+00:00",
-    "last_checked_quote_timestamp": "2026-10-27T07:35:12+00:00"
+    "created_candle_t": 1793088600,
+    "created_utc": "2026-10-27T08:15:00+00:00"
   },
   "last_event": null,
   "last_event_time": null,
   "last_status": "DATA_VALID",
   "last_error": null,
-  "last_candle_t": 1793086200,
-  "last_run_utc": "2026-10-27T07:35:12.466607+00:00",
+  "last_candle_t": 1793088600,
+  "last_run_utc": "2026-10-27T08:19:21.846170+00:00",
   "active_setups": [
     {
       "id": "SELL-1792441500",
@@ -429,7 +428,18 @@
       "score": 5,
       "closed_utc": null,
       "last_event_notified": null
+    },
+    {
+      "id": "BUY-1793088600",
+      "side": "BUY",
+      "status": "ACTIVE",
+      "entry": 3998.61788,
+      "sl": 3993.439405594909,
+      "tp1": 4006.3855916076354,
+      "created_utc": "2026-10-27T08:15:00+00:00",
+      "strategy": "SnR Rejection",
+      "score": 5
     }
   ],
-  "last_setup_key": "BUY-1793079000"
+  "last_setup_key": "BUY-1793088600"
 }
