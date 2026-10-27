@@ -1,32 +1,26 @@
 {
-  "last_signal_key": "SELL-1793074800",
+  "last_signal_key": "BUY-1793079000",
   "last_signal_time": null,
   "last_checked_candle_t": null,
   "active_setup": {
-    "id": "SELL-1793074800",
-    "side": "SELL",
-    "status": "TP_HIT",
-    "entry": 4023.35678,
-    "sl": 4028.449191268639,
-    "tp1": 4015.7181630970417,
-    "risk_distance": 5.092411268638898,
+    "id": "BUY-1793079000",
+    "side": "BUY",
+    "status": "ACTIVE",
+    "entry": 4007.8427,
+    "sl": 3997.645904,
+    "tp1": 4023.1378940000004,
+    "risk_distance": 10.196796000000177,
     "strategy": "SnR Rejection",
     "score": 5,
-    "created_candle_t": 1793074800,
-    "created_utc": "2026-10-27T04:25:00+00:00",
-    "last_checked_quote_timestamp": "2026-10-27T05:04:15+00:00",
-    "last_event_utc": "2026-10-27T05:04:16.083259+00:00",
-    "last_event_price": 4011.199,
-    "last_event_price_type": "ASK",
-    "closed_utc": "2026-10-27T05:04:16.083263+00:00",
-    "last_event_notified": "TP_HIT"
+    "created_candle_t": 1793079000,
+    "created_utc": "2026-10-27T05:35:00+00:00"
   },
   "last_event": null,
   "last_event_time": null,
   "last_status": "DATA_VALID",
   "last_error": null,
-  "last_candle_t": 1793076900,
-  "last_run_utc": "2026-10-27T05:04:15.128749+00:00",
+  "last_candle_t": 1793079000,
+  "last_run_utc": "2026-10-27T05:36:00.550504+00:00",
   "active_setups": [
     {
       "id": "SELL-1792441500",
@@ -421,7 +415,18 @@
       "score": 5,
       "closed_utc": "2026-10-27T05:04:16.083263+00:00",
       "last_event_notified": "TP_HIT"
+    },
+    {
+      "id": "BUY-1793079000",
+      "side": "BUY",
+      "status": "ACTIVE",
+      "entry": 4007.8427,
+      "sl": 3997.645904,
+      "tp1": 4023.1378940000004,
+      "created_utc": "2026-10-27T05:35:00+00:00",
+      "strategy": "SnR Rejection",
+      "score": 5
     }
   ],
-  "last_setup_key": "SELL-1793074800"
+  "last_setup_key": "BUY-1793079000"
 }
