@@ -5,17 +5,17 @@
   "data_source": "OHLC + Biquote quote; bukan feed rasmi HFM XAUUSDc",
   "data_note": "Harga rujukan mungkin berbeza daripada broker HFM XAUUSDc. Signal hanya dinilai daripada candle M5 yang telah tutup.",
   "refresh_model": "GitHub Actions cron 5 minit; browser hanya refresh snapshot JSON.",
-  "updated_utc": "2026-10-28T07:28:49.310661+00:00",
+  "updated_utc": "2026-10-28T08:20:14.292487+00:00",
   "data_status": "FRESH",
   "signal": "WAIT",
-  "score": 4,
-  "quality": "RISIKO",
-  "reason": "WAIT - BUY 4/8, SELL 4/8; tiada setup sah.",
+  "score": 6,
+  "quality": "RENDAH (C)",
+  "reason": "WAIT - BUY 6/8, SELL 3/8; tiada setup sah.",
   "trend_45m": "BULLISH",
   "economic_calendar": {
     "status": "FRESH",
     "source": "Finance Calendar API",
-    "updated_utc": "2026-10-28T07:28:49.640090+00:00",
+    "updated_utc": "2026-10-28T08:20:15.760200+00:00",
     "timezone_note": "Masa dipaparkan dalam MYT (Asia/Kuala_Lumpur). Timestamp dengan zon waktu ditukar kepada MYT; masa tanpa zon dianggap MYT kerana parameter API meminta Asia/Kuala_Lumpur. Sahkan pengumuman rasmi untuk keputusan kritikal.",
     "events": [
       {
@@ -214,99 +214,22 @@
     "m30": "BULLISH",
     "m15": "BEARISH"
   },
-  "support": 4028.64416,
-  "resistance": 4036.32694,
+  "support": 4045.96213,
+  "resistance": 4051.47544,
   "techniques": {
     "snr": false,
     "smc": false,
     "pa": true,
-    "breakout": false
+    "breakout": true
   },
-  "price": 4037.123,
-  "quote_bid": 4037.039,
-  "quote_ask": 4037.207,
-  "quote_mid": 4037.123,
+  "price": 4051.236,
+  "quote_bid": 4051.152,
+  "quote_ask": 4051.32,
+  "quote_mid": 4051.236,
   "quote_spread": 0.168,
-  "quote_timestamp_utc": "2026-10-28T07:28:49+00:00",
-  "quote_age_seconds": 0,
+  "quote_timestamp_utc": "2026-10-28T08:20:15+00:00",
+  "quote_age_seconds": 1,
   "chart_candles": [
-    {
-      "t": 1793160300,
-      "o": 4042.45979,
-      "h": 4043.18117,
-      "l": 4041.37531,
-      "c": 4041.77812
-    },
-    {
-      "t": 1793160600,
-      "o": 4041.72016,
-      "h": 4042.85426,
-      "l": 4041.72016,
-      "c": 4042.48689
-    },
-    {
-      "t": 1793160900,
-      "o": 4042.48078,
-      "h": 4042.73515,
-      "l": 4042.20057,
-      "c": 4042.39321
-    },
-    {
-      "t": 1793161200,
-      "o": 4042.48319,
-      "h": 4043.0756,
-      "l": 4041.38377,
-      "c": 4041.49118
-    },
-    {
-      "t": 1793161500,
-      "o": 4041.48929,
-      "h": 4042.85426,
-      "l": 4041.48929,
-      "c": 4042.1795
-    },
-    {
-      "t": 1793161800,
-      "o": 4042.27257,
-      "h": 4042.27257,
-      "l": 4040.40404,
-      "c": 4041.04963
-    },
-    {
-      "t": 1793162100,
-      "o": 4041.19956,
-      "h": 4041.70615,
-      "l": 4040.40404,
-      "c": 4040.50917
-    },
-    {
-      "t": 1793162400,
-      "o": 4040.59324,
-      "h": 4041.5471,
-      "l": 4040.59324,
-      "c": 4041.4481
-    },
-    {
-      "t": 1793162700,
-      "o": 4041.35496,
-      "h": 4041.35496,
-      "l": 4039.96909,
-      "c": 4040.05088
-    },
-    {
-      "t": 1793163000,
-      "o": 4040.14985,
-      "h": 4040.41939,
-      "l": 4036.97873,
-      "c": 4038.05705
-    },
-    {
-      "t": 1793163300,
-      "o": 4037.86273,
-      "h": 4038.84751,
-      "l": 4036.62964,
-      "c": 4036.68891
-    },
     {
       "t": 1793163600,
       "o": 4036.8744,
@@ -509,6 +432,83 @@
       "h": 4035.18683,
       "l": 4033.33459,
       "c": 4035.0498
+    },
+    {
+      "t": 1793172300,
+      "o": 4034.73799,
+      "h": 4037.17213,
+      "l": 4034.00372,
+      "c": 4037.05693
+    },
+    {
+      "t": 1793172600,
+      "o": 4036.71135,
+      "h": 4039.67363,
+      "l": 4035.67537,
+      "c": 4038.20431
+    },
+    {
+      "t": 1793172900,
+      "o": 4036.91769,
+      "h": 4040.89385,
+      "l": 4036.91769,
+      "c": 4037.61782
+    },
+    {
+      "t": 1793173200,
+      "o": 4037.98706,
+      "h": 4039.50301,
+      "l": 4037.98706,
+      "c": 4038.32257
+    },
+    {
+      "t": 1793173500,
+      "o": 4038.69638,
+      "h": 4040.04388,
+      "l": 4037.95679,
+      "c": 4038.04854
+    },
+    {
+      "t": 1793173800,
+      "o": 4038.10686,
+      "h": 4039.98995,
+      "l": 4037.95679,
+      "c": 4039.64856
+    },
+    {
+      "t": 1793174100,
+      "o": 4038.73972,
+      "h": 4043.99871,
+      "l": 4038.73972,
+      "c": 4043.59476
+    },
+    {
+      "t": 1793174400,
+      "o": 4043.03979,
+      "h": 4047.71849,
+      "l": 4042.48206,
+      "c": 4047.01622
+    },
+    {
+      "t": 1793174700,
+      "o": 4045.62696,
+      "h": 4048.41909,
+      "l": 4045.62696,
+      "c": 4048.23759
+    },
+    {
+      "t": 1793175000,
+      "o": 4047.8212,
+      "h": 4048.2552,
+      "l": 4046.28955,
+      "c": 4046.6441
+    },
+    {
+      "t": 1793175300,
+      "o": 4046.43018,
+      "h": 4050.56726,
+      "l": 4046.02277,
+      "c": 4050.21574
     }
   ],
   "entry": null,
@@ -536,18 +536,18 @@
     "last_event_notified": "SL_HIT"
   },
   "strategy": "None",
-  "buy_score": 4,
-  "sell_score": 4,
-  "atr14": 2.369988111739822,
-  "ema20": 4033.0221974621077,
-  "ema50": 4037.1972283724836,
+  "buy_score": 6,
+  "sell_score": 3,
+  "atr14": 2.9419546348895915,
+  "ema20": 4040.1154784602654,
+  "ema50": 4039.1928114943335,
   "risk_distance": null,
-  "last_candle_utc": "2026-10-28T07:25:00+00:00",
-  "candle_age_seconds": 229,
+  "last_candle_utc": "2026-10-28T08:20:00+00:00",
+  "candle_age_seconds": 14,
   "quote_source": "Biquote API",
   "ohlc_source": "Twelve Data",
   "market_state": "open",
-  "candle_close": 4035.0498,
+  "candle_close": 4050.21574,
   "quote_live_endpoint": "https://biquote.io/api/XAUUSD?allowStale=false",
   "signal_history": [
     {
