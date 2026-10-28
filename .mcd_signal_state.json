@@ -13,14 +13,15 @@
     "strategy": "Breakout",
     "score": 6,
     "created_candle_t": 1793158500,
-    "created_utc": "2026-10-28T03:40:00+00:00"
+    "created_utc": "2026-10-28T03:40:00+00:00",
+    "last_checked_quote_timestamp": "2026-10-28T04:23:43+00:00"
   },
   "last_event": null,
   "last_event_time": null,
   "last_status": "DATA_VALID",
   "last_error": null,
-  "last_candle_t": 1793158500,
-  "last_run_utc": "2026-10-28T03:44:54.813387+00:00",
+  "last_candle_t": 1793160900,
+  "last_run_utc": "2026-10-28T04:23:44.104936+00:00",
   "active_setups": [
     {
       "id": "SELL-1792441500",
@@ -475,7 +476,9 @@
       "tp1": 4038.7983046720155,
       "created_utc": "2026-10-28T03:40:00+00:00",
       "strategy": "Breakout",
-      "score": 6
+      "score": 6,
+      "closed_utc": null,
+      "last_event_notified": null
     }
   ],
   "last_setup_key": "SELL-1793158500"

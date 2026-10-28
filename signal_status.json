@@ -5,74 +5,19 @@
   "data_source": "OHLC + Biquote quote; bukan feed rasmi HFM XAUUSDc",
   "data_note": "Harga rujukan mungkin berbeza daripada broker HFM XAUUSDc. Signal hanya dinilai daripada candle M5 yang telah tutup.",
   "refresh_model": "GitHub Actions cron 5 minit; browser hanya refresh snapshot JSON.",
-  "updated_utc": "2026-10-28T03:44:54.813387+00:00",
+  "updated_utc": "2026-10-28T04:23:44.104936+00:00",
   "data_status": "FRESH",
-  "signal": "SELL",
-  "score": 6,
-  "quality": "RENDAH (C)",
-  "reason": "Candle Twelve Data dan quote Biquote lulus semakan. Bandingkan harga dengan broker.",
+  "signal": "WAIT",
+  "score": 4,
+  "quality": "RISIKO",
+  "reason": "WAIT - BUY 3/8, SELL 4/8; tiada setup sah.",
   "trend_45m": "BEARISH",
   "economic_calendar": {
     "status": "FRESH",
     "source": "Finance Calendar API",
-    "updated_utc": "2026-10-28T03:44:55.234164+00:00",
+    "updated_utc": "2026-10-28T04:23:44.476134+00:00",
     "timezone_note": "Masa dipaparkan dalam MYT (Asia/Kuala_Lumpur). Timestamp dengan zon waktu ditukar kepada MYT; masa tanpa zon dianggap MYT kerana parameter API meminta Asia/Kuala_Lumpur. Sahkan pengumuman rasmi untuk keputusan kritikal.",
     "events": [
-      {
-        "date": "2026-10-27T12:30:00+00:00",
-        "country": "US",
-        "event": "US Durable Goods Orders October 2026",
-        "importance": 2,
-        "actual": "",
-        "forecast": "",
-        "previous": "",
-        "currency": "USD",
-        "source_url": "https://www.census.gov/manufacturing/m3/"
-      },
-      {
-        "date": "2026-10-27T14:00:00+00:00",
-        "country": "US",
-        "event": "US Consumer Confidence October 2026",
-        "importance": 2,
-        "actual": "",
-        "forecast": "",
-        "previous": "",
-        "currency": "USD",
-        "source_url": "https://www.financecalendar.com/event/us-consumer-confidence-october-2026/"
-      },
-      {
-        "date": "2026-10-27T15:30:00+00:00",
-        "country": "US",
-        "event": "US Treasury 6-Week Bill Auction 2026-10-27 (912797VG9)",
-        "importance": 2,
-        "actual": "high rate 3.950%; bid-to-cover 2.83",
-        "forecast": "",
-        "previous": "",
-        "currency": "USD",
-        "source_url": "https://www.treasurydirect.gov/TA_WS/securities/auctioned?format=json"
-      },
-      {
-        "date": "2026-10-27T15:30:00+00:00",
-        "country": "US",
-        "event": "US Treasury 52-Week Bill Auction 2026-10-27 (912797WT0)",
-        "importance": 2,
-        "actual": "high rate 4.290%; bid-to-cover 3.15",
-        "forecast": "",
-        "previous": "",
-        "currency": "USD",
-        "source_url": "https://www.treasurydirect.gov/TA_WS/securities/auctioned?format=json"
-      },
-      {
-        "date": "2026-10-27T17:00:00+00:00",
-        "country": "US",
-        "event": "US Treasury 5-Year Note Auction 2026-10-27 (91282CRT0)",
-        "importance": 2,
-        "actual": "high yield 4.845%; bid-to-cover 2.33",
-        "forecast": "",
-        "previous": "",
-        "currency": "USD",
-        "source_url": "https://www.treasurydirect.gov/TA_WS/securities/auctioned?format=json"
-      },
       {
         "date": "2026-10-28T15:30:00+00:00",
         "country": "US",
@@ -270,77 +215,21 @@
     "m15": "BULLISH"
   },
   "support": null,
-  "resistance": 4049.07479,
+  "resistance": 4046.61703,
   "techniques": {
     "snr": false,
     "smc": false,
     "pa": false,
-    "breakout": true
+    "breakout": false
   },
-  "price": 4045.525,
-  "quote_bid": 4045.441,
-  "quote_ask": 4045.609,
-  "quote_mid": 4045.525,
+  "price": 4041.705,
+  "quote_bid": 4041.621,
+  "quote_ask": 4041.789,
+  "quote_mid": 4041.705,
   "quote_spread": 0.168,
-  "quote_timestamp_utc": "2026-10-28T03:44:54+00:00",
-  "quote_age_seconds": 1,
+  "quote_timestamp_utc": "2026-10-28T04:23:43+00:00",
+  "quote_age_seconds": 2,
   "chart_candles": [
-    {
-      "t": 1793146800,
-      "o": 4064.24666,
-      "h": 4066.85916,
-      "l": 4062.80533,
-      "c": 4066.78211
-    },
-    {
-      "t": 1793147100,
-      "o": 4066.54986,
-      "h": 4067.81907,
-      "l": 4061.07862,
-      "c": 4061.23026
-    },
-    {
-      "t": 1793147400,
-      "o": 4061.38194,
-      "h": 4063.60558,
-      "l": 4060.65589,
-      "c": 4062.8088
-    },
-    {
-      "t": 1793147700,
-      "o": 4062.51152,
-      "h": 4063.07759,
-      "l": 4061.57345,
-      "c": 4062.84911
-    },
-    {
-      "t": 1793148000,
-      "o": 4062.3592,
-      "h": 4065.04065,
-      "l": 4062.3592,
-      "c": 4062.79579
-    },
-    {
-      "t": 1793148300,
-      "o": 4063.04356,
-      "h": 4063.04356,
-      "l": 4059.1005,
-      "c": 4059.45068
-    },
-    {
-      "t": 1793148600,
-      "o": 4059.90756,
-      "h": 4066.1977,
-      "l": 4059.02513,
-      "c": 4064.20401
-    },
-    {
-      "t": 1793148900,
-      "o": 4065.12598,
-      "h": 4065.12598,
-      "l": 4061.90341,
-      "c": 4062.02552
-    },
     {
       "t": 1793149200,
       "o": 4062.25686,
@@ -564,13 +453,69 @@
       "h": 4045.26865,
       "l": 4044.03986,
       "c": 4044.15807
+    },
+    {
+      "t": 1793158800,
+      "o": 4044.32272,
+      "h": 4045.70237,
+      "l": 4043.23297,
+      "c": 4045.5861
+    },
+    {
+      "t": 1793159100,
+      "o": 4045.40111,
+      "h": 4046.61703,
+      "l": 4044.98018,
+      "c": 4045.05948
+    },
+    {
+      "t": 1793159400,
+      "o": 4045.23065,
+      "h": 4046.07118,
+      "l": 4044.84851,
+      "c": 4045.10262
+    },
+    {
+      "t": 1793159700,
+      "o": 4045.60005,
+      "h": 4045.60005,
+      "l": 4043.01771,
+      "c": 4043.05227
+    },
+    {
+      "t": 1793160000,
+      "o": 4043.11146,
+      "h": 4043.2479,
+      "l": 4042.03222,
+      "c": 4042.19139
+    },
+    {
+      "t": 1793160300,
+      "o": 4042.45979,
+      "h": 4043.18117,
+      "l": 4041.37531,
+      "c": 4041.77812
+    },
+    {
+      "t": 1793160600,
+      "o": 4041.72016,
+      "h": 4042.85426,
+      "l": 4041.72016,
+      "c": 4042.48689
+    },
+    {
+      "t": 1793160900,
+      "o": 4042.48078,
+      "h": 4042.73515,
+      "l": 4042.20057,
+      "c": 4042.39321
     }
   ],
-  "entry": 4044.15807,
-  "zone_low": 4043.8007523114675,
-  "zone_high": 4044.5153876885324,
-  "sl": 4047.731246885323,
-  "tp1": 4038.7983046720155,
+  "entry": null,
+  "zone_low": null,
+  "zone_high": null,
+  "sl": null,
+  "tp1": null,
   "active_setup": {
     "id": "SELL-1793158500",
     "side": "SELL",
@@ -582,23 +527,24 @@
     "strategy": "Breakout",
     "score": 6,
     "created_candle_t": 1793158500,
-    "created_utc": "2026-10-28T03:40:00+00:00"
+    "created_utc": "2026-10-28T03:40:00+00:00",
+    "last_checked_quote_timestamp": "2026-10-28T04:23:43+00:00"
   },
-  "strategy": "Breakout",
-  "buy_score": 4,
-  "sell_score": 6,
-  "atr14": 2.3821179235486047,
-  "ema20": 4048.246051875863,
-  "ema50": 4052.536770864089,
-  "risk_distance": 3.573176885322937,
-  "last_candle_utc": "2026-10-28T03:40:00+00:00",
-  "candle_age_seconds": 294,
+  "strategy": "None",
+  "buy_score": 3,
+  "sell_score": 4,
+  "atr14": 1.98821928426211,
+  "ema20": 4045.455899096043,
+  "ema50": 4050.018765032655,
+  "risk_distance": null,
+  "last_candle_utc": "2026-10-28T04:20:00+00:00",
+  "candle_age_seconds": 224,
   "quote_source": "Biquote API",
   "ohlc_source": "Twelve Data",
   "market_state": "open",
-  "candle_close": 4044.15807,
+  "candle_close": 4042.39321,
   "quote_live_endpoint": "https://biquote.io/api/XAUUSD?allowStale=false",
-  "sampled_exit_price": 4045.609,
+  "sampled_exit_price": 4041.789,
   "sampled_exit_price_type": "ASK",
   "signal_history": [
     {
@@ -877,7 +823,9 @@
       "tp1": 4038.7983046720155,
       "created_utc": "2026-10-28T03:40:00+00:00",
       "strategy": "Breakout",
-      "score": 6
+      "score": 6,
+      "closed_utc": null,
+      "last_event_notified": null
     }
   ],
   "performance": {
