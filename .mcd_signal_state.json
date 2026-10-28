@@ -1,32 +1,26 @@
 {
-  "last_signal_key": "SELL-1793093400",
+  "last_signal_key": "SELL-1793156100",
   "last_signal_time": null,
   "last_checked_candle_t": null,
   "active_setup": {
-    "id": "SELL-1793093400",
+    "id": "SELL-1793156100",
     "side": "SELL",
-    "status": "SL_HIT",
-    "entry": 3995.63002,
-    "sl": 4001.128185176418,
-    "tp1": 3987.3827722353735,
-    "risk_distance": 5.498165176417842,
+    "status": "ACTIVE",
+    "entry": 4048.21918,
+    "sl": 4052.94094,
+    "tp1": 4041.1365400000004,
+    "risk_distance": 4.721759999999904,
     "strategy": "Engulfing",
     "score": 6,
-    "created_candle_t": 1793093400,
-    "created_utc": "2026-10-27T09:35:00+00:00",
-    "last_checked_quote_timestamp": "2026-10-27T10:59:03+00:00",
-    "last_event_utc": "2026-10-27T10:59:04.561237+00:00",
-    "last_event_price": 4009.913,
-    "last_event_price_type": "ASK",
-    "closed_utc": "2026-10-27T10:59:04.561240+00:00",
-    "last_event_notified": "SL_HIT"
+    "created_candle_t": 1793156100,
+    "created_utc": "2026-10-28T03:00:00+00:00"
   },
   "last_event": null,
   "last_event_time": null,
   "last_status": "DATA_VALID",
   "last_error": null,
-  "last_candle_t": 1793153400,
-  "last_run_utc": "2026-10-28T02:19:49.514092+00:00",
+  "last_candle_t": 1793156100,
+  "last_run_utc": "2026-10-28T03:03:33.916118+00:00",
   "active_setups": [
     {
       "id": "SELL-1792441500",
@@ -460,7 +454,18 @@
       "score": 6,
       "closed_utc": "2026-10-27T10:59:04.561240+00:00",
       "last_event_notified": "SL_HIT"
+    },
+    {
+      "id": "SELL-1793156100",
+      "side": "SELL",
+      "status": "ACTIVE",
+      "entry": 4048.21918,
+      "sl": 4052.94094,
+      "tp1": 4041.1365400000004,
+      "created_utc": "2026-10-28T03:00:00+00:00",
+      "strategy": "Engulfing",
+      "score": 6
     }
   ],
-  "last_setup_key": "SELL-1793093400"
+  "last_setup_key": "SELL-1793156100"
 }
