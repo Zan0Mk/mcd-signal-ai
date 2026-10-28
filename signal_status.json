@@ -5,17 +5,17 @@
   "data_source": "OHLC + Biquote quote; bukan feed rasmi HFM XAUUSDc",
   "data_note": "Harga rujukan mungkin berbeza daripada broker HFM XAUUSDc. Signal hanya dinilai daripada candle M5 yang telah tutup.",
   "refresh_model": "GitHub Actions cron 5 minit; browser hanya refresh snapshot JSON.",
-  "updated_utc": "2026-10-28T11:18:46.587578+00:00",
+  "updated_utc": "2026-10-28T12:01:35.002306+00:00",
   "data_status": "FRESH",
-  "signal": "BUY",
-  "score": 5,
-  "quality": "RENDAH (C)",
-  "reason": "Candle Twelve Data dan quote Biquote lulus semakan. Bandingkan harga dengan broker.",
-  "trend_45m": "BEARISH",
+  "signal": "WAIT",
+  "score": 4,
+  "quality": "RISIKO",
+  "reason": "WAIT - BUY 3/8, SELL 4/8; tiada setup sah.",
+  "trend_45m": "BULLISH",
   "economic_calendar": {
     "status": "FRESH",
     "source": "Finance Calendar API",
-    "updated_utc": "2026-10-28T11:18:46.958670+00:00",
+    "updated_utc": "2026-10-28T12:01:35.396768+00:00",
     "timezone_note": "Masa dipaparkan dalam MYT (Asia/Kuala_Lumpur). Timestamp dengan zon waktu ditukar kepada MYT; masa tanpa zon dianggap MYT kerana parameter API meminta Asia/Kuala_Lumpur. Sahkan pengumuman rasmi untuk keputusan kritikal.",
     "events": [
       {
@@ -215,84 +215,21 @@
     "m15": "BULLISH"
   },
   "support": 4044.98018,
-  "resistance": 4046.61703,
+  "resistance": 4047.76361,
   "techniques": {
-    "snr": true,
+    "snr": false,
     "smc": false,
     "pa": false,
     "breakout": false
   },
-  "price": 4046.095,
-  "quote_bid": 4046.011,
-  "quote_ask": 4046.179,
-  "quote_mid": 4046.095,
+  "price": 4044.922,
+  "quote_bid": 4044.838,
+  "quote_ask": 4045.006,
+  "quote_mid": 4044.922,
   "quote_spread": 0.168,
-  "quote_timestamp_utc": "2026-10-28T11:18:46+00:00",
+  "quote_timestamp_utc": "2026-10-28T12:01:34+00:00",
   "quote_age_seconds": 1,
   "chart_candles": [
-    {
-      "t": 1793174100,
-      "o": 4038.73972,
-      "h": 4043.99871,
-      "l": 4038.73972,
-      "c": 4043.59476
-    },
-    {
-      "t": 1793174400,
-      "o": 4043.03979,
-      "h": 4047.71849,
-      "l": 4042.48206,
-      "c": 4047.01622
-    },
-    {
-      "t": 1793174700,
-      "o": 4045.62696,
-      "h": 4048.41909,
-      "l": 4045.62696,
-      "c": 4048.23759
-    },
-    {
-      "t": 1793175000,
-      "o": 4047.8212,
-      "h": 4048.2552,
-      "l": 4046.28955,
-      "c": 4046.6441
-    },
-    {
-      "t": 1793175300,
-      "o": 4046.43018,
-      "h": 4051.04314,
-      "l": 4046.02277,
-      "c": 4050.83643
-    },
-    {
-      "t": 1793175600,
-      "o": 4050.54657,
-      "h": 4051.37139,
-      "l": 4048.74691,
-      "c": 4049.68435
-    },
-    {
-      "t": 1793175900,
-      "o": 4049.40822,
-      "h": 4050.71495,
-      "l": 4049.30669,
-      "c": 4050.49527
-    },
-    {
-      "t": 1793176200,
-      "o": 4050.38151,
-      "h": 4051.04314,
-      "l": 4049.64563,
-      "c": 4049.82003
-    },
-    {
-      "t": 1793176500,
-      "o": 4050.04409,
-      "h": 4050.04409,
-      "l": 4048.91084,
-      "c": 4049.1446
-    },
     {
       "t": 1793176800,
       "o": 4049.31658,
@@ -509,13 +446,76 @@
       "h": 4046.06347,
       "l": 4043.59844,
       "c": 4045.90851
+    },
+    {
+      "t": 1793186100,
+      "o": 4045.4694,
+      "h": 4047.43595,
+      "l": 4044.98018,
+      "c": 4045.90256
+    },
+    {
+      "t": 1793186400,
+      "o": 4045.72832,
+      "h": 4047.02638,
+      "l": 4045.6899,
+      "c": 4046.00129
+    },
+    {
+      "t": 1793186700,
+      "o": 4046.42275,
+      "h": 4047.59977,
+      "l": 4046.42275,
+      "c": 4047.52978
+    },
+    {
+      "t": 1793187000,
+      "o": 4047.38122,
+      "h": 4048.583,
+      "l": 4046.89937,
+      "c": 4048.49418
+    },
+    {
+      "t": 1793187300,
+      "o": 4048.29313,
+      "h": 4048.60709,
+      "l": 4047.92746,
+      "c": 4048.00287
+    },
+    {
+      "t": 1793187600,
+      "o": 4047.97257,
+      "h": 4048.91084,
+      "l": 4047.97257,
+      "c": 4048.36238
+    },
+    {
+      "t": 1793187900,
+      "o": 4048.37174,
+      "h": 4049.84502,
+      "l": 4046.119,
+      "c": 4046.43558
+    },
+    {
+      "t": 1793188200,
+      "o": 4047.07134,
+      "h": 4047.38733,
+      "l": 4045.63476,
+      "c": 4047.22247
+    },
+    {
+      "t": 1793188500,
+      "o": 4046.92474,
+      "h": 4046.92474,
+      "l": 4044.98018,
+      "c": 4046.46641
     }
   ],
-  "entry": 4045.90851,
-  "zone_low": 4045.5633665720907,
-  "zone_high": 4046.2536534279097,
-  "sl": 4042.457075720904,
-  "tp1": 4051.0856614186446,
+  "entry": null,
+  "zone_low": null,
+  "zone_high": null,
+  "sl": null,
+  "tp1": null,
   "active_setup": {
     "id": "BUY-1793185800",
     "side": "BUY",
@@ -527,24 +527,25 @@
     "strategy": "SnR Rejection",
     "score": 5,
     "created_candle_t": 1793185800,
-    "created_utc": "2026-10-28T11:15:00+00:00"
+    "created_utc": "2026-10-28T11:15:00+00:00",
+    "last_checked_quote_timestamp": "2026-10-28T12:01:34+00:00"
   },
-  "strategy": "SnR Rejection",
-  "buy_score": 5,
+  "strategy": "None",
+  "buy_score": 3,
   "sell_score": 4,
-  "atr14": 2.3009561860642265,
-  "ema20": 4047.628887163405,
-  "ema50": 4046.913658932135,
-  "risk_distance": 3.4514342790962473,
-  "last_candle_utc": "2026-10-28T11:15:00+00:00",
-  "candle_age_seconds": 226,
+  "atr14": 2.0866265174379723,
+  "ema20": 4047.3597571719624,
+  "ema50": 4046.991152369961,
+  "risk_distance": null,
+  "last_candle_utc": "2026-10-28T12:00:00+00:00",
+  "candle_age_seconds": 95,
   "quote_source": "Biquote API",
   "ohlc_source": "Twelve Data",
   "market_state": "open",
-  "candle_close": 4045.90851,
+  "candle_close": 4046.46641,
   "quote_live_endpoint": "https://biquote.io/api/XAUUSD?allowStale=false",
-  "sampled_exit_price": 4046.179,
-  "sampled_exit_price_type": "ASK",
+  "sampled_exit_price": 4044.838,
+  "sampled_exit_price_type": "BID",
   "signal_history": [
     {
       "id": "SELL-1792577700",
@@ -859,7 +860,9 @@
       "tp1": 4051.0856614186446,
       "created_utc": "2026-10-28T11:15:00+00:00",
       "strategy": "SnR Rejection",
-      "score": 5
+      "score": 5,
+      "closed_utc": null,
+      "last_event_notified": null
     }
   ],
   "performance": {
