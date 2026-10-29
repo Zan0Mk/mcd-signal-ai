@@ -5,52 +5,19 @@
   "data_source": "OHLC + Biquote quote; bukan feed rasmi HFM XAUUSDc",
   "data_note": "Harga rujukan mungkin berbeza daripada broker HFM XAUUSDc. Signal hanya dinilai daripada candle M5 yang telah tutup.",
   "refresh_model": "GitHub Actions cron 5 minit; browser hanya refresh snapshot JSON.",
-  "updated_utc": "2026-10-29T03:39:18.101832+00:00",
+  "updated_utc": "2026-10-29T04:24:01.576289+00:00",
   "data_status": "FRESH",
-  "signal": "WAIT",
-  "score": 4,
-  "quality": "RISIKO",
-  "reason": "WAIT - BUY 3/8, SELL 4/8; tiada setup sah.",
+  "signal": "BUY",
+  "score": 5,
+  "quality": "RENDAH (C)",
+  "reason": "Candle Twelve Data dan quote Biquote lulus semakan. Bandingkan harga dengan broker.",
   "trend_45m": "BEARISH",
   "economic_calendar": {
     "status": "FRESH",
     "source": "Finance Calendar API",
-    "updated_utc": "2026-10-29T03:39:18.478659+00:00",
+    "updated_utc": "2026-10-29T04:24:01.959136+00:00",
     "timezone_note": "Masa dipaparkan dalam MYT (Asia/Kuala_Lumpur). Timestamp dengan zon waktu ditukar kepada MYT; masa tanpa zon dianggap MYT kerana parameter API meminta Asia/Kuala_Lumpur. Sahkan pengumuman rasmi untuk keputusan kritikal.",
     "events": [
-      {
-        "date": "2026-10-28T15:30:00+00:00",
-        "country": "US",
-        "event": "US Treasury 2-Year FRN Auction 2026-10-28 (91282CRS2)",
-        "importance": 2,
-        "actual": "high discount margin 0.038; bid-to-cover 3.05",
-        "forecast": "",
-        "previous": "",
-        "currency": "USD",
-        "source_url": "https://www.treasurydirect.gov/TA_WS/securities/auctioned?format=json"
-      },
-      {
-        "date": "2026-10-28T15:30:00+00:00",
-        "country": "US",
-        "event": "US Treasury 17-Week Bill Auction 2026-10-28 (912797XB8)",
-        "importance": 2,
-        "actual": "high rate 4.140%; bid-to-cover 3.08",
-        "forecast": "",
-        "previous": "",
-        "currency": "USD",
-        "source_url": "https://www.treasurydirect.gov/TA_WS/securities/auctioned?format=json"
-      },
-      {
-        "date": "2026-10-28T18:00:00+00:00",
-        "country": "US",
-        "event": "FOMC Rate Decision October 2026",
-        "importance": 3,
-        "actual": "",
-        "forecast": "",
-        "previous": "",
-        "currency": "USD",
-        "source_url": "https://www.financecalendar.com/event/fomc-rate-decision-october-2026/"
-      },
       {
         "date": "2026-10-29T12:30:00+00:00",
         "country": "US",
@@ -193,6 +160,17 @@
         "previous": "",
         "currency": "USD",
         "source_url": "https://www.financecalendar.com/event/us-cpi-report-november-2026/"
+      },
+      {
+        "date": "2026-11-12T13:30:00+00:00",
+        "country": "US",
+        "event": "US Initial Jobless Claims: November 12, 2026",
+        "importance": 2,
+        "actual": "",
+        "forecast": "",
+        "previous": "",
+        "currency": "USD",
+        "source_url": "https://www.financecalendar.com/event/us-initial-jobless-claims-november-12-2026/"
       }
     ],
     "message": "Kalendar ekonomi USD berjaya dikemas kini.",
@@ -214,85 +192,22 @@
     "m30": "BULLISH",
     "m15": "BEARISH"
   },
-  "support": 4038.44601,
-  "resistance": 4047.86684,
+  "support": 4037.1417,
+  "resistance": 4044.70551,
   "techniques": {
-    "snr": false,
+    "snr": true,
     "smc": false,
     "pa": false,
     "breakout": false
   },
-  "price": 4041.684,
-  "quote_bid": 4041.6,
-  "quote_ask": 4041.768,
-  "quote_mid": 4041.684,
+  "price": 4037.128,
+  "quote_bid": 4037.044,
+  "quote_ask": 4037.212,
+  "quote_mid": 4037.128,
   "quote_spread": 0.168,
-  "quote_timestamp_utc": "2026-10-29T03:39:20+00:00",
+  "quote_timestamp_utc": "2026-10-29T04:24:02+00:00",
   "quote_age_seconds": 0,
   "chart_candles": [
-    {
-      "t": 1793232900,
-      "o": 4044.9208,
-      "h": 4044.98018,
-      "l": 4040.47955,
-      "c": 4040.90268
-    },
-    {
-      "t": 1793233200,
-      "o": 4041.73212,
-      "h": 4043.50815,
-      "l": 4039.75115,
-      "c": 4042.18689
-    },
-    {
-      "t": 1793233500,
-      "o": 4042.4813,
-      "h": 4047.86684,
-      "l": 4042.4813,
-      "c": 4044.44991
-    },
-    {
-      "t": 1793233800,
-      "o": 4045.60611,
-      "h": 4045.60611,
-      "l": 4038.77221,
-      "c": 4038.95542
-    },
-    {
-      "t": 1793234100,
-      "o": 4039.26269,
-      "h": 4041.76449,
-      "l": 4037.1417,
-      "c": 4037.36885
-    },
-    {
-      "t": 1793234400,
-      "o": 4037.76283,
-      "h": 4040.73056,
-      "l": 4037.4677,
-      "c": 4039.42649
-    },
-    {
-      "t": 1793234700,
-      "o": 4039.70241,
-      "h": 4039.70241,
-      "l": 4037.4677,
-      "c": 4037.75909
-    },
-    {
-      "t": 1793235000,
-      "o": 4037.89442,
-      "h": 4040.12371,
-      "l": 4037.30994,
-      "c": 4037.53578
-    },
-    {
-      "t": 1793235300,
-      "o": 4037.96158,
-      "h": 4038.93534,
-      "l": 4037.11616,
-      "c": 4037.49803
-    },
     {
       "t": 1793235600,
       "o": 4038.06825,
@@ -509,45 +424,102 @@
       "h": 4041.05714,
       "l": 4039.26162,
       "c": 4039.9187
+    },
+    {
+      "t": 1793244900,
+      "o": 4039.87803,
+      "h": 4042.20057,
+      "l": 4039.49715,
+      "c": 4041.82595
+    },
+    {
+      "t": 1793245200,
+      "o": 4041.71952,
+      "h": 4044.32581,
+      "l": 4041.21746,
+      "c": 4043.74445
+    },
+    {
+      "t": 1793245500,
+      "o": 4043.90242,
+      "h": 4044.70551,
+      "l": 4042.19986,
+      "c": 4042.33422
+    },
+    {
+      "t": 1793245800,
+      "o": 4042.55518,
+      "h": 4043.7097,
+      "l": 4040.40404,
+      "c": 4041.96176
+    },
+    {
+      "t": 1793246100,
+      "o": 4041.59666,
+      "h": 4042.98136,
+      "l": 4039.42479,
+      "c": 4039.49172
+    },
+    {
+      "t": 1793246400,
+      "o": 4039.54441,
+      "h": 4039.58796,
+      "l": 4037.3047,
+      "c": 4038.06824
+    },
+    {
+      "t": 1793246700,
+      "o": 4037.96409,
+      "h": 4039.00953,
+      "l": 4037.60214,
+      "c": 4038.93225
+    },
+    {
+      "t": 1793247000,
+      "o": 4038.88975,
+      "h": 4039.15556,
+      "l": 4036.16403,
+      "c": 4036.30227
+    },
+    {
+      "t": 1793247300,
+      "o": 4036.55705,
+      "h": 4038.88134,
+      "l": 4036.22009,
+      "c": 4038.41462
     }
   ],
-  "entry": null,
-  "zone_low": null,
-  "zone_high": null,
-  "sl": null,
-  "tp1": null,
+  "entry": 4038.41462,
+  "zone_low": 4037.856484835084,
+  "zone_high": 4038.972755164916,
+  "sl": 4032.8332683508365,
+  "tp1": 4046.7866474737452,
   "active_setup": {
-    "id": "BUY-1793185800",
+    "id": "BUY-1793247300",
     "side": "BUY",
-    "status": "TP_HIT",
-    "entry": 4045.90851,
-    "sl": 4042.457075720904,
-    "tp1": 4051.0856614186446,
-    "risk_distance": 3.4514342790962473,
+    "status": "ACTIVE",
+    "entry": 4038.41462,
+    "sl": 4032.8332683508365,
+    "tp1": 4046.7866474737452,
+    "risk_distance": 5.58135164916348,
     "strategy": "SnR Rejection",
     "score": 5,
-    "created_candle_t": 1793185800,
-    "created_utc": "2026-10-28T11:15:00+00:00",
-    "last_checked_quote_timestamp": "2026-10-28T12:50:25+00:00",
-    "last_event_utc": "2026-10-28T12:50:26.693456+00:00",
-    "last_event_price": 4052.835,
-    "last_event_price_type": "BID",
-    "closed_utc": "2026-10-28T12:50:26.693459+00:00",
-    "last_event_notified": "TP_HIT"
+    "created_candle_t": 1793247300,
+    "created_utc": "2026-10-29T04:20:00+00:00"
   },
-  "strategy": "None",
-  "buy_score": 3,
+  "strategy": "SnR Rejection",
+  "buy_score": 5,
   "sell_score": 4,
-  "atr14": 4.694745664311093,
-  "ema20": 4045.1367143948623,
-  "ema50": 4048.909094409799,
-  "risk_distance": null,
-  "last_candle_utc": "2026-10-29T03:35:00+00:00",
-  "candle_age_seconds": 258,
+  "atr14": 3.72090109944235,
+  "ema20": 4041.855598803669,
+  "ema50": 4046.1890051252653,
+  "risk_distance": 5.58135164916348,
+  "last_candle_utc": "2026-10-29T04:20:00+00:00",
+  "candle_age_seconds": 241,
   "quote_source": "Biquote API",
   "ohlc_source": "Twelve Data",
   "market_state": "open",
-  "candle_close": 4039.9187,
+  "candle_close": 4038.41462,
   "quote_live_endpoint": "https://biquote.io/api/XAUUSD?allowStale=false",
   "signal_history": [
     {
@@ -866,10 +838,21 @@
       "score": 5,
       "closed_utc": "2026-10-28T12:50:26.693459+00:00",
       "last_event_notified": "TP_HIT"
+    },
+    {
+      "id": "BUY-1793247300",
+      "side": "BUY",
+      "status": "ACTIVE",
+      "entry": 4038.41462,
+      "sl": 4032.8332683508365,
+      "tp1": 4046.7866474737452,
+      "created_utc": "2026-10-29T04:20:00+00:00",
+      "strategy": "SnR Rejection",
+      "score": 5
     }
   ],
   "performance": {
-    "total_signals": 25,
+    "total_signals": 26,
     "tp_hits": 5,
     "sl_hits": 8,
     "break_even": 0,
