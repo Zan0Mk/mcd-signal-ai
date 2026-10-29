@@ -5,7 +5,7 @@
   "active_setup": {
     "id": "SELL-1793302200",
     "side": "SELL",
-    "status": "ACTIVE",
+    "status": "SL_HIT",
     "entry": 4016.59269,
     "sl": 4021.0772045356803,
     "tp1": 4009.8659181964795,
@@ -13,14 +13,20 @@
     "strategy": "Liquidity Sweep",
     "score": 5,
     "created_candle_t": 1793302200,
-    "created_utc": "2026-10-29T19:35:00+00:00"
+    "created_utc": "2026-10-29T19:35:00+00:00",
+    "last_checked_quote_timestamp": "2026-10-29T20:22:05+00:00",
+    "last_event_utc": "2026-10-29T20:22:06.864260+00:00",
+    "last_event_price": 4025.427,
+    "last_event_price_type": "ASK",
+    "closed_utc": "2026-10-29T20:22:06.864263+00:00",
+    "last_event_notified": "SL_HIT"
   },
   "last_event": null,
   "last_event_time": null,
   "last_status": "DATA_VALID",
   "last_error": null,
-  "last_candle_t": 1793302200,
-  "last_run_utc": "2026-10-29T19:38:20.925669+00:00",
+  "last_candle_t": 1793304900,
+  "last_run_utc": "2026-10-29T20:22:05.493458+00:00",
   "active_setups": [
     {
       "id": "SELL-1792441500",
@@ -545,13 +551,15 @@
     {
       "id": "SELL-1793302200",
       "side": "SELL",
-      "status": "ACTIVE",
+      "status": "SL_HIT",
       "entry": 4016.59269,
       "sl": 4021.0772045356803,
       "tp1": 4009.8659181964795,
       "created_utc": "2026-10-29T19:35:00+00:00",
       "strategy": "Liquidity Sweep",
-      "score": 5
+      "score": 5,
+      "closed_utc": "2026-10-29T20:22:06.864263+00:00",
+      "last_event_notified": "SL_HIT"
     }
   ],
   "last_setup_key": "SELL-1793302200"
