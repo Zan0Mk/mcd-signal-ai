@@ -5,17 +5,17 @@
   "data_source": "OHLC + Biquote quote; bukan feed rasmi HFM XAUUSDc",
   "data_note": "Harga rujukan mungkin berbeza daripada broker HFM XAUUSDc. Signal hanya dinilai daripada candle M5 yang telah tutup.",
   "refresh_model": "GitHub Actions cron 5 minit; browser hanya refresh snapshot JSON.",
-  "updated_utc": "2026-10-29T04:24:01.576289+00:00",
+  "updated_utc": "2026-10-29T05:10:24.858999+00:00",
   "data_status": "FRESH",
-  "signal": "BUY",
-  "score": 5,
-  "quality": "RENDAH (C)",
-  "reason": "Candle Twelve Data dan quote Biquote lulus semakan. Bandingkan harga dengan broker.",
-  "trend_45m": "BEARISH",
+  "signal": "WAIT",
+  "score": 4,
+  "quality": "RISIKO",
+  "reason": "WAIT - BUY 4/8, SELL 3/8; tiada setup sah.",
+  "trend_45m": "BULLISH",
   "economic_calendar": {
     "status": "FRESH",
     "source": "Finance Calendar API",
-    "updated_utc": "2026-10-29T04:24:01.959136+00:00",
+    "updated_utc": "2026-10-29T05:10:25.178714+00:00",
     "timezone_note": "Masa dipaparkan dalam MYT (Asia/Kuala_Lumpur). Timestamp dengan zon waktu ditukar kepada MYT; masa tanpa zon dianggap MYT kerana parameter API meminta Asia/Kuala_Lumpur. Sahkan pengumuman rasmi untuk keputusan kritikal.",
     "events": [
       {
@@ -192,92 +192,22 @@
     "m30": "BULLISH",
     "m15": "BEARISH"
   },
-  "support": 4037.1417,
-  "resistance": 4044.70551,
+  "support": 4038.44601,
+  "resistance": 4047.86684,
   "techniques": {
-    "snr": true,
+    "snr": false,
     "smc": false,
     "pa": false,
     "breakout": false
   },
-  "price": 4037.128,
-  "quote_bid": 4037.044,
-  "quote_ask": 4037.212,
-  "quote_mid": 4037.128,
+  "price": 4042.762,
+  "quote_bid": 4042.678,
+  "quote_ask": 4042.846,
+  "quote_mid": 4042.762,
   "quote_spread": 0.168,
-  "quote_timestamp_utc": "2026-10-29T04:24:02+00:00",
+  "quote_timestamp_utc": "2026-10-29T05:10:25+00:00",
   "quote_age_seconds": 0,
   "chart_candles": [
-    {
-      "t": 1793235600,
-      "o": 4038.06825,
-      "h": 4045.63476,
-      "l": 4036.48987,
-      "c": 4042.58071
-    },
-    {
-      "t": 1793235900,
-      "o": 4043.82517,
-      "h": 4047.76361,
-      "l": 4041.22045,
-      "c": 4047.4836
-    },
-    {
-      "t": 1793236200,
-      "o": 4047.16459,
-      "h": 4054.72794,
-      "l": 4043.69436,
-      "c": 4053.9425
-    },
-    {
-      "t": 1793236500,
-      "o": 4052.67908,
-      "h": 4057.78283,
-      "l": 4052.67908,
-      "c": 4057.45371
-    },
-    {
-      "t": 1793236800,
-      "o": 4056.80873,
-      "h": 4064.37978,
-      "l": 4056.30989,
-      "c": 4062.06958
-    },
-    {
-      "t": 1793237100,
-      "o": 4061.80901,
-      "h": 4069.50718,
-      "l": 4061.80901,
-      "c": 4065.3072
-    },
-    {
-      "t": 1793237400,
-      "o": 4064.69489,
-      "h": 4066.03237,
-      "l": 4060.25417,
-      "c": 4060.54157
-    },
-    {
-      "t": 1793237700,
-      "o": 4061.06202,
-      "h": 4062.0342,
-      "l": 4053.34198,
-      "c": 4053.62098
-    },
-    {
-      "t": 1793238000,
-      "o": 4054.11167,
-      "h": 4056.63056,
-      "l": 4053.3061,
-      "c": 4055.35477
-    },
-    {
-      "t": 1793238300,
-      "o": 4055.43629,
-      "h": 4058.31724,
-      "l": 4050.64205,
-      "c": 4051.24971
-    },
     {
       "t": 1793238600,
       "o": 4052.28028,
@@ -487,13 +417,83 @@
       "h": 4038.88134,
       "l": 4036.22009,
       "c": 4038.41462
+    },
+    {
+      "t": 1793247600,
+      "o": 4037.50482,
+      "h": 4039.09847,
+      "l": 4036.97873,
+      "c": 4037.13825
+    },
+    {
+      "t": 1793247900,
+      "o": 4037.41825,
+      "h": 4037.63072,
+      "l": 4036.00113,
+      "c": 4036.24052
+    },
+    {
+      "t": 1793248200,
+      "o": 4036.26579,
+      "h": 4037.3047,
+      "l": 4036.07613,
+      "c": 4036.9611
+    },
+    {
+      "t": 1793248500,
+      "o": 4036.91,
+      "h": 4036.91,
+      "l": 4035.83824,
+      "c": 4036.11865
+    },
+    {
+      "t": 1793248800,
+      "o": 4036.22019,
+      "h": 4041.5471,
+      "l": 4036.22019,
+      "c": 4041.34504
+    },
+    {
+      "t": 1793249100,
+      "o": 4040.94363,
+      "h": 4042.11403,
+      "l": 4039.58861,
+      "c": 4039.96263
+    },
+    {
+      "t": 1793249400,
+      "o": 4040.51682,
+      "h": 4040.51682,
+      "l": 4038.11985,
+      "c": 4039.0617
+    },
+    {
+      "t": 1793249700,
+      "o": 4038.93589,
+      "h": 4039.11022,
+      "l": 4037.95679,
+      "c": 4038.02812
+    },
+    {
+      "t": 1793250000,
+      "o": 4038.1731,
+      "h": 4043.18117,
+      "l": 4038.1731,
+      "c": 4043.04948
+    },
+    {
+      "t": 1793250300,
+      "o": 4042.71876,
+      "h": 4044.24221,
+      "l": 4040.97849,
+      "c": 4044.0081
     }
   ],
-  "entry": 4038.41462,
-  "zone_low": 4037.856484835084,
-  "zone_high": 4038.972755164916,
-  "sl": 4032.8332683508365,
-  "tp1": 4046.7866474737452,
+  "entry": null,
+  "zone_low": null,
+  "zone_high": null,
+  "sl": null,
+  "tp1": null,
   "active_setup": {
     "id": "BUY-1793247300",
     "side": "BUY",
@@ -505,22 +505,25 @@
     "strategy": "SnR Rejection",
     "score": 5,
     "created_candle_t": 1793247300,
-    "created_utc": "2026-10-29T04:20:00+00:00"
+    "created_utc": "2026-10-29T04:20:00+00:00",
+    "last_checked_quote_timestamp": "2026-10-29T05:10:25+00:00"
   },
-  "strategy": "SnR Rejection",
-  "buy_score": 5,
-  "sell_score": 4,
-  "atr14": 3.72090109944235,
-  "ema20": 4041.855598803669,
-  "ema50": 4046.1890051252653,
-  "risk_distance": 5.58135164916348,
-  "last_candle_utc": "2026-10-29T04:20:00+00:00",
-  "candle_age_seconds": 241,
+  "strategy": "None",
+  "buy_score": 4,
+  "sell_score": 3,
+  "atr14": 3.203905816023749,
+  "ema20": 4040.564017279705,
+  "ema50": 4043.963249916025,
+  "risk_distance": null,
+  "last_candle_utc": "2026-10-29T05:10:00+00:00",
+  "candle_age_seconds": 24,
   "quote_source": "Biquote API",
   "ohlc_source": "Twelve Data",
   "market_state": "open",
-  "candle_close": 4038.41462,
+  "candle_close": 4044.0081,
   "quote_live_endpoint": "https://biquote.io/api/XAUUSD?allowStale=false",
+  "sampled_exit_price": 4042.678,
+  "sampled_exit_price_type": "BID",
   "signal_history": [
     {
       "id": "SELL-1792577700",
@@ -848,7 +851,9 @@
       "tp1": 4046.7866474737452,
       "created_utc": "2026-10-29T04:20:00+00:00",
       "strategy": "SnR Rejection",
-      "score": 5
+      "score": 5,
+      "closed_utc": null,
+      "last_event_notified": null
     }
   ],
   "performance": {
