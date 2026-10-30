@@ -5,175 +5,20 @@
   "data_source": "OHLC + Biquote quote; bukan feed rasmi HFM XAUUSDc",
   "data_note": "Harga rujukan mungkin berbeza daripada broker HFM XAUUSDc. Signal hanya dinilai daripada candle M5 yang telah tutup.",
   "refresh_model": "GitHub Actions cron 5 minit; browser hanya refresh snapshot JSON.",
-  "updated_utc": "2026-10-30T01:54:40.491829+00:00",
+  "updated_utc": "2026-10-30T02:35:21.695398+00:00",
   "data_status": "FRESH",
   "signal": "WAIT",
   "score": 5,
   "quality": "RENDAH (C)",
   "reason": "WAIT - BUY 2/8, SELL 5/8; tiada setup sah.",
-  "trend_45m": "BEARISH",
+  "trend_45m": "BULLISH",
   "economic_calendar": {
-    "status": "FRESH",
+    "status": "ERROR",
     "source": "Finance Calendar API",
-    "updated_utc": "2026-10-30T01:54:40.910272+00:00",
-    "timezone_note": "Masa dipaparkan dalam MYT (Asia/Kuala_Lumpur). Timestamp dengan zon waktu ditukar kepada MYT; masa tanpa zon dianggap MYT kerana parameter API meminta Asia/Kuala_Lumpur. Sahkan pengumuman rasmi untuk keputusan kritikal.",
-    "events": [
-      {
-        "date": "2026-10-29T12:30:00+00:00",
-        "country": "US",
-        "event": "US Initial Jobless Claims: October 29, 2026",
-        "importance": 2,
-        "actual": "",
-        "forecast": "",
-        "previous": "",
-        "currency": "USD",
-        "source_url": "https://www.financecalendar.com/event/us-initial-jobless-claims-october-29-2026/"
-      },
-      {
-        "date": "2026-10-29T12:30:00+00:00",
-        "country": "US",
-        "event": "US Personal Income and Outlays (PCE) October 2026",
-        "importance": 3,
-        "actual": "",
-        "forecast": "",
-        "previous": "",
-        "currency": "USD",
-        "source_url": "https://www.financecalendar.com/event/us-personal-income-and-outlays-pce-october-2026/"
-      },
-      {
-        "date": "2026-10-29T15:30:00+00:00",
-        "country": "US",
-        "event": "US Treasury 4-Week Bill Auction 2026-10-29 (912797VZ7)",
-        "importance": 2,
-        "actual": "",
-        "forecast": "",
-        "previous": "",
-        "currency": "USD",
-        "source_url": "https://www.treasurydirect.gov/TA_WS/securities/announced?format=json"
-      },
-      {
-        "date": "2026-10-29T15:30:00+00:00",
-        "country": "US",
-        "event": "US Treasury 8-Week Bill Auction 2026-10-29 (912797WH6)",
-        "importance": 2,
-        "actual": "",
-        "forecast": "",
-        "previous": "",
-        "currency": "USD",
-        "source_url": "https://www.treasurydirect.gov/TA_WS/securities/announced?format=json"
-      },
-      {
-        "date": "2026-10-29T17:00:00+00:00",
-        "country": "US",
-        "event": "US Treasury 7-Year Note Auction 2026-10-29 (91282CRV5)",
-        "importance": 2,
-        "actual": "",
-        "forecast": "",
-        "previous": "",
-        "currency": "USD",
-        "source_url": "https://www.treasurydirect.gov/TA_WS/securities/announced?format=json"
-      },
-      {
-        "date": "2026-10-30T12:30:00+00:00",
-        "country": "US",
-        "event": "US Employment Cost Index October 2026",
-        "importance": 2,
-        "actual": "",
-        "forecast": "",
-        "previous": "",
-        "currency": "USD",
-        "source_url": "https://www.bls.gov/schedule/news_release/bls.ics"
-      },
-      {
-        "date": "2026-11-02T15:00:00+00:00",
-        "country": "US",
-        "event": "US ISM Manufacturing PMI November 2026",
-        "importance": 3,
-        "actual": "",
-        "forecast": "",
-        "previous": "",
-        "currency": "USD",
-        "source_url": "https://www.financecalendar.com/event/us-ism-manufacturing-pmi-november-2026/"
-      },
-      {
-        "date": "2026-11-03T15:00:00+00:00",
-        "country": "US",
-        "event": "US JOLTS Job Openings November 2026",
-        "importance": 2,
-        "actual": "",
-        "forecast": "",
-        "previous": "",
-        "currency": "USD",
-        "source_url": "https://www.financecalendar.com/event/us-jolts-job-openings-november-2026/"
-      },
-      {
-        "date": "2026-11-04T13:15:00+00:00",
-        "country": "US",
-        "event": "US ADP Employment Report November 2026",
-        "importance": 2,
-        "actual": "",
-        "forecast": "",
-        "previous": "",
-        "currency": "USD",
-        "source_url": "https://www.financecalendar.com/event/us-adp-employment-report-november-2026/"
-      },
-      {
-        "date": "2026-11-04T15:00:00+00:00",
-        "country": "US",
-        "event": "US ISM Services PMI November 2026",
-        "importance": 2,
-        "actual": "",
-        "forecast": "",
-        "previous": "",
-        "currency": "USD",
-        "source_url": "https://www.financecalendar.com/event/us-ism-services-pmi-november-2026/"
-      },
-      {
-        "date": "2026-11-05T13:30:00+00:00",
-        "country": "US",
-        "event": "US Initial Jobless Claims: November 5, 2026",
-        "importance": 2,
-        "actual": "",
-        "forecast": "",
-        "previous": "",
-        "currency": "USD",
-        "source_url": "https://www.financecalendar.com/event/us-initial-jobless-claims-november-5-2026/"
-      },
-      {
-        "date": "2026-11-06T13:30:00+00:00",
-        "country": "US",
-        "event": "US Employment Situation (Non-Farm Payrolls) November 2026",
-        "importance": 3,
-        "actual": "",
-        "forecast": "",
-        "previous": "",
-        "currency": "USD",
-        "source_url": "https://www.financecalendar.com/event/us-employment-situation-non-farm-payrolls-november-2026/"
-      },
-      {
-        "date": "2026-11-10T13:30:00+00:00",
-        "country": "US",
-        "event": "US CPI Report November 2026",
-        "importance": 3,
-        "actual": "",
-        "forecast": "",
-        "previous": "",
-        "currency": "USD",
-        "source_url": "https://www.financecalendar.com/event/us-cpi-report-november-2026/"
-      },
-      {
-        "date": "2026-11-12T13:30:00+00:00",
-        "country": "US",
-        "event": "US Initial Jobless Claims: November 12, 2026",
-        "importance": 2,
-        "actual": "",
-        "forecast": "",
-        "previous": "",
-        "currency": "USD",
-        "source_url": "https://www.financecalendar.com/event/us-initial-jobless-claims-november-12-2026/"
-      }
-    ],
-    "message": "Kalendar ekonomi USD berjaya dikemas kini.",
+    "updated_utc": "2026-10-30T02:35:21.906047+00:00",
+    "timezone_note": "Masa acara belum disahkan kerana sumber kalendar tidak tersedia.",
+    "events": [],
+    "message": "Kalendar tidak tersedia buat sementara waktu: HTTP Error 520: <none>",
     "url": "https://www.financecalendar.com/api/economic-calendar/",
     "attribution_url": "https://www.financecalendar.com/"
   },
@@ -192,7 +37,7 @@
     "m30": "BEARISH",
     "m15": "BEARISH"
   },
-  "support": null,
+  "support": 3996.64282,
   "resistance": 4012.03611,
   "techniques": {
     "snr": false,
@@ -200,77 +45,14 @@
     "pa": false,
     "breakout": false
   },
-  "price": 4000.583,
-  "quote_bid": 4000.499,
-  "quote_ask": 4000.667,
-  "quote_mid": 4000.583,
+  "price": 4003.042,
+  "quote_bid": 4002.958,
+  "quote_ask": 4003.126,
+  "quote_mid": 4003.042,
   "quote_spread": 0.168,
-  "quote_timestamp_utc": "2026-10-30T01:54:40+00:00",
+  "quote_timestamp_utc": "2026-10-30T02:35:21+00:00",
   "quote_age_seconds": 1,
   "chart_candles": [
-    {
-      "t": 1793313000,
-      "o": 4018.27529,
-      "h": 4020.8533,
-      "l": 4017.96155,
-      "c": 4020.5944
-    },
-    {
-      "t": 1793313300,
-      "o": 4020.23327,
-      "h": 4023.90549,
-      "l": 4019.19775,
-      "c": 4022.3177
-    },
-    {
-      "t": 1793313600,
-      "o": 4022.53858,
-      "h": 4022.88567,
-      "l": 4020.64826,
-      "c": 4022.10475
-    },
-    {
-      "t": 1793313900,
-      "o": 4021.85151,
-      "h": 4024.88975,
-      "l": 4021.23211,
-      "c": 4024.70816
-    },
-    {
-      "t": 1793314200,
-      "o": 4024.37309,
-      "h": 4026.25116,
-      "l": 4024.37309,
-      "c": 4025.74628
-    },
-    {
-      "t": 1793314500,
-      "o": 4025.44008,
-      "h": 4025.7649,
-      "l": 4023.91432,
-      "c": 4024.18001
-    },
-    {
-      "t": 1793314800,
-      "o": 4024.54887,
-      "h": 4026.0599,
-      "l": 4017.19359,
-      "c": 4017.49489
-    },
-    {
-      "t": 1793315100,
-      "o": 4018.00271,
-      "h": 4018.00271,
-      "l": 4014.77437,
-      "c": 4015.05157
-    },
-    {
-      "t": 1793315400,
-      "o": 4015.52752,
-      "h": 4015.52752,
-      "l": 4012.16494,
-      "c": 4013.82328
-    },
     {
       "t": 1793315700,
       "o": 4013.34623,
@@ -487,6 +269,69 @@
       "h": 3999.68003,
       "l": 3997.17332,
       "c": 3997.25685
+    },
+    {
+      "t": 1793325000,
+      "o": 3997.23047,
+      "h": 4000.96023,
+      "l": 3997.09816,
+      "c": 4000.88505
+    },
+    {
+      "t": 1793325300,
+      "o": 4000.65401,
+      "h": 4008.73423,
+      "l": 3997.91392,
+      "c": 4007.81607
+    },
+    {
+      "t": 1793325600,
+      "o": 4005.53602,
+      "h": 4011.19042,
+      "l": 4005.53602,
+      "c": 4010.66828
+    },
+    {
+      "t": 1793325900,
+      "o": 4009.62296,
+      "h": 4011.80199,
+      "l": 4005.00113,
+      "c": 4011.25251
+    },
+    {
+      "t": 1793326200,
+      "o": 4009.83776,
+      "h": 4012.51906,
+      "l": 4009.83776,
+      "c": 4012.18974
+    },
+    {
+      "t": 1793326500,
+      "o": 4011.80974,
+      "h": 4013.00213,
+      "l": 4010.81289,
+      "c": 4011.29364
+    },
+    {
+      "t": 1793326800,
+      "o": 4011.99354,
+      "h": 4011.99354,
+      "l": 4008.17668,
+      "c": 4008.70269
+    },
+    {
+      "t": 1793327100,
+      "o": 4008.51352,
+      "h": 4009.59211,
+      "l": 4004.48502,
+      "c": 4004.73547
+    },
+    {
+      "t": 1793327400,
+      "o": 4005.08744,
+      "h": 4005.31151,
+      "l": 4001.28041,
+      "c": 4001.50621
     }
   ],
   "entry": null,
@@ -516,16 +361,16 @@
   "strategy": "None",
   "buy_score": 2,
   "sell_score": 5,
-  "atr14": 5.482789233164583,
-  "ema20": 4005.961374167874,
-  "ema50": 4010.973320935286,
+  "atr14": 5.15025556836892,
+  "ema20": 4006.840748787578,
+  "ema50": 4009.9553406809678,
   "risk_distance": null,
-  "last_candle_utc": "2026-10-30T01:50:00+00:00",
-  "candle_age_seconds": 280,
+  "last_candle_utc": "2026-10-30T02:35:00+00:00",
+  "candle_age_seconds": 21,
   "quote_source": "Biquote API",
   "ohlc_source": "Twelve Data",
   "market_state": "open",
-  "candle_close": 3997.25685,
+  "candle_close": 4001.50621,
   "quote_live_endpoint": "https://biquote.io/api/XAUUSD?allowStale=false",
   "signal_history": [
     {
