@@ -25,8 +25,8 @@
   "last_event_time": null,
   "last_status": "DATA_VALID",
   "last_error": null,
-  "last_candle_t": 1793358300,
-  "last_run_utc": "2026-10-30T11:10:59.747131+00:00",
+  "last_candle_t": 1793360700,
+  "last_run_utc": "2026-10-30T11:50:17.521477+00:00",
   "active_setups": [
     {
       "id": "SELL-1792441500",
