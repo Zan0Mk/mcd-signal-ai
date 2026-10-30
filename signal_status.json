@@ -5,17 +5,17 @@
   "data_source": "OHLC + Biquote quote; bukan feed rasmi HFM XAUUSDc",
   "data_note": "Harga rujukan mungkin berbeza daripada broker HFM XAUUSDc. Signal hanya dinilai daripada candle M5 yang telah tutup.",
   "refresh_model": "GitHub Actions cron 5 minit; browser hanya refresh snapshot JSON.",
-  "updated_utc": "2026-10-30T09:42:28.767485+00:00",
+  "updated_utc": "2026-10-30T10:28:58.110070+00:00",
   "data_status": "FRESH",
-  "signal": "SELL",
+  "signal": "WAIT",
   "score": 5,
   "quality": "RENDAH (C)",
-  "reason": "Candle Twelve Data dan quote Biquote lulus semakan. Bandingkan harga dengan broker.",
+  "reason": "WAIT - BUY 1/8, SELL 5/8; tiada setup sah.",
   "trend_45m": "BEARISH",
   "economic_calendar": {
     "status": "FRESH",
     "source": "Finance Calendar API",
-    "updated_utc": "2026-10-30T09:42:29.113028+00:00",
+    "updated_utc": "2026-10-30T10:28:58.400329+00:00",
     "timezone_note": "Masa dipaparkan dalam MYT (Asia/Kuala_Lumpur). Timestamp dengan zon waktu ditukar kepada MYT; masa tanpa zon dianggap MYT kerana parameter API meminta Asia/Kuala_Lumpur. Sahkan pengumuman rasmi untuk keputusan kritikal.",
     "events": [
       {
@@ -148,85 +148,22 @@
     "m30": "BEARISH",
     "m15": "BEARISH"
   },
-  "support": 3988.10127,
-  "resistance": 3994.53526,
+  "support": 3980.0995,
+  "resistance": 3987.39982,
   "techniques": {
     "snr": false,
     "smc": false,
-    "pa": true,
+    "pa": false,
     "breakout": false
   },
-  "price": 3989.355,
-  "quote_bid": 3989.271,
-  "quote_ask": 3989.439,
-  "quote_mid": 3989.355,
+  "price": 3982.114,
+  "quote_bid": 3982.03,
+  "quote_ask": 3982.198,
+  "quote_mid": 3982.114,
   "quote_spread": 0.168,
-  "quote_timestamp_utc": "2026-10-30T09:42:28+00:00",
+  "quote_timestamp_utc": "2026-10-30T10:28:57+00:00",
   "quote_age_seconds": 1,
   "chart_candles": [
-    {
-      "t": 1793341200,
-      "o": 3989.62932,
-      "h": 3989.62932,
-      "l": 3987.71783,
-      "c": 3987.76607
-    },
-    {
-      "t": 1793341500,
-      "o": 3987.88099,
-      "h": 3992.12951,
-      "l": 3987.88099,
-      "c": 3991.37164
-    },
-    {
-      "t": 1793341800,
-      "o": 3990.02154,
-      "h": 3994.53526,
-      "l": 3987.87685,
-      "c": 3990.6214
-    },
-    {
-      "t": 1793342100,
-      "o": 3989.91508,
-      "h": 3989.91508,
-      "l": 3987.5206,
-      "c": 3987.673
-    },
-    {
-      "t": 1793342400,
-      "o": 3987.85856,
-      "h": 3992.51108,
-      "l": 3984.88588,
-      "c": 3987.01321
-    },
-    {
-      "t": 1793342700,
-      "o": 3987.81795,
-      "h": 3987.81795,
-      "l": 3982.15992,
-      "c": 3984.46849
-    },
-    {
-      "t": 1793343000,
-      "o": 3984.13593,
-      "h": 3985.17515,
-      "l": 3983.33233,
-      "c": 3983.69256
-    },
-    {
-      "t": 1793343300,
-      "o": 3984.26586,
-      "h": 3985.12179,
-      "l": 3981.8428,
-      "c": 3981.99253
-    },
-    {
-      "t": 1793343600,
-      "o": 3982.28225,
-      "h": 3983.93569,
-      "l": 3981.52572,
-      "c": 3981.71424
-    },
     {
       "t": 1793343900,
       "o": 3982.02826,
@@ -443,13 +380,76 @@
       "h": 3991.21932,
       "l": 3989.47134,
       "c": 3989.76092
+    },
+    {
+      "t": 1793353200,
+      "o": 3990.21747,
+      "h": 3990.46111,
+      "l": 3988.99039,
+      "c": 3990.20646
+    },
+    {
+      "t": 1793353500,
+      "o": 3989.85827,
+      "h": 3990.85249,
+      "l": 3989.10613,
+      "c": 3989.50276
+    },
+    {
+      "t": 1793353800,
+      "o": 3990.33367,
+      "h": 3993.45074,
+      "l": 3986.45528,
+      "c": 3992.31448
+    },
+    {
+      "t": 1793354100,
+      "o": 3992.25591,
+      "h": 3992.48347,
+      "l": 3990.42298,
+      "c": 3991.94921
+    },
+    {
+      "t": 1793354400,
+      "o": 3991.76288,
+      "h": 3992.87242,
+      "l": 3988.67217,
+      "c": 3988.74556
+    },
+    {
+      "t": 1793354700,
+      "o": 3988.90633,
+      "h": 3990.26376,
+      "l": 3987.70298,
+      "c": 3987.90493
+    },
+    {
+      "t": 1793355000,
+      "o": 3988.27453,
+      "h": 3989.14711,
+      "l": 3983.11161,
+      "c": 3983.26982
+    },
+    {
+      "t": 1793355300,
+      "o": 3983.52989,
+      "h": 3986.09684,
+      "l": 3982.00135,
+      "c": 3985.55631
+    },
+    {
+      "t": 1793355600,
+      "o": 3984.23904,
+      "h": 3986.85545,
+      "l": 3982.79433,
+      "c": 3982.91785
     }
   ],
-  "entry": 3989.76092,
-  "zone_low": 3989.1325789066846,
-  "zone_high": 3990.389261093316,
-  "sl": 3996.0443309331545,
-  "tp1": 3980.3358036002687,
+  "entry": null,
+  "zone_low": null,
+  "zone_high": null,
+  "sl": null,
+  "tp1": null,
   "active_setup": {
     "id": "SELL-1793352900",
     "side": "SELL",
@@ -461,22 +461,25 @@
     "strategy": "Engulfing",
     "score": 5,
     "created_candle_t": 1793352900,
-    "created_utc": "2026-10-30T09:40:00+00:00"
+    "created_utc": "2026-10-30T09:40:00+00:00",
+    "last_checked_quote_timestamp": "2026-10-30T10:28:57+00:00"
   },
-  "strategy": "Engulfing",
+  "strategy": "None",
   "buy_score": 1,
   "sell_score": 5,
-  "atr14": 4.188940622102871,
-  "ema20": 3990.087513094019,
-  "ema50": 3990.0570733900704,
-  "risk_distance": 6.2834109331543,
-  "last_candle_utc": "2026-10-30T09:40:00+00:00",
-  "candle_age_seconds": 148,
+  "atr14": 4.007203007947955,
+  "ema20": 3988.4444180750443,
+  "ema50": 3989.361354590406,
+  "risk_distance": null,
+  "last_candle_utc": "2026-10-30T10:25:00+00:00",
+  "candle_age_seconds": 238,
   "quote_source": "Biquote API",
   "ohlc_source": "Twelve Data",
   "market_state": "open",
-  "candle_close": 3989.76092,
+  "candle_close": 3982.91785,
   "quote_live_endpoint": "https://biquote.io/api/XAUUSD?allowStale=false",
+  "sampled_exit_price": 3982.198,
+  "sampled_exit_price_type": "ASK",
   "signal_history": [
     {
       "id": "SELL-1792577700",
@@ -843,7 +846,9 @@
       "tp1": 3980.3358036002687,
       "created_utc": "2026-10-30T09:40:00+00:00",
       "strategy": "Engulfing",
-      "score": 5
+      "score": 5,
+      "closed_utc": null,
+      "last_event_notified": null
     }
   ],
   "performance": {
