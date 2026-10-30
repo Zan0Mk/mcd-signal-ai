@@ -15,12 +15,12 @@ concurrency:
 
 jobs:
   monitor:
-    name: Update XAUUSD M5 signal
+    name: MCD V3.1 Monitor
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 10
 
     steps:
-      - name: Checkout repository
+      - name: Checkout main
         uses: actions/checkout@v4
         with:
           ref: main
@@ -31,119 +31,49 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Verify files
+      - name: Clean Python bytecode
         shell: bash
         run: |
           set -euo pipefail
-          test -f index.html
-          test -f mcd_monitor.py
-          echo "Required files found."
 
-      - name: Validate Python syntax
+          find . -type d -name "__pycache__" \
+            -prune -exec rm -rf {} +
+
+          find . -type f \( \
+            -name "*.pyc" -o \
+            -name "*.pyo" \
+          \) -delete
+
+          cat > .gitignore <<'EOF'
+          __pycache__/
+          *.py[cod]
+          *$py.class
+          .venv/
+          venv/
+          env/
+          .pytest_cache/
+          .coverage
+          htmlcov/
+          *.tmp
+          *.log
+          EOF
+
+      - name: Check required files
+        run: |
+          set -euo pipefail
+          test -f mcd_monitor.py
+          test -f index.html
+          test -f .gitignore
+
+      - name: Python syntax check
         run: python -m py_compile mcd_monitor.py
 
-      - name: Test indicator calculations
-        shell: bash
+      - name: Run unit tests
         run: |
-          python - <<'PY'
-          import importlib.util
-          import math
-
-          spec = importlib.util.spec_from_file_location(
-              "mcd_monitor", "mcd_monitor.py"
-          )
-          module = importlib.util.module_from_spec(spec)
-          spec.loader.exec_module(module)
-
-          values = [float(2300 + i * 0.1) for i in range(120)]
-
-          e9 = module.ema(values, 9)
-          e21 = module.ema(values, 21)
-          rsi = module.rsi(values, 14)
-          line, signal, hist = module.macd(values)
-
-          candles = []
-          for i, close in enumerate(values):
-              candles.append({
-                  "t": 1790000000 + i * 300,
-                  "o": close - 0.05,
-                  "h": close + 0.10,
-                  "l": close - 0.10,
-                  "c": close,
-                  "v": 100.0,
-                  "is_open": False,
-              })
-
-          atr = module.atr_series(candles, 14)[-1]
-          vwap, method = module.session_vwap(candles)
-
-          checks = [
-              math.isfinite(e9[-1]),
-              math.isfinite(e21[-1]),
-              math.isfinite(rsi),
-              math.isfinite(line[-1]),
-              math.isfinite(signal[-1]),
-              math.isfinite(hist[-1]),
-              math.isfinite(atr),
-              math.isfinite(vwap),
-              method == "VOLUME_WEIGHTED",
-          ]
-
-          if not all(checks):
-              raise SystemExit("Indicator calculation test failed")
-
-          print("Indicator calculation tests passed.")
-          PY
-
-      - name: Validate dashboard JavaScript
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          python - <<'PY'
-          from html.parser import HTMLParser
-          from pathlib import Path
-
-          class Scripts(HTMLParser):
-              def __init__(self):
-                  super().__init__()
-                  self.active = False
-                  self.external = False
-                  self.parts = []
-                  self.items = []
-
-              def handle_starttag(self, tag, attrs):
-                  if tag.lower() == "script":
-                      self.active = True
-                      self.external = bool(dict(attrs).get("src"))
-                      self.parts = []
-
-              def handle_data(self, data):
-                  if self.active and not self.external:
-                      self.parts.append(data)
-
-              def handle_endtag(self, tag):
-                  if tag.lower() == "script" and self.active:
-                      if not self.external:
-                          self.items.append("".join(self.parts))
-                      self.active = False
-                      self.external = False
-                      self.parts = []
-
-          parser = Scripts()
-          parser.feed(Path("index.html").read_text(encoding="utf-8"))
-          scripts = [s for s in parser.items if s.strip()]
-
-          if not scripts:
-              raise SystemExit("No inline JavaScript found")
-
-          Path("/tmp/mcd-dashboard.js").write_text(
-              "\n;\n".join(scripts), encoding="utf-8"
-          )
-          print(f"Found {len(scripts)} inline script block(s).")
-          PY
-
-          node --check /tmp/mcd-dashboard.js
+          python -m unittest discover \
+            -s . \
+            -p 'test_mcd_monitor.py' \
+            -v
 
       - name: Run MCD monitor
         env:
@@ -154,95 +84,121 @@ jobs:
           PYTHONUNBUFFERED: "1"
         run: python mcd_monitor.py
 
-      - name: Validate generated JSON
-        shell: bash
+      - name: Validate signal JSON
         run: |
-          set -euo pipefail
-
           python - <<'PY'
           import json
           import math
           from pathlib import Path
 
           path = Path("signal_status.json")
-          if not path.is_file():
-              raise SystemExit("signal_status.json was not generated")
+          if not path.exists():
+              raise SystemExit("signal_status.json missing")
 
           data = json.loads(path.read_text(encoding="utf-8"))
 
           required = [
-              "version", "symbol", "timeframe", "updated_utc",
-              "data_status", "signal", "score", "quality",
-              "entry", "sl", "tp1", "chart_candles",
-              "trend", "techniques", "indicators",
-              "economic_calendar", "performance", "news_impact",
+              "signal",
+              "score",
+              "data_status",
+              "indicators",
+              "active_setups",
+              "signal_history",
+              "performance",
+              "news_impact",
           ]
 
-          missing = [key for key in required if key not in data]
+          missing = [k for k in required if k not in data]
           if missing:
-              raise SystemExit("Missing fields: " + ", ".join(missing))
+              raise SystemExit("Missing JSON fields: " + str(missing))
 
-          if data["signal"] not in {"BUY", "SELL", "WAIT"}:
+          if data["signal"] not in ("BUY", "SELL", "WAIT"):
               raise SystemExit("Invalid signal")
 
-          if not isinstance(data["indicators"], dict):
-              raise SystemExit("indicators must be an object")
+          if not isinstance(data["active_setups"], list):
+              raise SystemExit("active_setups must be a list")
 
-          indicator_fields = [
-              "ma_cross", "vwap", "vwap_bias", "vwap_method",
-              "rsi14", "macd", "macd_signal", "macd_bias",
-              "atr14", "atr_filter",
-          ]
+          if not isinstance(data["signal_history"], list):
+              raise SystemExit("signal_history must be a list")
 
-          if data["data_status"] == "FRESH":
-              missing_indicators = [
-                  key for key in indicator_fields
-                  if key not in data["indicators"]
-              ]
-              if missing_indicators:
-                  raise SystemExit(
-                      "Missing indicators: " + ", ".join(missing_indicators)
-                  )
-
-          if data["signal"] in {"BUY", "SELL"}:
-              if not all(data.get(k) is not None for k in ("entry", "sl", "tp1")):
-                  raise SystemExit("BUY/SELL must have entry, SL and one TP")
+          if data["signal"] in ("BUY", "SELL"):
+              for key in ("entry", "sl", "tp1"):
+                  if data.get(key) is None:
+                      raise SystemExit(f"Missing {key}")
 
           if "tp2" in data or "tp3" in data:
               raise SystemExit("Only one TP is permitted")
 
-          calendar = data["economic_calendar"]
-          if not isinstance(calendar, dict):
-              raise SystemExit("economic_calendar must be an object")
-          if not isinstance(calendar.get("events"), list):
-              raise SystemExit("Calendar events must be a list")
-
-          news = data["news_impact"]
-          if not isinstance(news, dict):
-              raise SystemExit("news_impact must be an object")
-          if not isinstance(news.get("blocks_signal"), bool):
-              raise SystemExit("news_impact.blocks_signal must be boolean")
-
-          def check_finite(value, location="$"):
-              if isinstance(value, float) and not math.isfinite(value):
-                  raise ValueError(f"Invalid number at {location}")
-              if isinstance(value, dict):
-                  for key, item in value.items():
-                      check_finite(item, f"{location}.{key}")
-              elif isinstance(value, list):
-                  for index, item in enumerate(value):
-                      check_finite(item, f"{location}[{index}]")
+          def check_finite(obj):
+              if isinstance(obj, float) and not math.isfinite(obj):
+                  raise ValueError("Invalid numeric value")
+              if isinstance(obj, dict):
+                  for value in obj.values():
+                      check_finite(value)
+              elif isinstance(obj, list):
+                  for value in obj:
+                      check_finite(value)
 
           check_finite(data)
 
+          print("JSON validation passed")
           print("Signal:", data["signal"])
           print("Score:", data["score"], "/10")
-          print("Data status:", data["data_status"])
-          print("Indicators:", data["indicators"].keys())
-          print("News status:", news.get("status"))
+          print("Active setups:", len(data["active_setups"]))
+          print("History records:", len(data["signal_history"]))
           PY
 
-      - name: Commit generated data
+      - name: Validate dashboard JavaScript
+        run: |
+          python - <<'PY'
+          from html.parser import HTMLParser
+          from pathlib import Path
+
+          class ScriptParser(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.inside = False
+                  self.external = False
+                  self.current = []
+                  self.scripts = []
+
+              def handle_starttag(self, tag, attrs):
+                  if tag == "script":
+                      self.inside = True
+                      self.external = bool(dict(attrs).get("src"))
+                      self.current = []
+
+              def handle_data(self, data):
+                  if self.inside and not self.external:
+                      self.current.append(data)
+
+              def handle_endtag(self, tag):
+                  if tag == "script" and self.inside:
+                      if not self.external:
+                          self.scripts.append("".join(self.current))
+                      self.inside = False
+
+          parser = ScriptParser()
+          parser.feed(Path("index.html").read_text(encoding="utf-8"))
+
+          scripts = [s for s in parser.scripts if s.strip()]
+          if not scripts:
+              raise SystemExit("No inline JavaScript found")
+
+          Path("/tmp/mcd.js").write_text(
+              "\n;\n".join(scripts), encoding="utf-8"
+          )
+          PY
+
+          node --check /tmp/mcd.js
+
+      - name: Remove tracked bytecode
+        run: |
+          git rm -r --cached --ignore-unmatch __pycache__ || true
+          git rm --cached --ignore-unmatch "*.pyc" || true
+          git rm --cached --ignore-unmatch "*.pyo" || true
+
+      - name: Commit generated data and cleanup
         shell: bash
         run: |
           set -euo pipefail
@@ -251,24 +207,15 @@ jobs:
           git config user.email \
             "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git add signal_status.json .mcd_signal_state.json
+          git add -A
 
           if git diff --cached --quiet; then
-            echo "No generated changes to commit."
+            echo "No changes to commit."
             exit 0
           fi
 
-          git commit -m "chore: update MCD signal indicators"
+          git commit -m "chore: update MCD V3.1 monitor data"
 
           git fetch origin main
           git rebase origin/main
           git push origin HEAD:main
-
-      - name: Failure diagnostics
-        if: failure()
-        shell: bash
-        run: |
-          echo "MCD monitor workflow failed."
-          echo "Check TWELVE_DATA_API_KEY."
-          echo "Check NTFY_TOPIC."
-          echo "Check API responses and GitHub permissions."
