@@ -15,9 +15,9 @@ concurrency:
 
 jobs:
   monitor:
-    name: Update XAUUSD M5 signal and calendar
+    name: Update XAUUSD M5 signal
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 8
 
     steps:
       - name: Checkout repository
@@ -31,7 +31,7 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Verify repository files
+      - name: Verify files
         shell: bash
         run: |
           set -euo pipefail
@@ -41,6 +41,59 @@ jobs:
 
       - name: Validate Python syntax
         run: python -m py_compile mcd_monitor.py
+
+      - name: Test indicator calculations
+        shell: bash
+        run: |
+          python - <<'PY'
+          import importlib.util
+          import math
+
+          spec = importlib.util.spec_from_file_location(
+              "mcd_monitor", "mcd_monitor.py"
+          )
+          module = importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(module)
+
+          values = [float(2300 + i * 0.1) for i in range(120)]
+
+          e9 = module.ema(values, 9)
+          e21 = module.ema(values, 21)
+          rsi = module.rsi(values, 14)
+          line, signal, hist = module.macd(values)
+
+          candles = []
+          for i, close in enumerate(values):
+              candles.append({
+                  "t": 1790000000 + i * 300,
+                  "o": close - 0.05,
+                  "h": close + 0.10,
+                  "l": close - 0.10,
+                  "c": close,
+                  "v": 100.0,
+                  "is_open": False,
+              })
+
+          atr = module.atr_series(candles, 14)[-1]
+          vwap, method = module.session_vwap(candles)
+
+          checks = [
+              math.isfinite(e9[-1]),
+              math.isfinite(e21[-1]),
+              math.isfinite(rsi),
+              math.isfinite(line[-1]),
+              math.isfinite(signal[-1]),
+              math.isfinite(hist[-1]),
+              math.isfinite(atr),
+              math.isfinite(vwap),
+              method == "VOLUME_WEIGHTED",
+          ]
+
+          if not all(checks):
+              raise SystemExit("Indicator calculation test failed")
+
+          print("Indicator calculation tests passed.")
+          PY
 
       - name: Validate dashboard JavaScript
         shell: bash
@@ -117,37 +170,56 @@ jobs:
 
           data = json.loads(path.read_text(encoding="utf-8"))
 
-          if not isinstance(data, dict):
-              raise SystemExit("JSON root must be an object")
-
           required = [
               "version", "symbol", "timeframe", "updated_utc",
-              "data_status", "signal", "entry", "sl", "tp1",
-              "chart_candles", "trend", "techniques",
+              "data_status", "signal", "score", "quality",
+              "entry", "sl", "tp1", "chart_candles",
+              "trend", "techniques", "indicators",
               "economic_calendar", "performance", "news_impact",
           ]
 
-          missing = [k for k in required if k not in data]
+          missing = [key for key in required if key not in data]
           if missing:
               raise SystemExit("Missing fields: " + ", ".join(missing))
 
           if data["signal"] not in {"BUY", "SELL", "WAIT"}:
               raise SystemExit("Invalid signal")
 
-          if data.get("tp2") is not None or data.get("tp3") is not None:
+          if not isinstance(data["indicators"], dict):
+              raise SystemExit("indicators must be an object")
+
+          indicator_fields = [
+              "ma_cross", "vwap", "vwap_bias", "vwap_method",
+              "rsi14", "macd", "macd_signal", "macd_bias",
+              "atr14", "atr_filter",
+          ]
+
+          if data["data_status"] == "FRESH":
+              missing_indicators = [
+                  key for key in indicator_fields
+                  if key not in data["indicators"]
+              ]
+              if missing_indicators:
+                  raise SystemExit(
+                      "Missing indicators: " + ", ".join(missing_indicators)
+                  )
+
+          if data["signal"] in {"BUY", "SELL"}:
+              if not all(data.get(k) is not None for k in ("entry", "sl", "tp1")):
+                  raise SystemExit("BUY/SELL must have entry, SL and one TP")
+
+          if "tp2" in data or "tp3" in data:
               raise SystemExit("Only one TP is permitted")
 
           calendar = data["economic_calendar"]
           if not isinstance(calendar, dict):
               raise SystemExit("economic_calendar must be an object")
-
           if not isinstance(calendar.get("events"), list):
               raise SystemExit("Calendar events must be a list")
 
           news = data["news_impact"]
           if not isinstance(news, dict):
               raise SystemExit("news_impact must be an object")
-
           if not isinstance(news.get("blocks_signal"), bool):
               raise SystemExit("news_impact.blocks_signal must be boolean")
 
@@ -164,11 +236,10 @@ jobs:
           check_finite(data)
 
           print("Signal:", data["signal"])
+          print("Score:", data["score"], "/10")
           print("Data status:", data["data_status"])
-          print("Calendar status:", calendar.get("status"))
-          print("Calendar events:", len(calendar["events"]))
-          print("News impact:", news.get("status"))
-          print("News blocks signal:", news.get("blocks_signal"))
+          print("Indicators:", data["indicators"].keys())
+          print("News status:", news.get("status"))
           PY
 
       - name: Commit generated data
@@ -187,7 +258,7 @@ jobs:
             exit 0
           fi
 
-          git commit -m "chore: update MCD signal and news filter"
+          git commit -m "chore: update MCD signal indicators"
 
           git fetch origin main
           git rebase origin/main
@@ -198,5 +269,6 @@ jobs:
         shell: bash
         run: |
           echo "MCD monitor workflow failed."
-          echo "Check TWELVE_DATA_API_KEY and NTFY_TOPIC."
-          echo "Check calendar API, news filter and repository permissions."
+          echo "Check TWELVE_DATA_API_KEY."
+          echo "Check NTFY_TOPIC."
+          echo "Check API responses and GitHub permissions."
