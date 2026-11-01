@@ -23,10 +23,10 @@
   },
   "last_event": null,
   "last_event_time": null,
-  "last_status": "DATA_ERROR",
-  "last_error": "HTTP Error 404: Not Found",
-  "last_candle_t": 1793393100,
-  "last_run_utc": "2026-11-01T22:47:44.646905+00:00",
+  "last_status": "DATA_VALID",
+  "last_error": null,
+  "last_candle_t": 1793574600,
+  "last_run_utc": "2026-11-01T23:17:39.643254+00:00",
   "active_setups": [],
   "signal_history": [
     {
