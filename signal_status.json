@@ -4,7 +4,7 @@
   "timeframe": "M5",
   "data_source": "Twelve Data OHLC + Biquote sampled quote",
   "data_note": "Bukan feed rasmi broker HFM XAUUSDc. Bandingkan harga dengan MT5 sebelum membuat keputusan.",
-  "updated_utc": "2026-11-02T04:19:18.702205+00:00",
+  "updated_utc": "2026-11-02T05:22:17.219837+00:00",
   "data_status": "FRESH",
   "signal": "WAIT",
   "score": 8,
@@ -16,13 +16,13 @@
   "sl": null,
   "tp1": null,
   "risk_distance": null,
-  "price": 3906.487,
-  "quote_bid": 3906.403,
-  "quote_ask": 3906.571,
-  "quote_mid": 3906.487,
+  "price": 3907.752,
+  "quote_bid": 3907.668,
+  "quote_ask": 3907.836,
+  "quote_mid": 3907.752,
   "quote_spread": 0.168,
-  "quote_timestamp_utc": "2026-11-02T04:19:18+00:00",
-  "quote_age_seconds": 1,
+  "quote_timestamp_utc": "2026-11-02T05:22:15+00:00",
+  "quote_age_seconds": 2,
   "trend": {
     "d1": "BEARISH",
     "h4": "BEARISH",
@@ -32,21 +32,21 @@
   },
   "trend_45m": "BULLISH",
   "indicators": {
-    "ma_cross": "BULLISH",
+    "ma_cross": "BULLISH CROSS",
     "ma_bias": "BULLISH",
-    "ema9": 3905.0315854377723,
-    "ema21": 3904.366599094776,
-    "vwap": 3887.136996303855,
+    "ema9": 3903.9381031682906,
+    "ema21": 3903.6911984911267,
+    "vwap": 3888.4494917708334,
     "vwap_bias": "BULLISH",
     "vwap_method": "EQUAL_WEIGHT_FALLBACK",
-    "rsi14": 58.135745027197686,
+    "rsi14": 56.50139639504156,
     "rsi_bias": "BULLISH",
-    "macd": 0.4733457749898662,
-    "macd_signal": -0.09161444580964628,
-    "macd_histogram": 0.5649602207995125,
+    "macd": 0.08539724722140818,
+    "macd_signal": -0.25984577570605094,
+    "macd_histogram": 0.3452430229274591,
     "macd_bias": "BULLISH",
-    "atr14": 3.9367841711588993,
-    "atr_ratio": 0.856746709725668,
+    "atr14": 2.987442502238437,
+    "atr_ratio": 0.6501452513039202,
     "atr_filter": "PASS",
     "buy_votes": 4,
     "sell_votes": 0
@@ -58,121 +58,21 @@
     "breakout": false
   },
   "economic_calendar": {
-    "status": "FRESH",
+    "status": "ERROR",
     "source": "Finance Calendar API",
-    "updated_utc": "2026-11-02T04:19:19.130705+00:00",
-    "events": [
-      {
-        "date": "2026-11-02T15:00:00+00:00",
-        "country": "US",
-        "event": "US ISM Manufacturing PMI November 2026",
-        "importance": 3,
-        "actual": "",
-        "forecast": "",
-        "previous": "",
-        "currency": "USD",
-        "source_url": "https://www.financecalendar.com/event/us-ism-manufacturing-pmi-november-2026/"
-      },
-      {
-        "date": "2026-11-03T15:00:00+00:00",
-        "country": "US",
-        "event": "US JOLTS Job Openings November 2026",
-        "importance": 2,
-        "actual": "",
-        "forecast": "",
-        "previous": "",
-        "currency": "USD",
-        "source_url": "https://www.financecalendar.com/event/us-jolts-job-openings-november-2026/"
-      },
-      {
-        "date": "2026-11-04T13:15:00+00:00",
-        "country": "US",
-        "event": "US ADP Employment Report November 2026",
-        "importance": 2,
-        "actual": "",
-        "forecast": "",
-        "previous": "",
-        "currency": "USD",
-        "source_url": "https://www.financecalendar.com/event/us-adp-employment-report-november-2026/"
-      },
-      {
-        "date": "2026-11-04T15:00:00+00:00",
-        "country": "US",
-        "event": "US ISM Services PMI November 2026",
-        "importance": 2,
-        "actual": "",
-        "forecast": "",
-        "previous": "",
-        "currency": "USD",
-        "source_url": "https://www.financecalendar.com/event/us-ism-services-pmi-november-2026/"
-      },
-      {
-        "date": "2026-11-05T13:30:00+00:00",
-        "country": "US",
-        "event": "US Initial Jobless Claims: November 5, 2026",
-        "importance": 2,
-        "actual": "",
-        "forecast": "",
-        "previous": "",
-        "currency": "USD",
-        "source_url": "https://www.financecalendar.com/event/us-initial-jobless-claims-november-5-2026/"
-      },
-      {
-        "date": "2026-11-06T13:30:00+00:00",
-        "country": "US",
-        "event": "US Employment Situation (Non-Farm Payrolls) November 2026",
-        "importance": 3,
-        "actual": "",
-        "forecast": "",
-        "previous": "",
-        "currency": "USD",
-        "source_url": "https://www.financecalendar.com/event/us-employment-situation-non-farm-payrolls-november-2026/"
-      },
-      {
-        "date": "2026-11-10T13:30:00+00:00",
-        "country": "US",
-        "event": "US CPI Report November 2026",
-        "importance": 3,
-        "actual": "",
-        "forecast": "",
-        "previous": "",
-        "currency": "USD",
-        "source_url": "https://www.financecalendar.com/event/us-cpi-report-november-2026/"
-      },
-      {
-        "date": "2026-11-12T13:30:00+00:00",
-        "country": "US",
-        "event": "US Initial Jobless Claims: November 12, 2026",
-        "importance": 2,
-        "actual": "",
-        "forecast": "",
-        "previous": "",
-        "currency": "USD",
-        "source_url": "https://www.financecalendar.com/event/us-initial-jobless-claims-november-12-2026/"
-      },
-      {
-        "date": "2026-11-13T13:30:00+00:00",
-        "country": "US",
-        "event": "US Producer Price Index November 2026",
-        "importance": 2,
-        "actual": "",
-        "forecast": "",
-        "previous": "",
-        "currency": "USD",
-        "source_url": "https://www.financecalendar.com/event/us-producer-price-index-november-2026/"
-      }
-    ],
-    "message": "Kalendar berjaya dimuatkan.",
+    "updated_utc": "2026-11-02T05:22:17.469078+00:00",
+    "events": [],
+    "message": "Kalendar tidak tersedia: HTTP Error 401: Unauthorized",
     "url": "https://www.financecalendar.com/api/economic-calendar/",
     "attribution_url": "https://www.financecalendar.com/",
-    "timezone_note": "Waktu paparan Asia/Kuala_Lumpur."
+    "timezone_note": "Waktu acara tidak dapat disahkan."
   },
   "news_impact": {
-    "status": "NORMAL",
-    "blocks_signal": false,
+    "status": "CALENDAR_ERROR",
+    "blocks_signal": true,
     "event": null,
     "minutes_to_event": null,
-    "message": "Tiada berita terpilih dalam tetingkap sekatan ±30 minit."
+    "message": "NEWS FILTER: kalendar gagal dimuatkan; signal baharu disekat."
   },
   "active_setups": [],
   "active_setup": null,
@@ -613,97 +513,6 @@
   },
   "chart_candles": [
     {
-      "t": 1793574900,
-      "o": 3895.28159,
-      "h": 3895.65168,
-      "l": 3892.5652,
-      "c": 3895.43958
-    },
-    {
-      "t": 1793575200,
-      "o": 3895.07887,
-      "h": 3895.59797,
-      "l": 3893.32295,
-      "c": 3894.6582
-    },
-    {
-      "t": 1793575500,
-      "o": 3894.26172,
-      "h": 3902.21584,
-      "l": 3894.26172,
-      "c": 3899.70035
-    },
-    {
-      "t": 1793575800,
-      "o": 3900.59091,
-      "h": 3900.59091,
-      "l": 3895.29448,
-      "c": 3896.41684
-    },
-    {
-      "t": 1793576100,
-      "o": 3896.20439,
-      "h": 3899.72349,
-      "l": 3895.74974,
-      "c": 3899.29514
-    },
-    {
-      "t": 1793576400,
-      "o": 3898.46049,
-      "h": 3900.77344,
-      "l": 3898.46049,
-      "c": 3900.6104
-    },
-    {
-      "t": 1793576700,
-      "o": 3900.53315,
-      "h": 3900.59199,
-      "l": 3898.31038,
-      "c": 3899.47176
-    },
-    {
-      "t": 1793577000,
-      "o": 3899.20587,
-      "h": 3900.80059,
-      "l": 3897.40641,
-      "c": 3900.59868
-    },
-    {
-      "t": 1793577300,
-      "o": 3900.13762,
-      "h": 3901.22108,
-      "l": 3897.11613,
-      "c": 3897.31977
-    },
-    {
-      "t": 1793577600,
-      "o": 3897.65954,
-      "h": 3903.50535,
-      "l": 3897.11613,
-      "c": 3903.10631
-    },
-    {
-      "t": 1793577900,
-      "o": 3902.57327,
-      "h": 3903.68007,
-      "l": 3900.20026,
-      "c": 3900.73175
-    },
-    {
-      "t": 1793578200,
-      "o": 3901.58642,
-      "h": 3902.28674,
-      "l": 3899.09073,
-      "c": 3902.02612
-    },
-    {
-      "t": 1793578500,
-      "o": 3901.85896,
-      "h": 3902.91848,
-      "l": 3897.87566,
-      "c": 3898.90085
-    },
-    {
       "t": 1793578800,
       "o": 3898.79941,
       "h": 3900.18253,
@@ -1031,16 +840,107 @@
       "h": 3909.65878,
       "l": 3906.07402,
       "c": 3908.75633
+    },
+    {
+      "t": 1793592900,
+      "o": 3907.97464,
+      "h": 3907.97464,
+      "l": 3905.18218,
+      "c": 3905.99173
+    },
+    {
+      "t": 1793593200,
+      "o": 3906.10909,
+      "h": 3906.40313,
+      "l": 3904.87719,
+      "c": 3905.52457
+    },
+    {
+      "t": 1793593500,
+      "o": 3905.2858,
+      "h": 3906.98836,
+      "l": 3904.13857,
+      "c": 3904.49047
+    },
+    {
+      "t": 1793593800,
+      "o": 3905.14395,
+      "h": 3905.14395,
+      "l": 3902.39577,
+      "c": 3902.89431
+    },
+    {
+      "t": 1793594100,
+      "o": 3902.86547,
+      "h": 3902.86547,
+      "l": 3901.5255,
+      "c": 3902.07083
+    },
+    {
+      "t": 1793594400,
+      "o": 3901.99667,
+      "h": 3901.99667,
+      "l": 3900.15601,
+      "c": 3901.38699
+    },
+    {
+      "t": 1793594700,
+      "o": 3900.97009,
+      "h": 3901.97865,
+      "l": 3899.17814,
+      "c": 3900.54724
+    },
+    {
+      "t": 1793595000,
+      "o": 3900.15662,
+      "h": 3900.15662,
+      "l": 3898.34497,
+      "c": 3899.09501
+    },
+    {
+      "t": 1793595300,
+      "o": 3899.07501,
+      "h": 3900.90322,
+      "l": 3898.78748,
+      "c": 3900.64064
+    },
+    {
+      "t": 1793595600,
+      "o": 3900.15743,
+      "h": 3903.04828,
+      "l": 3900.15743,
+      "c": 3902.71015
+    },
+    {
+      "t": 1793595900,
+      "o": 3902.61757,
+      "h": 3906.12793,
+      "l": 3902.53169,
+      "c": 3904.85856
+    },
+    {
+      "t": 1793596200,
+      "o": 3904.82512,
+      "h": 3906.70782,
+      "l": 3904.82512,
+      "c": 3906.1046
+    },
+    {
+      "t": 1793596500,
+      "o": 3906.06049,
+      "h": 3907.56996,
+      "l": 3905.63869,
+      "c": 3906.42214
     }
   ],
   "strategy": "NONE",
   "buy_score": 8,
   "sell_score": 3,
-  "atr14": 3.9367841711588993,
+  "atr14": 2.987442502238437,
   "support": 3892.98861,
-  "resistance": 3912.82232,
-  "last_candle_utc": "2026-11-02T04:15:00+00:00",
-  "candle_age_seconds": 258,
+  "resistance": 3909.65878,
+  "last_candle_utc": "2026-11-02T05:20:00+00:00",
+  "candle_age_seconds": 137,
   "quote_source": "Biquote API",
   "ohlc_source": "Twelve Data",
   "market_state": "open"
