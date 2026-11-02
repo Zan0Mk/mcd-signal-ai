@@ -9,8 +9,9 @@ Data:
 - Economic calendar: Finance Calendar API
 
 Important:
-- For XAU/USD, Twelve Data may not provide real traded volume.
-  When volume is unavailable, VWAP is explicitly marked as a fallback.
+- Calendar failure does NOT block signal generation.
+- A successfully loaded calendar can block new entries within ±30 minutes.
+- Existing active setups continue to be monitored.
 - TP/SL outcomes are based on sampled Biquote prices, not broker fills.
 """
 
@@ -63,7 +64,11 @@ def iso(value):
 
 
 def finite(value):
-    return isinstance(value, (int, float)) and math.isfinite(value)
+    return (
+        isinstance(value, (int, float))
+        and not isinstance(value, bool)
+        and math.isfinite(value)
+    )
 
 
 def fmt(value):
@@ -610,13 +615,24 @@ def fetch_economic_calendar():
 
 
 def news_lock(calendar):
+    """
+    Calendar failure is fail-open:
+    - CALENDAR_ERROR is reported.
+    - blocks_signal remains False.
+    - Signal generation continues without news filtering.
+
+    A valid calendar can still block new entries within ±30 minutes.
+    """
     if not isinstance(calendar, dict) or calendar.get("status") != "FRESH":
         return {
             "status": "CALENDAR_ERROR",
-            "blocks_signal": True,
+            "blocks_signal": False,
             "event": None,
             "minutes_to_event": None,
-            "message": "NEWS FILTER: kalendar gagal dimuatkan; signal baharu disekat.",
+            "message": (
+                "Calendar unavailable — signal continues without "
+                "news filtering."
+            ),
         }
 
     current = now()
@@ -683,15 +699,131 @@ def notify(title, message):
 # MULTIPLE ACTIVE SETUPS AND HISTORY
 # ============================================================
 
+def _valid_active_setup(setup):
+    """Return True only for a structurally valid ACTIVE setup."""
+    if not isinstance(setup, dict):
+        return False
+    if setup.get("status") != "ACTIVE":
+        return False
+    if setup.get("side") not in ("BUY", "SELL"):
+        return False
+
+    entry = setup.get("entry")
+    sl = setup.get("sl")
+    tp = setup.get("tp1")
+
+    if not all(finite(x) for x in (entry, sl, tp)):
+        return False
+
+    if setup["side"] == "BUY":
+        return sl < entry < tp
+
+    return sl > entry > tp
+
+
 def ensure_state(state):
-    if not isinstance(state.get("active_setups"), list):
-        legacy = state.get("active_setup")
-        state["active_setups"] = (
-            [legacy] if isinstance(legacy, dict)
-            and legacy.get("status") == "ACTIVE" else []
-        )
-    if not isinstance(state.get("signal_history"), list):
-        state["signal_history"] = []
+    """
+    Normalize saved state and recover active setups.
+
+    Recovery order:
+    1. active_setups
+    2. legacy active_setup
+    3. ACTIVE records from signal_history
+
+    Terminal TP_HIT and SL_HIT history rows are never reactivated.
+    """
+    if not isinstance(state, dict):
+        state = {}
+
+    raw_active = state.get("active_setups")
+    if not isinstance(raw_active, list):
+        raw_active = []
+
+    history = state.get("signal_history")
+    if not isinstance(history, list):
+        history = []
+
+    candidates = []
+
+    # First priority: current active_setups.
+    candidates.extend(raw_active)
+
+    # Second priority: legacy single active_setup.
+    legacy = state.get("active_setup")
+    if isinstance(legacy, dict):
+        candidates.append(legacy)
+
+    # Third priority: recover ACTIVE rows missing from active_setups.
+    candidates.extend(
+        item for item in history
+        if isinstance(item, dict) and item.get("status") == "ACTIVE"
+    )
+
+    recovered = []
+    seen_ids = set()
+
+    for setup in candidates:
+        if not _valid_active_setup(setup):
+            continue
+
+        setup_id = setup.get("id")
+
+        # Setup records created by this monitor always have IDs.
+        # For older records without IDs, use a stable fallback key.
+        if not setup_id:
+            setup_id = (
+                f"LEGACY-{setup.get('side')}-"
+                f"{setup.get('created_candle_t', setup.get('created_utc', 'UNKNOWN'))}"
+            )
+            setup = dict(setup)
+            setup["id"] = setup_id
+
+        if setup_id in seen_ids:
+            continue
+
+        seen_ids.add(setup_id)
+        recovered.append(dict(setup))
+
+    state["active_setups"] = recovered
+
+    # Keep history rows, including terminal rows.
+    valid_history = [
+        item for item in history
+        if isinstance(item, dict)
+    ]
+
+    # Ensure each recovered active setup is represented in history.
+    history_by_id = {
+        item.get("id"): item
+        for item in valid_history
+        if item.get("id")
+    }
+
+    for setup in recovered:
+        setup_id = setup["id"]
+        if setup_id in history_by_id:
+            history_by_id[setup_id].update(setup)
+        else:
+            valid_history.append(dict(setup))
+
+    # Remove only the legacy field after migration.
+    state.pop("active_setup", None)
+
+    # Preserve active setups even if history exceeds MAX_HISTORY.
+    active_ids = {x["id"] for x in recovered}
+    if len(valid_history) > MAX_HISTORY:
+        active_rows = [
+            item for item in valid_history
+            if item.get("id") in active_ids
+        ]
+        terminal_and_old_rows = [
+            item for item in valid_history
+            if item.get("id") not in active_ids
+        ]
+        keep_count = max(0, MAX_HISTORY - len(active_rows))
+        valid_history = terminal_and_old_rows[-keep_count:] + active_rows
+
+    state["signal_history"] = valid_history
     return state
 
 
@@ -805,7 +937,24 @@ def update_history(state, changed_setups):
         if setup.get("id") in by_id:
             by_id[setup["id"]].update(setup)
 
-    state["signal_history"] = history[-MAX_HISTORY:]
+    # Keep all active rows; trim older non-active rows first.
+    active_ids = {
+        setup.get("id") for setup in state["active_setups"]
+        if isinstance(setup, dict)
+    }
+    if len(history) > MAX_HISTORY:
+        active_rows = [
+            item for item in history
+            if isinstance(item, dict) and item.get("id") in active_ids
+        ]
+        other_rows = [
+            item for item in history
+            if not (isinstance(item, dict) and item.get("id") in active_ids)
+        ]
+        keep_count = max(0, MAX_HISTORY - len(active_rows))
+        history = other_rows[-keep_count:] + active_rows
+
+    state["signal_history"] = history
 
 
 def calculate_performance(history):
@@ -839,6 +988,7 @@ def main():
     run_time = now()
     state = ensure_state(read_state())
 
+    # Calendar failure is handled by news_lock() as non-blocking.
     calendar = fetch_economic_calendar()
     news = news_lock(calendar)
 
@@ -922,7 +1072,8 @@ def main():
         changed = monitor_active_setups(state, quote)
         update_history(state, changed)
 
-        # News lock blocks only new entries; active setups continue to be monitored.
+        # A valid news lock blocks only new entries.
+        # Calendar error has blocks_signal=False, so signal continues.
         candidate = result["signal"]
         if news["blocks_signal"] and candidate in ("BUY", "SELL"):
             result["signal"] = "WAIT"
@@ -938,7 +1089,10 @@ def main():
 
         # Do not chase entries that have already moved too far.
         if result["signal"] in ("BUY", "SELL"):
-            executable_price = quote["ask"] if result["signal"] == "BUY" else quote["bid"]
+            executable_price = (
+                quote["ask"] if result["signal"] == "BUY"
+                else quote["bid"]
+            )
             drift = abs(executable_price - result["entry"])
             if drift > result["atr14"] * MAX_ENTRY_DRIFT_ATR:
                 result["signal"] = "WAIT"
@@ -1033,6 +1187,10 @@ def main():
                 "Setup baharu direkodkan. Sahkan harga, spread dan "
                 "risiko pada platform broker sebelum entry manual."
             )
+
+        # Keep calendar status visible even when the signal engine runs normally.
+        if news["status"] == "CALENDAR_ERROR":
+            public["calendar_notice"] = news["message"]
 
         state["last_status"] = "DATA_VALID"
         state["last_error"] = None
