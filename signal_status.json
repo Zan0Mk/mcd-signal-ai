@@ -4,10 +4,10 @@
   "timeframe": "M5",
   "data_source": "Twelve Data OHLC + Biquote sampled quote",
   "data_note": "Bukan feed rasmi broker HFM XAUUSDc. Bandingkan harga dengan MT5 sebelum membuat keputusan.",
-  "updated_utc": "2026-11-02T08:46:31.442211+00:00",
+  "updated_utc": "2026-11-02T09:43:10.430491+00:00",
   "data_status": "FRESH",
   "signal": "WAIT",
-  "score": 6,
+  "score": 5,
   "quality": "WAIT",
   "reason": "Menunggu data.",
   "entry": null,
@@ -16,12 +16,12 @@
   "sl": null,
   "tp1": null,
   "risk_distance": null,
-  "price": 3902.289,
-  "quote_bid": 3902.205,
-  "quote_ask": 3902.373,
-  "quote_mid": 3902.289,
+  "price": 3901.486,
+  "quote_bid": 3901.402,
+  "quote_ask": 3901.57,
+  "quote_mid": 3901.486,
   "quote_spread": 0.168,
-  "quote_timestamp_utc": "2026-11-02T08:46:31+00:00",
+  "quote_timestamp_utc": "2026-11-02T09:43:10+00:00",
   "quote_age_seconds": 1,
   "trend": {
     "d1": "BEARISH",
@@ -34,22 +34,22 @@
   "indicators": {
     "ma_cross": "BEARISH",
     "ma_bias": "BEARISH",
-    "ema9": 3897.8277462632996,
-    "ema21": 3900.516672156784,
-    "vwap": 3892.0253007960196,
+    "ema9": 3900.0617372092206,
+    "ema21": 3900.5493157357128,
+    "vwap": 3892.474722342767,
     "vwap_bias": "BULLISH",
     "vwap_method": "EQUAL_WEIGHT_FALLBACK",
-    "rsi14": 42.53058301893768,
+    "rsi14": 44.57058933419216,
     "rsi_bias": "BEARISH",
-    "macd": -2.8132398076795653,
-    "macd_signal": -2.5889568343679756,
-    "macd_histogram": -0.22428297331158964,
-    "macd_bias": "BEARISH",
-    "atr14": 3.607580016939363,
-    "atr_ratio": 1.1472781470520486,
+    "macd": -0.812260495917144,
+    "macd_signal": -1.0893993243697326,
+    "macd_histogram": 0.27713882845258864,
+    "macd_bias": "BULLISH",
+    "atr14": 3.526958656858332,
+    "atr_ratio": 1.0958209884868713,
     "atr_filter": "PASS",
-    "buy_votes": 1,
-    "sell_votes": 3
+    "buy_votes": 2,
+    "sell_votes": 2
   },
   "techniques": {
     "snr": false,
@@ -60,7 +60,7 @@
   "economic_calendar": {
     "status": "ERROR",
     "source": "Finance Calendar API",
-    "updated_utc": "2026-11-02T08:46:31.747442+00:00",
+    "updated_utc": "2026-11-02T09:43:10.702736+00:00",
     "events": [],
     "message": "Kalendar tidak tersedia: HTTP Error 401: Unauthorized",
     "url": "https://www.financecalendar.com/api/economic-calendar/",
@@ -69,10 +69,10 @@
   },
   "news_impact": {
     "status": "CALENDAR_ERROR",
-    "blocks_signal": true,
+    "blocks_signal": false,
     "event": null,
     "minutes_to_event": null,
-    "message": "NEWS FILTER: kalendar gagal dimuatkan; signal baharu disekat."
+    "message": "Calendar unavailable — signal continues without news filtering."
   },
   "active_setups": [],
   "active_setup": null,
@@ -169,61 +169,89 @@
     {
       "id": "BUY-1792993500",
       "side": "BUY",
-      "status": "ACTIVE",
+      "status": "SL_HIT",
       "entry": 4015.2479,
       "sl": 4006.54556,
       "tp1": 4028.3014099999996,
       "created_utc": "2026-10-26T05:50:00+00:00",
       "strategy": "SnR Rejection",
-      "score": 6
+      "score": 6,
+      "last_checked_quote_timestamp": "2026-11-02T09:43:10+00:00",
+      "exit_reason": "SL_HIT",
+      "exit_price": 3901.402,
+      "exit_price_type": "BID",
+      "closed_utc": "2026-11-02T09:43:11.962189+00:00",
+      "exit_quote_utc": "2026-11-02T09:43:10+00:00"
     },
     {
       "id": "SELL-1792995300",
       "side": "SELL",
-      "status": "ACTIVE",
+      "status": "TP_HIT",
       "entry": 4006.34535,
       "sl": 4011.6547129963283,
       "tp1": 3998.381305505508,
       "created_utc": "2026-10-26T06:20:00+00:00",
       "strategy": "Breakout",
       "score": 5,
-      "closed_utc": null,
-      "last_event_notified": null
+      "closed_utc": "2026-11-02T09:43:11.962203+00:00",
+      "last_event_notified": null,
+      "last_checked_quote_timestamp": "2026-11-02T09:43:10+00:00",
+      "exit_reason": "TP_HIT",
+      "exit_price": 3901.57,
+      "exit_price_type": "ASK",
+      "exit_quote_utc": "2026-11-02T09:43:10+00:00"
     },
     {
       "id": "BUY-1793001600",
       "side": "BUY",
-      "status": "ACTIVE",
+      "status": "SL_HIT",
       "entry": 4012.56586,
       "sl": 4007.645308,
       "tp1": 4019.946688,
       "created_utc": "2026-10-26T08:05:00+00:00",
       "strategy": "Breakout",
-      "score": 6
+      "score": 6,
+      "last_checked_quote_timestamp": "2026-11-02T09:43:10+00:00",
+      "exit_reason": "SL_HIT",
+      "exit_price": 3901.402,
+      "exit_price_type": "BID",
+      "closed_utc": "2026-11-02T09:43:11.962206+00:00",
+      "exit_quote_utc": "2026-11-02T09:43:10+00:00"
     },
     {
       "id": "SELL-1793004000",
       "side": "SELL",
-      "status": "ACTIVE",
+      "status": "TP_HIT",
       "entry": 4015.99958,
       "sl": 4020.356025336132,
       "tp1": 4009.464911995802,
       "created_utc": "2026-10-26T08:45:00+00:00",
       "strategy": "SnR Rejection",
       "score": 5,
-      "closed_utc": null,
-      "last_event_notified": null
+      "closed_utc": "2026-11-02T09:43:11.962208+00:00",
+      "last_event_notified": null,
+      "last_checked_quote_timestamp": "2026-11-02T09:43:10+00:00",
+      "exit_reason": "TP_HIT",
+      "exit_price": 3901.57,
+      "exit_price_type": "ASK",
+      "exit_quote_utc": "2026-11-02T09:43:10+00:00"
     },
     {
       "id": "SELL-1793011500",
       "side": "SELL",
-      "status": "ACTIVE",
+      "status": "TP_HIT",
       "entry": 4011.21783,
       "sl": 4014.671106944367,
       "tp1": 4006.03791458345,
       "created_utc": "2026-10-26T10:50:00+00:00",
       "strategy": "Breakout",
-      "score": 5
+      "score": 5,
+      "last_checked_quote_timestamp": "2026-11-02T09:43:10+00:00",
+      "exit_reason": "TP_HIT",
+      "exit_price": 3901.57,
+      "exit_price_type": "ASK",
+      "closed_utc": "2026-11-02T09:43:11.962211+00:00",
+      "exit_quote_utc": "2026-11-02T09:43:10+00:00"
     },
     {
       "id": "BUY-1793013600",
@@ -241,26 +269,37 @@
     {
       "id": "BUY-1793047500",
       "side": "BUY",
-      "status": "ACTIVE",
+      "status": "SL_HIT",
       "entry": 4015.98721,
       "sl": 4012.7429499999994,
       "tp1": 4020.8536000000004,
       "created_utc": "2026-10-26T20:50:00+00:00",
       "strategy": "Breakout",
       "score": 5,
-      "closed_utc": null,
-      "last_event_notified": null
+      "closed_utc": "2026-11-02T09:43:11.962212+00:00",
+      "last_event_notified": null,
+      "last_checked_quote_timestamp": "2026-11-02T09:43:10+00:00",
+      "exit_reason": "SL_HIT",
+      "exit_price": 3901.402,
+      "exit_price_type": "BID",
+      "exit_quote_utc": "2026-11-02T09:43:10+00:00"
     },
     {
       "id": "BUY-1793055000",
       "side": "BUY",
-      "status": "ACTIVE",
+      "status": "SL_HIT",
       "entry": 4013.20807,
       "sl": 4010.2666900000004,
       "tp1": 4017.62014,
       "created_utc": "2026-10-26T22:55:00+00:00",
       "strategy": "SnR Rejection",
-      "score": 5
+      "score": 5,
+      "last_checked_quote_timestamp": "2026-11-02T09:43:10+00:00",
+      "exit_reason": "SL_HIT",
+      "exit_price": 3901.402,
+      "exit_price_type": "BID",
+      "closed_utc": "2026-11-02T09:43:11.962214+00:00",
+      "exit_quote_utc": "2026-11-02T09:43:10+00:00"
     },
     {
       "id": "BUY-1793056500",
@@ -278,15 +317,20 @@
     {
       "id": "BUY-1793059500",
       "side": "BUY",
-      "status": "ACTIVE",
+      "status": "SL_HIT",
       "entry": 4016.44847,
       "sl": 4000.7935699999994,
       "tp1": 4039.9308200000005,
       "created_utc": "2026-10-27T00:10:00+00:00",
       "strategy": "SnR Rejection",
       "score": 6,
-      "closed_utc": null,
-      "last_event_notified": null
+      "closed_utc": "2026-11-02T09:43:11.962216+00:00",
+      "last_event_notified": null,
+      "last_checked_quote_timestamp": "2026-11-02T09:43:10+00:00",
+      "exit_reason": "SL_HIT",
+      "exit_price": 3901.402,
+      "exit_price_type": "BID",
+      "exit_quote_utc": "2026-11-02T09:43:10+00:00"
     },
     {
       "id": "SELL-1793074800",
@@ -304,28 +348,38 @@
     {
       "id": "BUY-1793079000",
       "side": "BUY",
-      "status": "ACTIVE",
+      "status": "SL_HIT",
       "entry": 4007.8427,
       "sl": 3997.645904,
       "tp1": 4023.1378940000004,
       "created_utc": "2026-10-27T05:35:00+00:00",
       "strategy": "SnR Rejection",
       "score": 5,
-      "closed_utc": null,
-      "last_event_notified": null
+      "closed_utc": "2026-11-02T09:43:11.962217+00:00",
+      "last_event_notified": null,
+      "last_checked_quote_timestamp": "2026-11-02T09:43:10+00:00",
+      "exit_reason": "SL_HIT",
+      "exit_price": 3901.402,
+      "exit_price_type": "BID",
+      "exit_quote_utc": "2026-11-02T09:43:10+00:00"
     },
     {
       "id": "BUY-1793088600",
       "side": "BUY",
-      "status": "ACTIVE",
+      "status": "SL_HIT",
       "entry": 3998.61788,
       "sl": 3993.439405594909,
       "tp1": 4006.3855916076354,
       "created_utc": "2026-10-27T08:15:00+00:00",
       "strategy": "SnR Rejection",
       "score": 5,
-      "closed_utc": null,
-      "last_event_notified": null
+      "closed_utc": "2026-11-02T09:43:11.962218+00:00",
+      "last_event_notified": null,
+      "last_checked_quote_timestamp": "2026-11-02T09:43:10+00:00",
+      "exit_reason": "SL_HIT",
+      "exit_price": 3901.402,
+      "exit_price_type": "BID",
+      "exit_quote_utc": "2026-11-02T09:43:10+00:00"
     },
     {
       "id": "SELL-1793093400",
@@ -343,13 +397,19 @@
     {
       "id": "SELL-1793156100",
       "side": "SELL",
-      "status": "ACTIVE",
+      "status": "TP_HIT",
       "entry": 4048.21918,
       "sl": 4052.94094,
       "tp1": 4041.1365400000004,
       "created_utc": "2026-10-28T03:00:00+00:00",
       "strategy": "Engulfing",
-      "score": 6
+      "score": 6,
+      "last_checked_quote_timestamp": "2026-11-02T09:43:10+00:00",
+      "exit_reason": "TP_HIT",
+      "exit_price": 3901.57,
+      "exit_price_type": "ASK",
+      "closed_utc": "2026-11-02T09:43:11.962220+00:00",
+      "exit_quote_utc": "2026-11-02T09:43:10+00:00"
     },
     {
       "id": "SELL-1793158500",
@@ -380,13 +440,19 @@
     {
       "id": "SELL-1793183400",
       "side": "SELL",
-      "status": "ACTIVE",
+      "status": "TP_HIT",
       "entry": 4045.83706,
       "sl": 4049.6979346269763,
       "tp1": 4040.045748059535,
       "created_utc": "2026-10-28T10:35:00+00:00",
       "strategy": "Breakout",
-      "score": 5
+      "score": 5,
+      "last_checked_quote_timestamp": "2026-11-02T09:43:10+00:00",
+      "exit_reason": "TP_HIT",
+      "exit_price": 3901.57,
+      "exit_price_type": "ASK",
+      "closed_utc": "2026-11-02T09:43:11.962221+00:00",
+      "exit_quote_utc": "2026-11-02T09:43:10+00:00"
     },
     {
       "id": "BUY-1793185800",
@@ -504,91 +570,14 @@
   ],
   "performance": {
     "total_entries": 31,
-    "active_entries": 12,
-    "tp_hits": 8,
-    "sl_hits": 11,
-    "decided_entries": 19,
-    "win_rate_percent": 42.11,
+    "active_entries": 0,
+    "tp_hits": 13,
+    "sl_hits": 18,
+    "decided_entries": 31,
+    "win_rate_percent": 41.94,
     "note": "Keputusan berdasarkan quote Biquote yang disampel, bukan pengesahan fill broker."
   },
   "chart_candles": [
-    {
-      "t": 1793591100,
-      "o": 3905.2828,
-      "h": 3907.01309,
-      "l": 3904.98176,
-      "c": 3906.16783
-    },
-    {
-      "t": 1793591400,
-      "o": 3905.80474,
-      "h": 3905.80474,
-      "l": 3901.06889,
-      "c": 3901.84849
-    },
-    {
-      "t": 1793591700,
-      "o": 3901.77817,
-      "h": 3902.19193,
-      "l": 3901.06889,
-      "c": 3901.14092
-    },
-    {
-      "t": 1793592000,
-      "o": 3901.01098,
-      "h": 3905.94485,
-      "l": 3900.89074,
-      "c": 3905.75764
-    },
-    {
-      "t": 1793592300,
-      "o": 3905.38901,
-      "h": 3907.16091,
-      "l": 3903.15865,
-      "c": 3906.7677
-    },
-    {
-      "t": 1793592600,
-      "o": 3906.07402,
-      "h": 3909.65878,
-      "l": 3906.07402,
-      "c": 3908.75633
-    },
-    {
-      "t": 1793592900,
-      "o": 3907.97464,
-      "h": 3907.97464,
-      "l": 3905.18218,
-      "c": 3905.99173
-    },
-    {
-      "t": 1793593200,
-      "o": 3906.10909,
-      "h": 3906.40313,
-      "l": 3904.87719,
-      "c": 3905.52457
-    },
-    {
-      "t": 1793593500,
-      "o": 3905.2858,
-      "h": 3906.98836,
-      "l": 3904.13857,
-      "c": 3904.49047
-    },
-    {
-      "t": 1793593800,
-      "o": 3905.14395,
-      "h": 3905.14395,
-      "l": 3902.39577,
-      "c": 3902.89431
-    },
-    {
-      "t": 1793594100,
-      "o": 3902.86547,
-      "h": 3902.86547,
-      "l": 3901.5255,
-      "c": 3902.07083
-    },
     {
       "t": 1793594400,
       "o": 3901.99667,
@@ -931,17 +920,95 @@
       "h": 3900.15601,
       "l": 3896.67478,
       "c": 3897.94024
+    },
+    {
+      "t": 1793609100,
+      "o": 3897.86835,
+      "h": 3903.20062,
+      "l": 3896.72667,
+      "c": 3901.2996
+    },
+    {
+      "t": 1793609400,
+      "o": 3900.8224,
+      "h": 3906.09742,
+      "l": 3900.31161,
+      "c": 3901.82331
+    },
+    {
+      "t": 1793609700,
+      "o": 3902.55885,
+      "h": 3902.55885,
+      "l": 3896.96426,
+      "c": 3897.58302
+    },
+    {
+      "t": 1793610000,
+      "o": 3897.38699,
+      "h": 3901.37328,
+      "l": 3897.24703,
+      "c": 3900.05517
+    },
+    {
+      "t": 1793610300,
+      "o": 3900.11786,
+      "h": 3904.11494,
+      "l": 3898.38328,
+      "c": 3903.66872
+    },
+    {
+      "t": 1793610600,
+      "o": 3902.79945,
+      "h": 3903.81012,
+      "l": 3901.87372,
+      "c": 3902.41801
+    },
+    {
+      "t": 1793610900,
+      "o": 3902.58061,
+      "h": 3903.04828,
+      "l": 3901.5255,
+      "c": 3901.63379
+    },
+    {
+      "t": 1793611200,
+      "o": 3901.80763,
+      "h": 3901.98221,
+      "l": 3899.92811,
+      "c": 3901.82627
+    },
+    {
+      "t": 1793611500,
+      "o": 3901.50929,
+      "h": 3901.87023,
+      "l": 3898.33151,
+      "c": 3900.17827
+    },
+    {
+      "t": 1793611800,
+      "o": 3899.88878,
+      "h": 3899.88878,
+      "l": 3897.98409,
+      "c": 3898.9811
+    },
+    {
+      "t": 1793612100,
+      "o": 3898.69686,
+      "h": 3899.96531,
+      "l": 3897.41991,
+      "c": 3898.59404
     }
   ],
   "strategy": "NONE",
-  "buy_score": 5,
-  "sell_score": 6,
-  "atr14": 3.607580016939363,
+  "buy_score": 4,
+  "sell_score": 5,
+  "atr14": 3.526958656858332,
   "support": 3890.69156,
-  "resistance": 3915.7292,
-  "last_candle_utc": "2026-11-02T08:45:00+00:00",
-  "candle_age_seconds": 91,
+  "resistance": 3909.30414,
+  "last_candle_utc": "2026-11-02T09:40:00+00:00",
+  "candle_age_seconds": 190,
   "quote_source": "Biquote API",
   "ohlc_source": "Twelve Data",
-  "market_state": "open"
+  "market_state": "open",
+  "calendar_notice": "Calendar unavailable — signal continues without news filtering."
 }
