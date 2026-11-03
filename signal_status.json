@@ -4,24 +4,24 @@
   "timeframe": "M5",
   "data_source": "Twelve Data OHLC + Biquote sampled quote",
   "data_note": "Bukan feed rasmi broker HFM XAUUSDc. Bandingkan harga dengan MT5 sebelum membuat keputusan.",
-  "updated_utc": "2026-11-03T02:31:34.649736+00:00",
+  "updated_utc": "2026-11-03T03:24:04.588081+00:00",
   "data_status": "FRESH",
-  "signal": "WAIT",
-  "score": 7,
-  "quality": "WAIT",
-  "reason": "Menunggu data.",
-  "entry": null,
-  "zone_low": null,
-  "zone_high": null,
-  "sl": null,
-  "tp1": null,
-  "risk_distance": null,
-  "price": 3943.921,
-  "quote_bid": 3943.837,
-  "quote_ask": 3944.005,
-  "quote_mid": 3943.921,
+  "signal": "SELL",
+  "score": 10,
+  "quality": "STRONG (A)",
+  "reason": "Setup baharu direkodkan. Sahkan harga, spread dan risiko pada platform broker sebelum entry manual.",
+  "entry": 3940.94274,
+  "zone_low": 3940.3331460580857,
+  "zone_high": 3941.552333941914,
+  "sl": 3947.0386794191436,
+  "tp1": 3931.7988308712847,
+  "risk_distance": 6.095939419143633,
+  "price": 3936.825,
+  "quote_bid": 3936.741,
+  "quote_ask": 3936.909,
+  "quote_mid": 3936.825,
   "quote_spread": 0.168,
-  "quote_timestamp_utc": "2026-11-03T02:31:35+00:00",
+  "quote_timestamp_utc": "2026-11-03T03:24:05+00:00",
   "quote_age_seconds": 0,
   "trend": {
     "d1": "BEARISH",
@@ -34,19 +34,19 @@
   "indicators": {
     "ma_cross": "BEARISH",
     "ma_bias": "BEARISH",
-    "ema9": 3946.8292858047034,
-    "ema21": 3948.961585230418,
-    "vwap": 3952.0486495502646,
+    "ema9": 3944.4948328274104,
+    "ema21": 3946.4087594503776,
+    "vwap": 3951.5556098284314,
     "vwap_bias": "BEARISH",
     "vwap_method": "EQUAL_WEIGHT_FALLBACK",
-    "rsi14": 44.96265767662107,
+    "rsi14": 39.42092687176422,
     "rsi_bias": "BEARISH",
-    "macd": -1.7401560581033664,
-    "macd_signal": -0.9355079710249182,
-    "macd_histogram": -0.8046480870784481,
+    "macd": -1.8642544233462104,
+    "macd_signal": -1.4844458693962945,
+    "macd_histogram": -0.37980855394991586,
     "macd_bias": "BEARISH",
-    "atr14": 4.499566014034772,
-    "atr_ratio": 2.1690381687964915,
+    "atr14": 4.063959612762366,
+    "atr_ratio": 0.9589952180713416,
     "atr_filter": "PASS",
     "buy_votes": 0,
     "sell_votes": 4
@@ -55,12 +55,12 @@
     "snr": false,
     "smc": false,
     "pa": false,
-    "breakout": false
+    "breakout": true
   },
   "economic_calendar": {
     "status": "ERROR",
     "source": "Finance Calendar API",
-    "updated_utc": "2026-11-03T02:31:34.933845+00:00",
+    "updated_utc": "2026-11-03T03:24:04.914346+00:00",
     "events": [],
     "message": "Kalendar tidak tersedia: HTTP Error 401: Unauthorized",
     "url": "https://www.financecalendar.com/api/economic-calendar/",
@@ -74,8 +74,52 @@
     "minutes_to_event": null,
     "message": "Calendar unavailable — signal continues without news filtering."
   },
-  "active_setups": [],
-  "active_setup": null,
+  "active_setups": [
+    {
+      "id": "MCD-SELL-1793675700",
+      "key": "SELL-1793675700",
+      "side": "SELL",
+      "status": "ACTIVE",
+      "entry": 3940.94274,
+      "zone_low": 3940.3331460580857,
+      "zone_high": 3941.552333941914,
+      "sl": 3947.0386794191436,
+      "tp1": 3931.7988308712847,
+      "risk_distance": 6.095939419143633,
+      "strategy": "BREAKOUT",
+      "score": 10,
+      "quality": "STRONG (A)",
+      "created_candle_t": 1793675700,
+      "created_utc": "2026-11-03T03:20:00+00:00",
+      "created_quote_utc": "2026-11-03T03:24:05+00:00",
+      "last_checked_quote_timestamp": null,
+      "closed_utc": null,
+      "exit_price": null,
+      "exit_reason": null
+    }
+  ],
+  "active_setup": {
+    "id": "MCD-SELL-1793675700",
+    "key": "SELL-1793675700",
+    "side": "SELL",
+    "status": "ACTIVE",
+    "entry": 3940.94274,
+    "zone_low": 3940.3331460580857,
+    "zone_high": 3941.552333941914,
+    "sl": 3947.0386794191436,
+    "tp1": 3931.7988308712847,
+    "risk_distance": 6.095939419143633,
+    "strategy": "BREAKOUT",
+    "score": 10,
+    "quality": "STRONG (A)",
+    "created_candle_t": 1793675700,
+    "created_utc": "2026-11-03T03:20:00+00:00",
+    "created_quote_utc": "2026-11-03T03:24:05+00:00",
+    "last_checked_quote_timestamp": null,
+    "closed_utc": null,
+    "exit_price": null,
+    "exit_reason": null
+  },
   "signal_history": [
     {
       "id": "SELL-1792577700",
@@ -614,11 +658,33 @@
       "exit_reason": "SL_HIT",
       "exit_price_type": "ASK",
       "exit_quote_utc": "2026-11-03T00:43:07+00:00"
+    },
+    {
+      "id": "MCD-SELL-1793675700",
+      "key": "SELL-1793675700",
+      "side": "SELL",
+      "status": "ACTIVE",
+      "entry": 3940.94274,
+      "zone_low": 3940.3331460580857,
+      "zone_high": 3941.552333941914,
+      "sl": 3947.0386794191436,
+      "tp1": 3931.7988308712847,
+      "risk_distance": 6.095939419143633,
+      "strategy": "BREAKOUT",
+      "score": 10,
+      "quality": "STRONG (A)",
+      "created_candle_t": 1793675700,
+      "created_utc": "2026-11-03T03:20:00+00:00",
+      "created_quote_utc": "2026-11-03T03:24:05+00:00",
+      "last_checked_quote_timestamp": null,
+      "closed_utc": null,
+      "exit_price": null,
+      "exit_reason": null
     }
   ],
   "performance": {
-    "total_entries": 33,
-    "active_entries": 0,
+    "total_entries": 34,
+    "active_entries": 1,
     "tp_hits": 14,
     "sl_hits": 19,
     "decided_entries": 33,
@@ -626,76 +692,6 @@
     "note": "Keputusan berdasarkan quote Biquote yang disampel, bukan pengesahan fill broker."
   },
   "chart_candles": [
-    {
-      "t": 1793655000,
-      "o": 3946.86609,
-      "h": 3946.86609,
-      "l": 3944.92879,
-      "c": 3945.53665
-    },
-    {
-      "t": 1793655300,
-      "o": 3945.46357,
-      "h": 3945.70707,
-      "l": 3944.53528,
-      "c": 3945.14069
-    },
-    {
-      "t": 1793655600,
-      "o": 3945.15769,
-      "h": 3948.04374,
-      "l": 3944.93412,
-      "c": 3947.92493
-    },
-    {
-      "t": 1793655900,
-      "o": 3947.66617,
-      "h": 3947.88788,
-      "l": 3947.10874,
-      "c": 3947.21177
-    },
-    {
-      "t": 1793656200,
-      "o": 3947.22886,
-      "h": 3948.06515,
-      "l": 3946.33829,
-      "c": 3946.51643
-    },
-    {
-      "t": 1793656500,
-      "o": 3946.73514,
-      "h": 3946.92073,
-      "l": 3945.55139,
-      "c": 3946.67674
-    },
-    {
-      "t": 1793656800,
-      "o": 3946.30765,
-      "h": 3947.26455,
-      "l": 3946.30765,
-      "c": 3946.95233
-    },
-    {
-      "t": 1793657100,
-      "o": 3946.87116,
-      "h": 3947.03663,
-      "l": 3946.79717,
-      "c": 3946.94799
-    },
-    {
-      "t": 1793657400,
-      "o": 3946.88345,
-      "h": 3947.05294,
-      "l": 3946.77792,
-      "c": 3946.81641
-    },
-    {
-      "t": 1793657700,
-      "o": 3946.87431,
-      "h": 3947.01749,
-      "l": 3946.83703,
-      "c": 3946.93398
-    },
     {
       "t": 1793658000,
       "o": 3946.87974,
@@ -1045,16 +1041,86 @@
       "h": 3947.78657,
       "l": 3944.34142,
       "c": 3946.18586
+    },
+    {
+      "t": 1793673000,
+      "o": 3946.70125,
+      "h": 3948.0713,
+      "l": 3943.21767,
+      "c": 3944.73883
+    },
+    {
+      "t": 1793673300,
+      "o": 3945.27288,
+      "h": 3945.27288,
+      "l": 3942.59581,
+      "c": 3943.14619
+    },
+    {
+      "t": 1793673600,
+      "o": 3943.28284,
+      "h": 3947.10874,
+      "l": 3941.96597,
+      "c": 3944.90155
+    },
+    {
+      "t": 1793673900,
+      "o": 3945.16543,
+      "h": 3947.88788,
+      "l": 3945.16543,
+      "c": 3947.74479
+    },
+    {
+      "t": 1793674200,
+      "o": 3947.42912,
+      "h": 3950.69532,
+      "l": 3946.79717,
+      "c": 3948.79163
+    },
+    {
+      "t": 1793674500,
+      "o": 3949.10119,
+      "h": 3950.69532,
+      "l": 3947.40272,
+      "c": 3950.59509
+    },
+    {
+      "t": 1793674800,
+      "o": 3950.56367,
+      "h": 3950.56367,
+      "l": 3943.99527,
+      "c": 3945.1796
+    },
+    {
+      "t": 1793675100,
+      "o": 3944.97864,
+      "h": 3945.29523,
+      "l": 3943.06218,
+      "c": 3943.14365
+    },
+    {
+      "t": 1793675400,
+      "o": 3943.15806,
+      "h": 3943.99527,
+      "l": 3942.05988,
+      "c": 3942.19805
+    },
+    {
+      "t": 1793675700,
+      "o": 3942.37957,
+      "h": 3943.42481,
+      "l": 3939.64464,
+      "c": 3940.94274
     }
   ],
-  "strategy": "NONE",
-  "buy_score": 4,
-  "sell_score": 7,
-  "atr14": 4.499566014034772,
+  "strategy": "BREAKOUT",
+  "buy_score": 3,
+  "sell_score": 10,
+  "atr14": 4.063959612762366,
   "support": 3941.81876,
-  "resistance": 3963.76828,
-  "last_candle_utc": "2026-11-03T02:30:00+00:00",
-  "candle_age_seconds": 94,
+  "resistance": 3961.80817,
+  "last_candle_utc": "2026-11-03T03:20:00+00:00",
+  "candle_age_seconds": 244,
   "quote_source": "Biquote API",
   "ohlc_source": "Twelve Data",
   "market_state": "open",
