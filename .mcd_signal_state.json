@@ -6,8 +6,8 @@
   "last_event_time": null,
   "last_status": "DATA_VALID",
   "last_error": null,
-  "last_candle_t": 1793889300,
-  "last_run_utc": "2026-11-05T14:41:54.081672+00:00",
+  "last_candle_t": 1793892600,
+  "last_run_utc": "2026-11-05T15:38:32.891030+00:00",
   "active_setups": [],
   "signal_history": [
     {
