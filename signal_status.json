@@ -4,7 +4,7 @@
   "timeframe": "M5",
   "data_source": "Twelve Data OHLC + Biquote sampled quote",
   "data_note": "Bukan feed rasmi broker HFM XAUUSDc. Bandingkan harga dengan MT5 sebelum membuat keputusan.",
-  "updated_utc": "2026-11-07T22:13:28.024434+00:00",
+  "updated_utc": "2026-11-07T22:48:57.060300+00:00",
   "data_status": "DATA_ERROR",
   "signal": "WAIT",
   "score": 0,
@@ -41,7 +41,7 @@
   "economic_calendar": {
     "status": "ERROR",
     "source": "Finance Calendar API",
-    "updated_utc": "2026-11-07T22:13:28.136154+00:00",
+    "updated_utc": "2026-11-07T22:48:57.188779+00:00",
     "events": [],
     "message": "Kalendar tidak tersedia: HTTP Error 503: Service Unavailable",
     "url": "https://www.financecalendar.com/api/economic-calendar/",
