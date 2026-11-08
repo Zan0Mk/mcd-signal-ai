@@ -4,10 +4,10 @@
   "last_checked_candle_t": null,
   "last_event": null,
   "last_event_time": null,
-  "last_status": "DATA_ERROR",
-  "last_error": "HTTP Error 404: Not Found",
-  "last_candle_t": 1794000300,
-  "last_run_utc": "2026-11-08T22:41:54.989820+00:00",
+  "last_status": "DATA_VALID",
+  "last_error": null,
+  "last_candle_t": 1794179400,
+  "last_run_utc": "2026-11-08T23:15:54.634097+00:00",
   "active_setups": [
     {
       "id": "MCD-BUY-1793980800",
@@ -26,7 +26,7 @@
       "created_candle_t": 1793980800,
       "created_utc": "2026-11-06T16:05:00+00:00",
       "created_quote_utc": "2026-11-06T16:06:46+00:00",
-      "last_checked_quote_timestamp": "2026-11-06T21:34:35+00:00",
+      "last_checked_quote_timestamp": "2026-11-08T23:15:55+00:00",
       "closed_utc": null,
       "exit_price": null,
       "exit_reason": null
@@ -48,7 +48,7 @@
       "created_candle_t": 1793983500,
       "created_utc": "2026-11-06T16:50:00+00:00",
       "created_quote_utc": "2026-11-06T16:54:51+00:00",
-      "last_checked_quote_timestamp": "2026-11-06T21:34:35+00:00",
+      "last_checked_quote_timestamp": "2026-11-08T23:15:55+00:00",
       "closed_utc": null,
       "exit_price": null,
       "exit_reason": null
@@ -778,7 +778,7 @@
       "created_candle_t": 1793980800,
       "created_utc": "2026-11-06T16:05:00+00:00",
       "created_quote_utc": "2026-11-06T16:06:46+00:00",
-      "last_checked_quote_timestamp": "2026-11-06T21:34:35+00:00",
+      "last_checked_quote_timestamp": "2026-11-08T23:15:55+00:00",
       "closed_utc": null,
       "exit_price": null,
       "exit_reason": null
@@ -800,7 +800,7 @@
       "created_candle_t": 1793983500,
       "created_utc": "2026-11-06T16:50:00+00:00",
       "created_quote_utc": "2026-11-06T16:54:51+00:00",
-      "last_checked_quote_timestamp": "2026-11-06T21:34:35+00:00",
+      "last_checked_quote_timestamp": "2026-11-08T23:15:55+00:00",
       "closed_utc": null,
       "exit_price": null,
       "exit_reason": null
