@@ -4,10 +4,10 @@
   "timeframe": "M5",
   "data_source": "Twelve Data OHLC + Biquote sampled quote",
   "data_note": "Bukan feed rasmi broker HFM XAUUSDc. Bandingkan harga dengan MT5 sebelum membuat keputusan.",
-  "updated_utc": "2026-11-09T23:22:50.163236+00:00",
+  "updated_utc": "2026-11-09T23:58:12.729739+00:00",
   "data_status": "FRESH",
   "signal": "WAIT",
-  "score": 9,
+  "score": 6,
   "quality": "WAIT",
   "reason": "Menunggu data.",
   "entry": null,
@@ -16,13 +16,13 @@
   "sl": null,
   "tp1": null,
   "risk_distance": null,
-  "price": 4142.872,
-  "quote_bid": 4142.788,
-  "quote_ask": 4142.956,
-  "quote_mid": 4142.872,
+  "price": 4138.056,
+  "quote_bid": 4137.972,
+  "quote_ask": 4138.14,
+  "quote_mid": 4138.056,
   "quote_spread": 0.168,
-  "quote_timestamp_utc": "2026-11-09T23:22:51+00:00",
-  "quote_age_seconds": 0,
+  "quote_timestamp_utc": "2026-11-09T23:58:12+00:00",
+  "quote_age_seconds": 2,
   "trend": {
     "d1": "BEARISH",
     "h4": "BULLISH",
@@ -32,35 +32,35 @@
   },
   "trend_45m": "BULLISH",
   "indicators": {
-    "ma_cross": "BULLISH",
-    "ma_bias": "BULLISH",
-    "ema9": 4141.611172076151,
-    "ema21": 4140.25282541649,
-    "vwap": 4124.414477727273,
+    "ma_cross": "BEARISH CROSS",
+    "ma_bias": "BEARISH",
+    "ema9": 4140.059695742665,
+    "ema21": 4140.07390802583,
+    "vwap": 4125.5832816140355,
     "vwap_bias": "BULLISH",
     "vwap_method": "EQUAL_WEIGHT_FALLBACK",
-    "rsi14": 65.57206641868007,
-    "rsi_bias": "BULLISH",
-    "macd": 1.7290503563572202,
-    "macd_signal": 1.7037550232917678,
-    "macd_histogram": 0.025295333065452397,
-    "macd_bias": "BULLISH",
-    "atr14": 2.92564850008764,
-    "atr_ratio": 0.6464692278315454,
+    "rsi14": 49.65891774709609,
+    "rsi_bias": "NEUTRAL",
+    "macd": 0.5269679118191561,
+    "macd_signal": 1.0924172376808419,
+    "macd_histogram": -0.5654493258616857,
+    "macd_bias": "BEARISH",
+    "atr14": 2.8228301480443068,
+    "atr_ratio": 0.6237498544514642,
     "atr_filter": "PASS",
-    "buy_votes": 4,
-    "sell_votes": 0
+    "buy_votes": 1,
+    "sell_votes": 2
   },
   "techniques": {
     "snr": false,
     "smc": false,
     "pa": false,
-    "breakout": true
+    "breakout": false
   },
   "economic_calendar": {
     "status": "ERROR",
     "source": "Finance Calendar API",
-    "updated_utc": "2026-11-09T23:22:50.855079+00:00",
+    "updated_utc": "2026-11-09T23:58:13.490987+00:00",
     "events": [],
     "message": "Kalendar tidak tersedia: HTTP Error 401: Unauthorized",
     "url": "https://www.financecalendar.com/api/economic-calendar/",
@@ -867,55 +867,6 @@
   },
   "chart_candles": [
     {
-      "t": 1794248400,
-      "o": 4102.96524,
-      "h": 4102.96524,
-      "l": 4100.18101,
-      "c": 4100.5499
-    },
-    {
-      "t": 1794248700,
-      "o": 4100.82672,
-      "h": 4105.5684,
-      "l": 4100.82672,
-      "c": 4105.18082
-    },
-    {
-      "t": 1794249000,
-      "o": 4104.27801,
-      "h": 4107.70059,
-      "l": 4104.27801,
-      "c": 4107.58293
-    },
-    {
-      "t": 1794249300,
-      "o": 4107.33184,
-      "h": 4107.95711,
-      "l": 4106.27027,
-      "c": 4106.74318
-    },
-    {
-      "t": 1794249600,
-      "o": 4106.64414,
-      "h": 4106.77618,
-      "l": 4105.76449,
-      "c": 4105.80283
-    },
-    {
-      "t": 1794249900,
-      "o": 4105.86607,
-      "h": 4107.14305,
-      "l": 4103.57421,
-      "c": 4104.0105
-    },
-    {
-      "t": 1794250200,
-      "o": 4103.97836,
-      "h": 4107.28221,
-      "l": 4103.90709,
-      "c": 4107.15655
-    },
-    {
       "t": 1794250500,
       "o": 4107.03509,
       "h": 4107.11088,
@@ -1285,16 +1236,65 @@
       "h": 4146.7966,
       "l": 4144.21881,
       "c": 4146.54674
+    },
+    {
+      "t": 1794266400,
+      "o": 4146.03381,
+      "h": 4146.03381,
+      "l": 4141.62304,
+      "c": 4141.92325
+    },
+    {
+      "t": 1794266700,
+      "o": 4142.52387,
+      "h": 4144.15078,
+      "l": 4141.20168,
+      "c": 4143.87883
+    },
+    {
+      "t": 1794267000,
+      "o": 4143.38805,
+      "h": 4144.07478,
+      "l": 4139.58687,
+      "c": 4140.0624
+    },
+    {
+      "t": 1794267300,
+      "o": 4140.11535,
+      "h": 4140.11535,
+      "l": 4137.53155,
+      "c": 4137.60052
+    },
+    {
+      "t": 1794267600,
+      "o": 4137.70107,
+      "h": 4138.04519,
+      "l": 4136.68415,
+      "c": 4138.00179
+    },
+    {
+      "t": 1794267900,
+      "o": 4137.92602,
+      "h": 4139.92962,
+      "l": 4137.7335,
+      "c": 4139.88681
+    },
+    {
+      "t": 1794268200,
+      "o": 4139.78403,
+      "h": 4139.78403,
+      "l": 4138.55895,
+      "c": 4139.40624
     }
   ],
   "strategy": "NONE",
-  "buy_score": 9,
-  "sell_score": 2,
-  "atr14": 2.92564850008764,
+  "buy_score": 4,
+  "sell_score": 6,
+  "atr14": 2.8228301480443068,
   "support": 4134.01658,
-  "resistance": 4145.70266,
-  "last_candle_utc": "2026-11-09T23:20:00+00:00",
-  "candle_age_seconds": 170,
+  "resistance": 4146.7966,
+  "last_candle_utc": "2026-11-09T23:55:00+00:00",
+  "candle_age_seconds": 192,
   "quote_source": "Biquote API",
   "ohlc_source": "Twelve Data",
   "market_state": "open",
