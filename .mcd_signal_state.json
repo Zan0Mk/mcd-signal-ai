@@ -4,10 +4,10 @@
   "last_checked_candle_t": null,
   "last_event": null,
   "last_event_time": null,
-  "last_status": "DATA_VALID",
-  "last_error": null,
+  "last_status": "DATA_ERROR",
+  "last_error": "HTTP Error 404: Not Found",
   "last_candle_t": 1794346800,
-  "last_run_utc": "2026-11-10T21:45:50.710829+00:00",
+  "last_run_utc": "2026-11-10T22:24:14.023510+00:00",
   "active_setups": [
     {
       "id": "MCD-BUY-1794335400",
