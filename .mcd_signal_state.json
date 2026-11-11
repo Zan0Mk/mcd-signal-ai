@@ -6,8 +6,8 @@
   "last_event_time": null,
   "last_status": "DATA_VALID",
   "last_error": null,
-  "last_candle_t": 1794393300,
-  "last_run_utc": "2026-11-11T10:41:54.700607+00:00",
+  "last_candle_t": 1794396600,
+  "last_run_utc": "2026-11-11T11:37:05.197210+00:00",
   "active_setups": [
     {
       "id": "MCD-SELL-1794393300",
@@ -26,7 +26,7 @@
       "created_candle_t": 1794393300,
       "created_utc": "2026-11-11T10:40:00+00:00",
       "created_quote_utc": "2026-11-11T10:41:55+00:00",
-      "last_checked_quote_timestamp": null,
+      "last_checked_quote_timestamp": "2026-11-11T11:37:06+00:00",
       "closed_utc": null,
       "exit_price": null,
       "exit_reason": null
@@ -924,7 +924,7 @@
       "created_candle_t": 1794393300,
       "created_utc": "2026-11-11T10:40:00+00:00",
       "created_quote_utc": "2026-11-11T10:41:55+00:00",
-      "last_checked_quote_timestamp": null,
+      "last_checked_quote_timestamp": "2026-11-11T11:37:06+00:00",
       "closed_utc": null,
       "exit_price": null,
       "exit_reason": null
