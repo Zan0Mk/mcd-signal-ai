@@ -4,10 +4,10 @@
   "last_checked_candle_t": null,
   "last_event": null,
   "last_event_time": null,
-  "last_status": "DATA_VALID",
-  "last_error": null,
+  "last_status": "DATA_ERROR",
+  "last_error": "Candle M5 lapuk: -1s",
   "last_candle_t": 1794453300,
-  "last_run_utc": "2026-11-12T03:20:21.993634+00:00",
+  "last_run_utc": "2026-11-12T04:19:59.004867+00:00",
   "active_setups": [],
   "signal_history": [
     {
