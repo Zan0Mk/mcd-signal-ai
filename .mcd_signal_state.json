@@ -6,9 +6,32 @@
   "last_event_time": null,
   "last_status": "DATA_VALID",
   "last_error": null,
-  "last_candle_t": 1794490800,
-  "last_run_utc": "2026-11-12T13:48:47.682775+00:00",
-  "active_setups": [],
+  "last_candle_t": 1794493800,
+  "last_run_utc": "2026-11-12T14:39:43.179950+00:00",
+  "active_setups": [
+    {
+      "id": "MCD-SELL-1794493800",
+      "key": "SELL-1794493800",
+      "side": "SELL",
+      "status": "ACTIVE",
+      "entry": 3902.42107,
+      "zone_low": 3901.184985624966,
+      "zone_high": 3903.6571543750338,
+      "sl": 3914.781913750338,
+      "tp1": 3883.879804374493,
+      "risk_distance": 12.360843750338063,
+      "strategy": "BEARISH ENGULFING",
+      "score": 8,
+      "quality": "STRONG (A)",
+      "created_candle_t": 1794493800,
+      "created_utc": "2026-11-12T14:35:00+00:00",
+      "created_quote_utc": "2026-11-12T14:39:44+00:00",
+      "last_checked_quote_timestamp": null,
+      "closed_utc": null,
+      "exit_price": null,
+      "exit_reason": null
+    }
+  ],
   "signal_history": [
     {
       "id": "SELL-1792577700",
@@ -979,6 +1002,28 @@
       "exit_reason": "TP_HIT",
       "exit_price_type": "ASK",
       "exit_quote_utc": "2026-11-12T13:48:48+00:00"
+    },
+    {
+      "id": "MCD-SELL-1794493800",
+      "key": "SELL-1794493800",
+      "side": "SELL",
+      "status": "ACTIVE",
+      "entry": 3902.42107,
+      "zone_low": 3901.184985624966,
+      "zone_high": 3903.6571543750338,
+      "sl": 3914.781913750338,
+      "tp1": 3883.879804374493,
+      "risk_distance": 12.360843750338063,
+      "strategy": "BEARISH ENGULFING",
+      "score": 8,
+      "quality": "STRONG (A)",
+      "created_candle_t": 1794493800,
+      "created_utc": "2026-11-12T14:35:00+00:00",
+      "created_quote_utc": "2026-11-12T14:39:44+00:00",
+      "last_checked_quote_timestamp": null,
+      "closed_utc": null,
+      "exit_price": null,
+      "exit_reason": null
     }
   ],
   "last_setup_key": "SELL-1793352900"
