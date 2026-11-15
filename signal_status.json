@@ -4,7 +4,7 @@
   "timeframe": "M5",
   "data_source": "Twelve Data OHLC + Biquote sampled quote",
   "data_note": "Bukan feed rasmi broker HFM XAUUSDc. Bandingkan harga dengan MT5 sebelum membuat keputusan.",
-  "updated_utc": "2026-11-15T02:11:03.289147+00:00",
+  "updated_utc": "2026-11-15T02:56:24.791120+00:00",
   "data_status": "DATA_ERROR",
   "signal": "WAIT",
   "score": 0,
@@ -41,7 +41,7 @@
   "economic_calendar": {
     "status": "FRESH",
     "source": "Finance Calendar API",
-    "updated_utc": "2026-11-15T02:11:04.354981+00:00",
+    "updated_utc": "2026-11-15T02:56:26.141868+00:00",
     "events": [],
     "message": "Kalendar berjaya dimuatkan.",
     "url": "https://www.financecalendar.com/api/economic-calendar/",
