@@ -6,32 +6,9 @@
   "last_event_time": null,
   "last_status": "DATA_VALID",
   "last_error": null,
-  "last_candle_t": 1795411500,
-  "last_run_utc": "2026-11-23T05:33:00.738492+00:00",
-  "active_setups": [
-    {
-      "id": "MCD-BUY-1795411500",
-      "key": "BUY-1795411500",
-      "side": "BUY",
-      "status": "ACTIVE",
-      "entry": 3618.28061,
-      "zone_low": 3617.5770454279104,
-      "zone_high": 3618.984174572089,
-      "sl": 3611.2449642791075,
-      "tp1": 3628.834078581338,
-      "risk_distance": 7.035645720892262,
-      "strategy": "BREAKOUT",
-      "score": 10,
-      "quality": "STRONG (A)",
-      "created_candle_t": 1795411500,
-      "created_utc": "2026-11-23T05:30:00+00:00",
-      "created_quote_utc": "2026-11-23T05:33:02+00:00",
-      "last_checked_quote_timestamp": null,
-      "closed_utc": null,
-      "exit_price": null,
-      "exit_reason": null
-    }
-  ],
+  "last_candle_t": 1795450500,
+  "last_run_utc": "2026-11-23T16:24:51.022937+00:00",
+  "active_setups": [],
   "signal_history": [
     {
       "id": "SELL-1792577700",
@@ -1199,7 +1176,7 @@
       "id": "MCD-BUY-1795411500",
       "key": "BUY-1795411500",
       "side": "BUY",
-      "status": "ACTIVE",
+      "status": "TP_HIT",
       "entry": 3618.28061,
       "zone_low": 3617.5770454279104,
       "zone_high": 3618.984174572089,
@@ -1212,10 +1189,12 @@
       "created_candle_t": 1795411500,
       "created_utc": "2026-11-23T05:30:00+00:00",
       "created_quote_utc": "2026-11-23T05:33:02+00:00",
-      "last_checked_quote_timestamp": null,
-      "closed_utc": null,
-      "exit_price": null,
-      "exit_reason": null
+      "last_checked_quote_timestamp": "2026-11-23T16:24:52+00:00",
+      "closed_utc": "2026-11-23T16:24:53.938618+00:00",
+      "exit_price": 3671.107,
+      "exit_reason": "TP_HIT",
+      "exit_price_type": "BID",
+      "exit_quote_utc": "2026-11-23T16:24:52+00:00"
     }
   ],
   "last_setup_key": "SELL-1793352900"
